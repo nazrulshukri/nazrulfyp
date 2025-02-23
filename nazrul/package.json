@@ -77,7 +77,8 @@
     "stripe": "^17.1.0",
     "swiper": "^11.1.12",
     "tailwind-merge": "^2.5.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@remix-run/dev": "^2.0.0",
   },
   "devDependencies": {
     "@types/pdfkit": "^0.13.5",
