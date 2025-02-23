@@ -2,7 +2,7 @@
   "name": "nazrul",
   "version": "0.1.0",
   "private": true,
-  "engines": {
+   "engines": {
     "node": ">=16",
     "npm": "10.9.2"
   },
@@ -118,4 +118,4 @@
       "last 1 safari version"
     ]
   }
-}
+} 
