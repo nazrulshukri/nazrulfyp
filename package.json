@@ -12,6 +12,10 @@
   "keywords": [],
   "author": "users",
   "license": "ISC",
+  "engines": {
+    "node": ">=16",
+    "npm": "10.9.2"
+  },
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "mongodb": "^6.9.0",
