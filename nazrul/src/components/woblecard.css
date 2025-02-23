@@ -1,0 +1,51 @@
+.image-grid {
+    display: flex;
+    flex-wrap: nowrap; /* No wrapping to keep all images in one row */
+    justify-content: flex-start; /* Align items horizontally */
+    overflow: hidden; /* Hide overflow for moving effect */
+    width: 100%; /* Full width of container */
+    animation: move 30s linear infinite; /* Smooth scrolling animation */
+}
+
+@keyframes move {
+    0% {
+        transform: translateX(0); /* Start at 0 position */
+    }
+    100% {
+        transform: translateX(-100%); /* Move left completely */
+    }
+}
+
+.card {
+    flex: 0 0 20%; /* Each card takes 20% width */
+    margin: 0 10px; /* Spacing between cards */
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+    z-index: 1; /* Bring to the front */
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Maintain image aspect ratio */
+}
+
+/* Responsive design */
+@media (max-width: 800px) {
+    .card {
+        flex: 0 0 40%;
+    }
+}
+
+@media (max-width: 600px) {
+    .card {
+        flex: 0 0 100%;
+    }
+}

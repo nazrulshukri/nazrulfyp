@@ -1,0 +1,558 @@
+.flight-results-container {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  gap: 30px;
+  margin-top: 130px;
+  padding: 20px;
+
+}
+
+.filters {
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  padding: 10px; /* Add some padding to the filter section */
+  border: 1px solid #e0e0e0; /* Light border for definition */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background color */
+}
+
+.filter-section h6 {
+  margin: 0; /* Remove default margin */
+  margin-right: 20px; /* Space between header and options */
+  font-weight: bold; /* Make header bold */
+  color: #0a0b0c; /* Change header color */
+}
+
+.filterlayovers {
+  display: flex; /* Use flexbox */
+  align-items: center; /* Center items vertically */
+  gap: 15px; /* Space between radio button options */
+}
+
+.radio-label {
+  display: flex; /* Use flexbox for labels */
+  align-items: center; /* Center items vertically */
+}
+
+
+
+.filter-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.flight-results-content {
+  background-color: #ebebeb;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 50px 70px rgba(0, 0, 0, 0.1);
+  
+ 
+}
+
+.flight-list {
+  list-style-type: none;
+  padding: 0;
+ 
+}
+
+.flight-item {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 100px; /* Adjust the value as needed for desired spacing */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+.flight-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.flight-header img {
+  width: 150px; /* Set the desired width */
+  height: auto; /* Maintain the aspect ratio */
+  border-radius: 5px; /* Optional: keeps the rounded corners */
+}
+
+.flight-details {
+  margin-top: 15px;
+}
+
+.flight-times {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.airport {
+  font-size: 14px;
+  color: #888;
+}
+
+.duration {
+  text-align: center;
+}
+
+
+
+.flight-details-button {
+  background-color: #1a9397;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 15px; /* This adds space between this button and the next */
+}
+
+.button-container {
+  display: flex; /* Use flex for button layout */
+  gap: 15px; /* Optional: Use gap for uniform spacing */
+}
+
+
+.flight-select-button {
+  background-color: #206e08;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+.flight-extra-details {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center items horizontally */
+  background-color: #f8f9fa; /* Light background for contrast */
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Full width of the parent container */
+}
+
+.flight-timeline90 {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+  overflow: hidden;
+}
+
+.timeline-item90 {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.timeline-item90:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-time90 {
+  flex: 0 0 100px;
+  text-align: right;
+  margin-right: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.timeline-time90 h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d3557;
+}
+
+.timeline-time90 p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.timeline-icon90 {
+  flex: 0 0 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: #e63946;
+  background-color: #f1f3f5;
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timeline-icon90:hover {
+  background-color: #e63946;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.timeline-content90 {
+  flex-grow: 1;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-left: 30px;
+  text-align: center;
+}
+
+.timeline-content90 h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1d3557;
+}
+
+.timeline-content90 p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}
+
+
+
+
+/* Line connecting icons */
+.timeline-line-container90 {
+  position: absolute;
+  left: 170px; /* Align to center of icons */
+  top: 90px;
+  width: 5px;
+  height: 28%; /* Full height to span all items */
+  background: linear-gradient(180deg, #e63946, #1d3557);
+  z-index: 1;
+  border-radius: 5px; /* Smooth edges */
+}
+
+.timeline-line-container90:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%; /* Full height between icons */
+  background: linear-gradient(180deg, #e63946, #1d3557); /* Match container line */
+  z-index: 1; /* Behind all other elements */
+}
+
+.airline-logo {
+  display: block; /* Makes the image a block-level element */
+  margin: 0 auto; /* Centers the image horizontally */
+  width: 300px;
+  border-radius: 12px;
+  margin-bottom: 5px;
+}
+
+
+
+
+
+.flight-duration {
+  font-size: 14px;
+  color: #333;
+  margin: 5px 0;
+}
+
+.timeline-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.airline-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.airline-info img {
+  max-width: 50px;
+  margin-right: 10px;
+}
+
+.baggage-info {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.baggage-info h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.baggage-info p {
+  font-size: 14px;
+  color: #666;
+}
+
+.baggage-details {
+  display: flex;
+  align-items: center;
+ 
+}
+
+.baggage-details svg {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.baggage-details img {
+  max-width: 25px;
+  
+}
+
+
+.details-image {
+  flex: 0 0 auto; /* Prevent the image from stretching */
+  margin-right: 15px; /* Space between the image and text */
+}
+
+.details-image img {
+  max-width: 100px; /* Set a max width for the airline logo */
+  border-radius: 8px;
+}
+
+.flight-info {
+  flex-grow: 1; /* Allow the info section to take remaining space */
+  text-align: center; /* Center text inside the flight info */
+}
+
+.flight-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the content in flight info row */
+  margin: 5px 0;
+}
+
+.info-icon {
+  max-width: 25px; /* Adjust size for logos */
+  margin-right: 10px; /* Spacing between icon and text */
+}
+
+.arrow {
+  font-size: 18px;
+  margin: 0 10px; /* Space between origin and destination */
+}
+
+
+
+
+.close-details {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.close-details:hover {
+  background-color: #c82333;
+}
+
+.flight-info-row {
+  display: flex; /* Flex container for flight info */
+  align-items: center; /* Center items vertically */
+}
+
+.arrow-line {
+  display: flex; /* Use flex to position the arrow */
+  align-items: center; /* Center the arrow vertically */
+}
+
+.arrow {
+  font-size: 18px; /* Adjust size as needed */
+  margin-left: 10px; /* Space between the line and the arrow */
+}
+
+.arrow-line::before {
+  content: ''; /* Creates an empty pseudo-element */
+  flex-grow: 3; /* Takes up remaining space */
+  height: 1px; /* Thickness of the line */
+  background-color: rgb(211, 20, 20); /* Color of the line */
+  margin-right: 10px; /* Space between line and arrow */
+}
+
+.booking-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Space between form elements */
+  margin-top: 20px;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping if there's not enough space */
+  gap: 10px; /* Adds space between the input elements */
+  width: 100%; /* Full width of the parent container */
+  max-width: 1800px; /* Set a maximum width for the entire container */
+  padding: 5px; /* Adjusted padding value */
+}
+
+.form-inline label {
+  flex: 1; /* Allow labels to grow equally */
+  min-width: 120px; /* Minimum width for the label */
+}
+
+.form-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  margin-left: 10px; /* Add spacing between icon and input */
+}
+
+label i {
+  font-size: 18px;
+  color: #007bff;
+  margin-right: 10px; /* Space between the icon and the label text */
+}
+
+
+
+
+.form-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  outline: none;
+}
+
+/* Icon styles */
+.form-icon {
+  position: absolute;
+  margin-left: 10px;
+  font-size: 18px;
+  color: #aaa;
+  pointer-events: none;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Hover effect */
+.form-input:hover {
+   border-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
+}
+
+.filter-button {
+  background-color: #007bff; /* Button color */
+  color: white;
+  border: none;
+  padding: 12px 20px; /* Adjusted padding for button */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; /* Larger font size */
+  margin-top: 15px; /* Space above button */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.filter-button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.flight-results-title {
+  font-family: 'Lato','Poppins '; /* Stylish font for the title */
+  font-size: 3rem; /* Larger font size for prominence */
+  font-weight: 700; /* Bold weight */
+  margin-bottom: 10px; /* Space below the title */
+  color: #333; /* Dark color for better readability */
+ 
+ 
+
+}
+
+.pricefont h4 {
+  margin-top: 15px;
+  font-family: 'Roboto', sans-serif; /* Using Montserrat for stylish yet professional look */
+  font-size: 02rem; /* Larger size to make it stand out */
+  font-weight: 700; /* Bold to emphasize price */
+  color: #d65e2f; /* Darker color for a more serious and professional tone */
+  text-align: right; /* Aligns price to the right for a clean layout */
+  letter-spacing: 0.5px; /* Adds subtle spacing for better readability */
+}
+
+
+
+
+.filter-text {
+  font-family: 'Lato','Poppins '; /* Stylish font for filter text */
+  font-size: 1.2rem; /* Font size for filter text */
+  font-weight: 500; /* Medium weight for emphasis */
+  color: #666; /* Lighter color for less emphasis than the title */
+  margin-bottom: 20px; /* Space below the filter text */
+}
+
+
+
+.form-input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove outline */
+}
+
+.filter-button {
+  background-color: #007bff; /* Button color */
+  color: white;
+  border: none;
+  padding: 12px 20px; /* Adjusted padding for button */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; /* Larger font size */
+  margin-top: 15px; /* Space above button */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.filter-button:hover {
+  background-color: #e01e1e; /* Darker shade on hover */
+}
+
+
+
+

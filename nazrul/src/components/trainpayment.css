@@ -1,0 +1,99 @@
+.payment-container900 {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  background: linear-gradient(135deg, #f9f9f9, #e6e6e6);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  font-family: 'Roboto', sans-serif;
+  margin-top: 90px; /* Moves the container down */
+  margin-bottom: 100px;
+}
+
+.payment-header900 {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 200px;
+}
+
+.booking-summary900 {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.summary-header {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.price-highlight {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.payment-method900 {
+  margin-bottom: 2rem;
+}
+
+.select-input {
+  padding: 1rem;
+}
+
+.payment-form900 .form-field {
+  margin-bottom: 1.5rem;
+}
+
+.card-details {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  font-size: 1.2rem;
+  padding: 1rem;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.paypal-option {
+  text-align: center;
+}
+
+.paypal-button {
+  background-color: #0070ba;
+  color: white;
+  font-size: 1.2rem;
+  padding: 1rem;
+  transition: background-color 0.3s;
+}
+
+.paypal-button:hover {
+  background-color: #005490;
+}
+
+.payment-status {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.payment-status.green {
+  color: #28a745;
+}
+
+.payment-status.red {
+  color: #dc3545;
+}

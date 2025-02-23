@@ -1,0 +1,548 @@
+/* Style for the red asterisk */
+.required-asterisk {
+  color: #FF5252; /* Bright red */
+  margin-left: 5px;
+}
+
+/* Styling for the promotional header */
+.promotion{
+  background-color: #f9f9f9;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
+  text-align: left;
+}
+
+.promotion-content {
+  display: flex; /* Use flexbox to align the items */
+  justify-content: space-between; /* Space between the text and image */
+  align-items: center; /* Align the text and image vertically */
+}
+
+/* Target the specific part of the text */
+.highlight-text {
+  color: #ff6347; /* Choose your color */
+}
+
+/* Style for the promotional image */
+.promo-image {
+  width: 200px; /* Adjust the size of the image */
+  height: auto; /* Maintain the aspect ratio */
+  margin-left: 15px; /* Optional: Add space between text and image */
+}
+
+/* Target specific text with a class */
+.highlight-text {
+  color: #ff6347; /* You can change this color to anything you prefer */
+  font-weight: bold; /* Optional: make the text bold */
+    display: inline; /* Make sure it's inline (default for span) */
+}
+
+/* Existing styles for the main form header */
+.promotion h3 {
+  font-size: 1.2rem;
+  margin: 0 0 10px;
+}
+
+.promo-buttons {
+  display: flex; /* Use flexbox to align items side by side */
+  justify-content: center; /* Center the buttons horizontally */
+  gap: 15px; /* Add space between the buttons */
+  margin-top: 15px;
+}
+
+/* Common button styles */
+.btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 120px; /* Optional: makes sure buttons have equal width */
+}
+
+/* Specific styles for the Sign In button */
+.sign-in-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.sign-in-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Specific styles for the Register button */
+.register-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.register-btn:hover {
+  background-color: #218838;
+}
+
+.form-header-container {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #000000;
+}
+
+/* Main form container */
+.user-details-form1 {
+    background-color: #f8f9fa; /* Light background for clean, modern look */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure it scales responsively */
+    max-width: 1200px; /* Increased max-width for a larger form */
+    margin: 40px 0; /* Center it vertically with some space on top and bottom */
+    margin-right: -80px; /* Shift the form left */
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 40%;
+  }
+  
+  .user-details-form1 h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    margin-top: 8px;
+  }
+  
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none;
+  }
+  
+  textarea {
+    height: 120px;
+    resize: vertical;
+  }
+
+
+  /* Style for the red asterisk */
+.required-asterisk {
+  color: #FF5252; /* Bright red */
+  margin-left: 5px;
+}
+
+/* Form group label with icons */
+.form-group label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group label i {
+  color: #555;
+  margin-right: 8px; /* Space between icon and text */
+  font-size: 18px; /* Icon size */
+}
+
+/* Input fields styling */
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.submit-btn {
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #218838;
+}
+
+.add-to-stay-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  cursor: pointer; /* Make the entire container clickable */
+  transition: all 0.3s ease-in-out; /* Smooth transition on hover */
+}
+
+.add-to-stay-option:hover {
+  background-color: #f1f1f1; /* Light hover effect */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.add-to-stay-option .icon {
+  font-size: 30px;
+  margin-right: 15px;
+  color: #007bff; /* Set icon color */
+}
+
+.add-to-stay-option .details h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.add-to-stay-option .details p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  cursor: pointer; /* Make the option clickable */
+  transition: all 0.3s ease; /* Smooth transition effect */
+}
+
+.select-option:hover {
+  background-color: #e7f3ff; /* Light blue background on hover */
+  border-color: #007bff; /* Highlight border color */
+}
+
+.option-label {
+  font-size: 16px;
+  color: #333;
+}
+
+.select-option.selected {
+  background-color: #cce5ff; /* Highlighted background when selected */
+  border-color: #0056b3; /* Highlighted border color */
+}
+
+.select-option.selected .option-label {
+  font-weight: bold; /* Make label bold when selected */
+  color: #0056b3; /* Change label color when selected */
+}
+
+.select-option.selected {
+  background-color: #cce5ff; /* Highlighted background when selected */
+  border-color: #0056b3; /* Highlighted border color */
+}
+
+.select-option.selected .option-label {
+  font-weight: bold; /* Make label bold when selected */
+  color: #0056b3; /* Change label color when selected */
+}
+.phone-number {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.phone-input {
+  display: flex;
+  align-items: center; /* Ensures vertical alignment */
+  gap: 5px; /* Space between the phone code and input field */
+}
+
+.phone-code34 {
+  flex: 1; /* Takes up half the space */
+  padding: 5px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  max-width: 20%; /* Ensures it doesn't exceed half */
+}
+
+input[type="text"] {
+  flex: 1; /* Takes up the remaining half */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  max-width: 100%; /* Ensures it doesn't exceed half */
+}
+
+small {
+  margin-top: 5px;
+  color: #666; /* Optional styling for helper text */
+}
+.checkbox-section {
+  display: flex;
+  align-items: left; /* Align checkbox and label side by side */
+  width: 50%; /* Make the container take full width */
+  flex-wrap: wrap; /* Allow wrapping of elements to the next line */
+}
+
+.checkbox-section label {
+  flex: 1; /* Allow label to take up the available space */
+  word-wrap: break-word; /* Ensure long text wraps correctly */
+}
+
+.checkbox-section input[type="checkbox"] {
+  width: 18px; /* Adjust the size of the checkbox */
+  height: 18px; /* Adjust the size of the checkbox */
+  margin-left: 10px; /* Add some space between the label and the checkbox */
+}
+
+.checkbox-section .small-text {
+  font-size: 12px; /* Make the text smaller */
+  color: #666; /* Lighter text color */
+  width: 100%; /* Make the small text take up the full width */
+  margin-top: 5px; /* Add some space between the checkbox and small text */
+}
+
+
+
+
+.section-divider {
+  border: none;
+  border-top: 1px solid #ccc; /* Adjust the color of the line */
+  margin: 20px 0; /* Add spacing above and below the line */
+  width: 100%; /* Makes sure it spans the container */
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column; /* Stack the radio options vertically */
+  gap: 15px; /* Space between the options */
+}
+
+.radio-option {
+  display: flex;
+  align-items: center; /* Align radio button and label text vertically */
+  gap: 10px; /* Space between the radio button and label */
+}
+
+input[type="radio"] {
+  margin: 0;
+  width: 20px; /* Adjust radio button size */
+  height: 20px; /* Adjust radio button size */
+  cursor: pointer;
+}
+
+label {
+  font-size: 16px; /* Slightly larger text */
+  color: #333; /* Dark text for good readability */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.radio-icon {
+  font-size: 18px; /* Icon size */
+}
+
+.radio-option input[type="radio"]:checked + label {
+  font-weight: bold; /* Make label bold when selected */
+  color: #007bff; /* Change text color on selection */
+}
+
+/* Optional: Hover effect on label */
+label:hover {
+  color: #0056b3; /* Slightly darker color on hover */
+}
+
+
+
+.good-to-know-container {
+  display: flex;
+  align-items: center; /* Align icon and text vertically */
+  gap: 10px; /* Space between icon and text */
+  background-color: #f4f4f4; /* Light background color for the container */
+  padding: 15px; /* Add padding inside the container */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ccc; /* Optional border to make it stand out */
+  margin-bottom: 30px;
+}
+
+.info-icon {
+  font-size: 24px; /* Adjust size of the icon */
+  color: #007bff; /* Blue color for the icon */
+}
+
+.good-to-know-text {
+  font-size: 14px; /* Text size */
+  color: #333; /* Dark text color */
+}
+
+.good-to-know-text strong {
+  font-weight: bold; /* Make the "Good to know" text bold */
+}
+  
+  button.submit-btn {
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button.submit-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  button.submit-btn:focus {
+    outline: none;
+  }
+  
+  /* Placeholder styling */
+  input::placeholder,
+  textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .user-details-form1 {
+      padding: 20px;
+      margin: 20px;
+      margin-left: 0; /* Reset the left margin on smaller screens */
+    }
+  }
+
+  /* Container styling */
+.check-in-container {
+  margin-bottom: 30px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  padding: 20px;
+  background-color: #f4f7fc;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.check-in-info {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  text-align: left;  /* Ensure the text is left-aligned */
+  display: block;    /* Align icons and text vertically */
+}
+
+.check-in-info i {
+  font-size: 1.4rem;
+  color: #007bff;  /* Icon color (blue) */
+  margin-right: 10px; /* Space between icon and text */
+  vertical-align: middle; /* Vertically align the icon with the text */
+}
+
+.check-in-info span {
+  display: inline-block;  /* Ensure the text is inline with the icon */
+  margin-left: 5px;       /* Add slight space between icon and text */
+}
+
+/* Container for the arrival time input field */
+.arrival-time-container {
+  margin-bottom: 20px;
+}
+
+/* Label styling */
+.arrival-time-container label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Input container for the time input and icon */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 12px; /* Larger border radius for a more prominent look */
+  padding: 16px 20px; /* Increase padding to make the container bigger */
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add more shadow for prominence */
+  font-size: 1.1rem; /* Slightly larger font size for input text */
+}
+
+/* FontAwesome Icon Styling */
+.input-with-icon i {
+  font-size: 1.8rem; /* Increase icon size for better visibility */
+  color: #007bff; /* Icon color */
+  margin-right: 12px; /* Add more space between icon and input */
+}
+
+.arrival-time-input {
+  width: 100%;
+  max-width: 2500px;
+  padding: 12px; /* Increase padding inside the input field */
+  font-size: 1.1rem; /* Increase font size for text inside the input */
+  border: none;
+  background-color: transparent;
+  outline: none;
+  color: #333;
+  border-radius: 6px; /* Slightly more rounded input field */
+  box-sizing: border-box;
+}
+
+/* On focus */
+.arrival-time-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .check-in-container {
+    padding: 15px;
+  }
+
+  .check-in-info {
+    font-size: 1rem;
+  }
+}
+  

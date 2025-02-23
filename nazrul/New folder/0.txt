@@ -1,0 +1,8 @@
+   {/* Hotel Header */}
+      <div className="hotel-header">
+        <h1>{selectedHotel.hotelName}</h1>
+        <p className="hotel-location">{selectedHotel.location}</p>
+        <p className="hotel-description">Excellent location - <a href="#map">show map</a></p>
+      </div>
+
+ If you cancel, you'll pay <strong style={{ color: "#FF5252" }}>MYR 3,604</strong>.

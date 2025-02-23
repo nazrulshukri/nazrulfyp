@@ -1,0 +1,10 @@
+/* Disable hover effects on the entire container */
+.no-hover-container {
+  transition: none !important; /* Remove transition */
+}
+
+.no-hover-container:hover {
+  background-color: inherit !important; /* Keep background the same on hover */
+  box-shadow: none !important; /* Remove hover shadow */
+  color: inherit !important; /* Keep text color the same on hover */
+}

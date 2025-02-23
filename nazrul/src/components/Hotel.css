@@ -1,0 +1,389 @@
+.hotel-results-container1 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 130px;
+}
+
+
+.filters5 {
+  width: 80%; /* Makes it responsive based on the parent container's width */
+  max-width: 800px; /* Limits the maximum width */
+  min-width: 400px; /* Ensures a minimum width */
+  background-color: #f0f4f8;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.filter-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.filter-section {
+  margin-bottom: 15px;
+}
+
+.filter-section label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.filter-section select, .filter-section input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.filter-button {
+  background-color: #0071c2;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.hotel-results-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-results-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+
+.booking-form label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #555555;
+}
+
+.form-label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #444444;
+}
+
+.form-label i {
+  color: #ff6600; /* Icon color */
+}
+
+.form-input {
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  border-color: #ff6600;
+  box-shadow: 0 0 5px rgba(255, 102, 0, 0.4);
+}
+
+.form-inline input[type="date"] {
+  font-family: Arial, sans-serif; /* Ensures better date picker style across browsers */
+}
+
+.booking-form .form-inline {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  justify-content: space-around;
+}
+
+
+.hotel-main-content1 {
+  display: flex;
+  gap: 20px;
+}
+
+.form-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #000000;
+  margin-top: 5px;
+}
+
+.hotel-list-container23 {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotel-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.hotel-card1 {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.hotel-card:hover {
+  transform: translateY(-5px);
+}
+
+.hotel-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.hotel-details1 {
+  padding: 15px;
+}
+
+
+.hotel-name1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern sans-serif font */
+  font-size: 1.3rem; /* Slightly larger for better visibility */
+  font-weight: 600; /* Medium weight for a professional look */
+  color: #333; /* Darker color for better contrast and readability */
+  letter-spacing: 0.5px; /* Slight letter-spacing for a more open and readable look */
+  line-height: 1.4; /* Improve spacing between lines, making text more readable */
+  text-transform: capitalize; /* Capitalize the first letter of each word for a more formal style */
+}
+
+
+.star-rating1 {
+  color: #ff9f1a;
+}
+
+.rating-text {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.rating-container {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center;
+}
+
+.rating-section {
+  text-align: center;
+  background-color: #4c71b6;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0071c2;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.reviews {
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  margin-top: 10px; /* Space between rating-section and reviews */
+}
+
+
+
+
+
+.rating-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.rating-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fcfcfc;
+}
+
+.rating-text {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.map-container1 {
+  margin-top: 15px; /* Adds space below the location input field */
+  height: 200px;
+  width: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adds a light shadow around the map */
+}
+
+.location {
+  font-size: 1rem;
+  color: #666;
+}
+
+.deal-tag {
+  background-color: #ff5722;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.room-info {
+  font-size: 1rem;
+}
+
+.amenities {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.availability {
+  font-size: 1.1rem;
+  color: #4caf50;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.availability-btn {
+  background-color: #0071c2;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 15px;
+}
+
+.availability-btn:hover {
+  background-color: #0056b3;
+}
+
+.price-section {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.rating-container {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rating-section {
+  background-color: #4c71b6;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fcfcfc;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reviews {
+  color: #f10d0d;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.pricing-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.old-price {
+  font-size: 1rem;
+  color: #888;
+  text-decoration: line-through;
+}
+
+.current-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #4c71b6;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 8px;
+}
+
+.new-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.price-info {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .hotel-main-content {
+    flex-direction: column;
+  }
+
+  .hotel-list {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,290 @@
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { generateMockHotels } from '../mockdata/Hotel'; // Assuming this function generates hotel data
+import './Hotel.css';
+import malaysiaLogo from '../img/assets/images.png';
+import britishAirwaysLogo from '../img/assets/britishairways.jpg';
+import emiratesLogo from '../img/assets/Emirates_logo.png';
+import transparentHotelImage from '../img/assets/Hotel/Hotel1.jpeg';
+import luggage from '../img/assets/Hotel List/westbury-hotel-kensington-1024x683.jpg';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import { FaBed, FaRuler } from 'react-icons/fa';  // Importing Bed and Ruler icons
+
+const hotelLogos = {
+  'Malaysia Hotel': malaysiaLogo,
+  'British Hotel': britishAirwaysLogo,
+  'Emirates Hotel': emiratesLogo,
+};
+
+function Hotel() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hotelParams } = location.state || {};
+  const [hotels, setHotels] = useState([]);
+  const [filteredHotels, setFilteredHotels] = useState([]);
+  const [people, setPeople] = useState(hotelParams?.people || 1);
+  const [error, setError] = useState('');
+  const [startDate, setStartDate] = useState(hotelParams?.checkInDate || '');
+  const [returnDate, setReturnDate] = useState(hotelParams?.checkOutDate || '');
+  const [locationInput, setLocationInput] = useState(hotelParams?.location || '');
+  const [selectedHotelId, setSelectedHotelId] = useState(null);
+
+  const [filters, setFilters] = useState({
+    priceRange: 'any',
+    starRating: 'any',
+    location: 'any',
+    hotelBrand: 'All',
+  });
+
+  useEffect(() => {
+    if (hotelParams) {
+      try {
+        const generatedHotels = generateMockHotels(
+          startDate,
+          returnDate,
+          locationInput,
+          people
+        );
+        setHotels(generatedHotels);
+        setFilteredHotels(generatedHotels);
+      } catch (error) {
+        setError('Error fetching hotel data.');
+        console.error('Error:', error);
+      }
+    }
+  }, [hotelParams, startDate, returnDate, locationInput, people]);
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = hotels;
+
+      if (filters.priceRange !== 'any') {
+        filtered = filtered.filter(hotel => hotel.price <= filters.priceRange);
+      }
+
+      if (filters.starRating !== 'any') {
+        filtered = filtered.filter(hotel => hotel.starRating === filters.starRating);
+      }
+
+      if (filters.hotelBrand !== 'All') {
+        filtered = filtered.filter(hotel => hotel.brand === filters.hotelBrand);
+      }
+
+      setFilteredHotels(filtered);
+    };
+
+    applyFilters();
+  }, [hotels, filters]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectHotel = (id) => {
+    setSelectedHotelId(id);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedHotelId(null);
+  };
+
+  const handleSubmitHotel = (id) => {
+    const selectedHotel = hotels.find(hotel => hotel.id === id);
+
+    if (selectedHotel) {
+      const hotelData = {
+        id: selectedHotel.id,
+        brand: selectedHotel.brand,
+        hotelName: selectedHotel.name,
+        checkInDate: startDate,
+        checkOutDate: returnDate,
+        price: selectedHotel.price * people,
+        location: selectedHotel.location,
+      };
+
+      navigate('/booking-summary', {
+        state: {
+          selectedHotel: selectedHotel,
+          totalPrice: hotelData.price,
+          locationInput,
+          startDate,
+          returnDate,
+          people,
+        },
+      });
+    }
+  };
+
+  return (
+    <div className="hotel-results-container">
+      <div className="filters1">
+        <p className="filter-text">Filter Your Hotel:</p>
+        <div className="filter-section">
+          <label>
+            Price Range:
+            <select
+              name="priceRange"
+              value={filters.priceRange}
+              onChange={handleFilterChange}
+            >
+              <option value="any">Any</option>
+              <option value="100">Under $100</option>
+              <option value="200">Under $200</option>
+              <option value="300">Under $300</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Star Rating:
+            <select
+              name="starRating"
+              value={filters.starRating}
+              onChange={handleFilterChange}
+            >
+              <option value="any">Any</option>
+              <option value="3">3 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="5">5 Stars</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Hotel Brand:
+            <select
+              name="hotelBrand"
+              value={filters.hotelBrand}
+              onChange={handleFilterChange}
+            >
+              <option value="All">All</option>
+              <option value="Malaysia Hotel">Malaysia Hotel</option>
+              <option value="British Hotel">British Hotel</option>
+              <option value="Emirates Hotel">Emirates Hotel</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Location:
+            <input
+              type="text"
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
+              className="form-input"
+              placeholder="Enter location"
+            />
+          </label>
+
+          <div className="map-container">
+            <MapContainer
+               center={[51.5074, 0.1272]} // Centered on London
+              zoom={6}
+              style={{ height: '200px', width: '100%' }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+            </MapContainer>
+          </div>
+        </div>
+
+        <button className="filter-button" onClick={() => {/* Apply Filters */}}>
+          Apply Filters
+        </button>
+      </div>
+
+      <div className="hotel-results-content">
+        <h1 className="hotel-results-title">Hotel Results</h1>
+        {error && <p className="error">{error}</p>}
+        <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
+          <div className="form-inline">
+            <label>
+              Location:
+              <input
+                type="text"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <label>
+              Check-in Date:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <label>
+              Check-out Date:
+              <input
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="form-input"
+              />
+            </label>
+          </div>
+        </form>
+
+        <div className="hotel-list-container">
+          <h2>London: {hotels.length} properties found</h2>
+          <div className="hotel-list">
+            {filteredHotels.map(hotel => (
+              <div key={hotel.id} className="hotel-card">
+                <img
+                  src={hotelLogos[hotel.brand] || transparentHotelImage}
+                  alt={hotel.name}
+                  className="hotel-image"
+                />
+                <div className="hotel-details">
+                  <div className="hotel-header">
+                    <h3 className="hotel-name">{hotel.hotelName}</h3>
+                    <div className="star-rating">
+                      {'★'.repeat(hotel.starRating)}
+                    </div>
+                  </div>
+                  <p className="location">
+                    {hotel.location} • <a href="#">Show on map</a> • {hotel.distanceFromCenter} km from centre
+                  </p>
+                  {hotel.limitedDeal && <span className="deal-tag">Limited-time Deal</span>}
+                  <p className="room-info">
+                    <FaBed /> {hotel.roomType} • 
+                    <FaBed /> {hotel.bedType} • 
+                    <FaRuler /> {hotel.roomSize}m² 
+                  </p>
+                  <div className="facilities">
+                    <span className="amenities">{hotel.amenities}</span>
+                  </div>
+                  <p className="availability">Only {hotel.roomsAvailable} left at this price on our site</p>
+                  <p className="price">Price: ${hotel.price} per night</p>
+
+                  <button
+                    className="availability-btn"
+                    onClick={() => handleSubmitHotel(hotel.id)}
+                  >
+                    Book Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Hotel;

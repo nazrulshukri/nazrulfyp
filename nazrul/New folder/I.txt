@@ -1,0 +1,105 @@
+C:\Users\USER\nazrulfyp\nazrul\backend
+
+
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './hotelpaymentmethod.css';
+
+const HotelPaymentMethod = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const { hotelName, hotellocation, price, checkInDate, checkOutDate, people, userData } = location.state || {};
+
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
+  const handlePayment = async () => {
+    if (!paymentMethod) {
+      console.log("Please select a payment method.");
+      return;
+    }
+
+    const paymentData = {
+      hotelName,
+      location: hotellocation,
+      totalPrice: price,
+      checkInDate,
+      checkOutDate,
+      people,
+      userData,
+      paymentMethod,
+      status: 'Completed' // Add payment status
+    };
+
+    try {
+      // Send payment data to the backend to save in MongoDB
+      const response = await fetch('http://localhost:5000/hotelpaymentmethod', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      if (response.ok) {
+        console.log('Payment data saved successfully');
+        // Navigate to HotelPaymentDone component
+        navigate('/hotelpaymentdone', { state: { paymentData } });
+      } else {
+        console.error('Failed to save payment data');
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+    }
+  };
+
+  return (
+    <div className="payment-method">
+      <h2>Payment Method</h2>
+
+      <div className="payment-summary">
+        <h3>Order Summary</h3>
+        <p><strong>Hotel:</strong> {hotelName || "N/A"}</p>
+        <p><strong>Location:</strong> {hotellocation || "N/A"}</p>
+        <p><strong>Total Price:</strong> MYR {price || "N/A"}</p>
+        <p><strong>Status:</strong> Pending</p>
+        <p><strong>Stay Duration:</strong> {checkInDate || "N/A"} to {checkOutDate || "N/A"}</p>
+        <p><strong>Number of Guests:</strong> {people || "N/A"}</p>
+        <p><strong>User:</strong> {userData?.firstName || "N/A"} {userData?.lastName || ""}</p>
+        <p><strong>Email:</strong> {userData?.email || "N/A"}</p>
+      </div>
+
+      <div className="payment-options">
+        <h3>Select Payment Method</h3>
+        <label>
+          <input 
+            type="radio" 
+            name="payment" 
+            value="card" 
+            onChange={handlePaymentMethodChange} 
+          />
+          Credit/Debit Card
+        </label>
+        <label>
+          <input 
+            type="radio" 
+            name="payment" 
+            value="paypal" 
+            onChange={handlePaymentMethodChange} 
+          />
+          PayPal
+        </label>
+      </div>
+
+      <button onClick={handlePayment} className="pay-button">
+        Complete Payment
+      </button>
+    </div>
+  );
+};
+
+export default HotelPaymentMethod;

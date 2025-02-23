@@ -1,0 +1,13 @@
+.content-card {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 10px 0;
+  }
+  .seat-map .seat {
+    background-color: lightgray;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+  }
+  

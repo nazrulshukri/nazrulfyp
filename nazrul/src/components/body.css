@@ -1,0 +1,76 @@
+/* Assuming you have a header with a fixed or sticky position */
+header {
+  position: fixed;
+  top: 0;
+  width: 95%;
+  z-index: 1000; /* Ensure it stays above the content */
+  background-color: #fff; /* Background color of header */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: add shadow for separation */
+}
+
+/* Main content starts below the header */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4.1rem; /* Adjust this value to push content below header height */
+  height: auto; /* Adjust height based on content */
+}
+
+/* Image Gallery positioned right below the header */
+.image-gallery {
+  width: 100%;
+  position: relative;
+  margin-top: 1rem; /* Additional margin for spacing below the header */
+  
+}
+
+/* Styling individual sections */
+.booking-form,
+.travel-list {
+ 
+  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 1rem;
+}
+
+.carousel
+{
+  margin-top: 4.1rem; /* Adjust this value to push content below header height */
+  margin-bottom: rem;
+}
+/* Border and padding for each section */
+.image-gallery,
+.booking-form,
+.travel-list,
+.carousel {
+  
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 1rem;
+}
+
+/* Ensure the last section doesn't have a bottom border */
+.image-gallery:last-child,
+.booking-form:last-child,
+.travel-list:last-child,
+.carousel:last-child{
+  border-bottom: none;
+}
+
+/* Adjust the layout for smaller screens */
+@media (max-width: 700px) {
+  .main-content {
+    padding: 0.5rem;
+    margin-top: 3rem; /* Adjust this value based on the header size */
+  }
+
+  .image-gallery {
+    margin-bottom: 1rem;
+  }
+
+  .booking-form,
+  .travel-list,
+  .carousel,
+  .wobblecard {
+    margin-bottom: 2rem;
+  }
+}

@@ -1,0 +1,66 @@
+/* Professional fare-summary container */
+.fare-summary {
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Softer shadow for a more elegant card look */
+  margin-top: 30px;
+  font-family: 'Helvetica Neue', Arial, sans-serif; /* Clean and modern font */
+  color: #333; /* Neutral text color */
+}
+
+/* Headline style */
+.fare-summary h2 {
+  font-size: 24px;
+  font-weight: 600; /* More weight for a bold, professional look */
+  color: #ff2929; /* AirAsia Red */
+  margin-bottom: 20px;
+  text-transform: uppercase; /* Adds emphasis */
+}
+
+/* Detailed pricing style */
+.fare-summary .price-details {
+  display: flex;
+  justify-content: space-between; /* Align prices and labels */
+  margin-bottom: 15px;
+}
+
+.fare-summary .price-details p {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #555; /* Softer grey for text readability */
+}
+
+.fare-summary .price-details p span {
+  font-weight: bold;
+  color: #d9534f; /* Use AirAsia Red for highlights */
+}
+
+/* Pricing breakdown style */
+.fare-summary .total {
+  font-weight: 700;
+  font-size: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 15px;
+  color: #d9534f; /* Highlight the total in red */
+}
+
+/* Continue button styling */
+.fare-summary .continue-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #ff2929;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.fare-summary .continue-btn:hover {
+  background-color: #e21e1e; /* Darker red on hover */
+}

@@ -1,0 +1,379 @@
+/* General styles for the transport step */
+.transport-step {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(to right, #ffffff, #f0f4f8);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 16px 0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative; /* Ensure proper layout for buttons below */
+  min-height: 250px; /* Optional: Force a minimum height */
+  }
+  
+  /* Icon styling */
+  .transport-step .icon span {
+    background: #f33aea; /* Blue background for the circle */
+    color: #fff; /* White text */
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 14px;
+    display: inline-block;
+    font-weight: bold;
+    margin-top: 50px;
+  }
+  
+  /* Styling for the details section */
+  .transport-step .details {
+    flex: 2;
+    margin-left: 16px;
+    font-size: 14px;
+    color: #333; /* Neutral text color */
+  }
+  
+  .transport-step .details p {
+    margin: 4px 0;
+  }
+  
+  /* Styling for the right-aligned time and price details */
+  .transport-step .time-details {
+    text-align: right;
+    font-size: 14px;
+    color: #15991b; /* Slightly muted text color */
+  }
+
+  .time-details {
+    display: flex;
+  justify-content: space-around; /* Spread out the time and price info */
+  align-items: center;
+  gap: 16px;
+  margin-top: 120px;
+  }
+
+
+  .horizontal-layout span,
+.horizontal-layout p {
+  margin: 0; /* Reset margin for inline consistency */
+}
+  /* Icons in time-details */
+.transport-step .time-details i {
+  margin-right: 8px;
+  color: #28a745; /* Green for price */
+}
+
+/* Hover effect */
+.transport-step:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+}
+  
+  .transport-step .time-details p {
+    margin: 4px 0;
+  }
+  
+  /* Hover effect */
+  .transport-step:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+  }
+
+  .icon img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-top: 30px;
+    margin-right: 20px;
+  }
+
+  .details {
+    flex: 1;
+    text-align:center;
+    font-size: 16px;
+    color: #333;
+    width: 100%; /* Make the container responsive */
+    max-width: 1500px;
+  }
+
+  .details strong {
+    display: block; /* Keep the train details as a block element */
+    margin-bottom: 8px; /* Add some spacing below */
+  }
+
+  .horizontal-layout {
+    display: flex;
+    justify-content: center; /* Align items horizontally in the center */
+    align-items: center; /* Vertically align items */
+    gap: 16px; /* Add spacing between the items */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  }
+
+  .details-header {
+    background-color: #eaf6ff;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+    width: 118%;
+    max-width: none;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align the content to the left */
+  }
+  
+  .details-header .details-header-image {
+    width: 40px; /* Adjust size */
+    height: 40px; /* Adjust size */
+    object-fit: contain;
+    margin-right: 10px; /* Space between image and text */
+    border-radius: 50%; /* Optional: Make image round */
+  }
+  
+  .details-header strong {
+    flex-grow: 1; /* Ensures text takes the remaining space and is centered */
+    text-align: center; /* Center the text */
+  }
+  
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .transport-step {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .time-details {
+      text-align: left;
+      margin-top: 8px;
+    }
+  }
+
+
+
+  .timeline100 {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .timeline-title100 {
+    font-size: 24px;
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+
+/* Timeline container */
+.timeline-container100 {
+  border-left: 4px solid #007bff;
+  padding-left: 20px;
+  position: relative;
+  }
+  
+  /* Timeline item */
+  .timeline-item100 {
+    margin-bottom: 30px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .timeline-item100::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: -10px;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+  }
+  
+  /* Timeline dot */
+  .timeline-dot100 {
+    position: absolute;
+    left: -35px;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    background-color: #ffffff;
+    border: 3px solid #007bff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Timeline content */
+  .timeline-content100 {
+    font-size: 14px;
+  color: #555;
+  padding: 0 12px;
+  }
+  
+  .timeline-content100 p {
+    margin: 4px 0;
+  }
+  
+  
+  
+  
+
+  .line-image {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-right: 10px;
+  }
+
+  /* Container for action buttons */
+.action-buttons {
+  width: 100%; /* Full width of the container */
+  display: flex;
+  justify-content: center; /* Center-align buttons */
+  gap: 16px; /* Space between the buttons */
+  margin-top: 16px; /* Space between the buttons and content */
+}
+
+/* Button styling */
+.btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.view-details {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.btn.view-details:hover {
+  background-color: #0056b3;
+}
+
+.btn.select {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.btn.select:hover {
+  background-color: #218838;
+}
+
+
+/* General icon styling */
+.details i {
+  margin-right: 8px; /* Space between icon and text */
+  color: #007bff; /* Matching color with the theme */
+}
+
+/* Adjust the icon size */
+.details i.fa {
+  font-size: 18px; /* Make icons a bit bigger */
+}
+
+/* Styling for the details section */
+.details {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Customize icon colors */
+.details .fa-train {
+  color: #007bff; /* Blue color for the train icon */
+}
+
+.details .fa-code {
+  color: #28a745; /* Green color for the code icon */
+}
+
+.details .fa-sticky-note {
+  color: #f39c12; /* Orange color for the note icon */
+}
+
+.details .fa-clock {
+  color: #e74c3c; /* Red color for the clock icon */
+}
+
+
+.timeline-icon100 {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Timeline content */
+.timeline-content100 {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: 30px;
+}
+
+.timeline-heading100 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 8px;
+}
+
+.timeline-content100 p {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #555;
+}
+
+.timeline-content100 p strong {
+  color: #333;
+}
+
+/* Add hover effect for better interactivity */
+.timeline-item100:hover .timeline-content100 {
+  background: #007bff;
+  color: #ffffff;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.timeline-item100:hover .timeline-content100 p strong {
+  color: #ffffff;
+}
+
+.timeline-item100:hover .timeline-dot100 {
+  background-color: #007bff;
+  color: #ffffff;
+  transition: background 0.3s ease;
+}

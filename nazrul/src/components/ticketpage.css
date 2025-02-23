@@ -1,0 +1,458 @@
+.ticket-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to right, #e8f0f2, #f1f3f4);
+  font-family: 'Arial', sans-serif; /* Changed font family for a cleaner look */
+  min-height: 100vh; /* Changed min-height for a more spacious layout */
+}
+
+.ticket-container90 {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 40px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+  padding: 40px;
+  max-width: 1400px; /* Increased max-width for more spacious layout */
+  width: 100%;
+  text-align: left;
+  margin-top: 4rem; /* Reduced margin for a tighter fit */
+  transition: transform 0.3s;
+}
+
+.ticket-container90:hover {
+  transform: scale(1.03); /* Slightly enhanced hover effect */
+}
+
+.additional-container {
+  margin-top: 30px;
+  border: 1px solid #d1d1d1; /* Slightly darker border for contrast */
+  border-radius: 8px;
+  padding: 25px; /* Increased padding for better spacing */
+  background: #f9f9f9;
+}
+
+.additional-container h3 {
+  margin-bottom: 15px;
+  color: #007bff; /* Color to highlight section titles */
+  font-family: 'Georgia', serif; /* Stylish font for headings */
+  font-size: 1.5rem; /* Larger font size for headings */
+}
+
+.additional-container p {
+  margin: 10px 0;
+  font-size: 1rem; /* Increased font size for better readability */
+  color: #555; /* Darker gray for improved contrast */
+  line-height: 1.6; /* Improved line height for readability */
+}
+
+.ticket-header90 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.airline-logo90 {
+  width: 150px; /* Set a fixed width */
+  height: 150px; /* Set a fixed height to maintain aspect ratio */
+  border-radius: 50%; /* Make the image circular */
+  object-fit: cover; /* Ensure the image covers the container without distortion */
+ 
+  margin-bottom: 20px; /* Space below the logo */
+}
+
+.flight-info69 {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Space between flight sections */
+  padding: 20px;
+  background-color: #f9f9f9; /* Light background for contrast */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.flight-section {
+  width: 100%;
+  border: 1px solid #d1d1d1; /* Slightly darker border for contrast */
+  border-radius: 8px;
+  padding: 20px; /* Increased padding */
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+/* flightinfo.css */
+.flight-list69 {
+  list-style-type: none;
+  padding: 0;
+}
+
+.flight-info69 {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+.flight-info69:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.flight-header69 img {
+  width: 150px;
+  height: auto;
+  border-radius: 5px;
+}
+
+
+
+.flight-times {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* .time {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.airport {
+  font-size: 14px;
+  color: #888;
+}
+
+.duration {
+  text-align: center;
+} */
+
+.flight-section h3 {
+  margin: 0 0 15px; /* More space below section titles */
+  color: #007bff;
+  font-family: 'Georgia', serif; /* Stylish font for headings */
+}
+
+.ticket-details-container {
+  max-width: 1500px; /* Optimal width for readability */
+  margin: 0 auto; /* Center the container */
+  padding: 30px; /* Add padding for a more spacious look */
+  background-color: #ffffff; /* White background for cleanliness */
+  border: 1px solid #e0e0e0; /* Soft light border */
+  border-radius: 12px; /* More pronounced rounded corners */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Deeper shadow for depth */
+}
+
+.ticket-details-container h3 {
+  text-align: center; /* Center the heading */
+  margin-bottom: 25px; /* Space below the heading */
+  font-size: 2em; /* Larger font size for prominence */
+  color: #333; /* Darker color for better readability */
+  font-family: 'Arial', sans-serif; /* Clean sans-serif font */
+  letter-spacing: 1px; /* Slight letter spacing for elegance */
+}
+
+.ticket-details {
+  display: flex;
+  flex-direction: column; /* Arrange items in a column */
+}
+
+.detail-item {
+  display: flex;
+  align-items: center; /* Center icons and text vertically */
+  margin-bottom: 15px; /* Space between each detail item */
+  padding: 15px; /* Increased padding for a more comfortable feel */
+  background-color: #f9f9f9; /* Very light grey background */
+  border: 1px solid #e0e0e0; /* Consistent light border */
+  border-radius: 8px; /* Rounded corners for each item */
+  transition: background-color 0.3s; /* Smooth transition for hover effects */
+}
+
+.detail-item:hover {
+  background-color: #f1f1f1; /* Change background on hover */
+}
+
+.detail-item i {
+  margin-right: 15px; /* Space between icon and text */
+  font-size: 1.5em; /* Increase icon size */
+  color: #007bff; /* Primary color for icons */
+}
+
+.detail-item p {
+  margin: 0; /* Remove default margin for paragraphs */
+  font-size: 1.1em; /* Slightly larger font size for readability */
+  color: #444; /* Darker text color for contrast */
+  font-family: 'Arial', sans-serif; /* Consistent font */
+}
+
+
+.ticket-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px; /* Increased spacing above */
+}
+
+.qr-code-container, .download-container {
+  width: 48%;
+  border: 1px solid #d1d1d1; /* Slightly darker border for contrast */
+  border-radius: 8px;
+  padding: 25px; /* Increased padding for better spacing */
+  background: #f9f9f9;
+  text-align: center; /* Center the text */
+}
+
+.qr-code-container h3, .download-container h3 {
+  margin-bottom: 15px; /* Space below section titles */
+  color: #007bff; /* Color to highlight section titles */
+  font-family: 'Georgia', serif; /* Stylish font for headings */
+}
+
+
+
+.download-link {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 12px 24px; /* Increased padding for button */
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  display: inline-flex; /* Align icon and text */
+  align-items: center; /* Center icon and text vertically */
+}
+
+.download-link:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.status-container {
+  display: flex;
+  flex-direction: column; /* Arrange items vertically */
+  align-items: flex-start; /* Align items to the start (left) */
+  background-color: #e7f9e7; /* Light green background */
+  border: 1px solid #d4edda; /* Light green border */
+  border-radius: 8px;
+  padding: 15px; /* Padding for spacing */
+  margin-bottom: 20px; /* Space below the status container */
+}
+
+.status-icon {
+  color: #28a745; /* Green color for the check icon */
+  margin-right: 10px; /* Space between icon and text */
+  font-size: 1.5rem; /* Increased size for visibility */
+}
+
+.status-text {
+  font-weight: bold; /* Bold text for status */
+  display: flex;
+  align-items: center; /* Align icon and text vertically */
+}
+
+.icon {
+  width: 24px;                /* Icon width */
+  height: 24px;               /* Icon height */
+  object-fit: contain;        /* Fit image within specified dimensions */
+  margin-right: 8px;          /* Spacing between icon and text */
+  vertical-align: middle;     /* Aligns icon vertically with text */
+}
+
+
+
+.exit-icon {
+  width: 24px;         /* Set the width */
+  height: 24px;        /* Set the height */
+  object-fit: contain; /* Ensures the image fits within the set dimensions without stretching */
+  margin-right: 8px;   /* Adds space between the icon and text */
+  vertical-align: middle; /* Aligns the icon vertically with the text */
+}
+
+.airline-logo69 {
+  width: 150px; /* Set a fixed width */
+  height: 150px; /* Set a fixed height to maintain aspect ratio */
+  border-radius: 50%; /* Make the image circular */
+  object-fit: cover; /* Ensure the image covers the container without distortion */
+ 
+  margin-bottom: 20px; /* Space below the logo */
+}
+
+.flight-list5 {
+  display: flex;
+  flex-direction: column;
+  gap: 70px;
+  margin-bottom: 50px;
+}
+
+.flight-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+.flight-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+} 
+
+.flight-header-modern {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.flight-header-modern:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.airline-logo-modern {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.airline-details-modern {
+  flex-grow: 1;
+}
+
+.airline-name-modern {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.flight-number-modern {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  color: #d1eaff;
+}
+
+.logo-container {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+} 
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: #333;
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center;    /* Vertical centering */
+
+}
+
+.flight-header56 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.airline-logo7 {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.airline-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.flight-details {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-block,
+.duration-block {
+  text-align: center;
+}
+
+
+.duration-line {
+  display: block;
+  height: 2px;
+  width: 400px;
+  background-color: #6a11cb;
+  margin: 5px auto;
+} 
+
+.time {
+  font-size: 16px;
+  font-weight: 500;
+  color: #444;
+}
+
+.airport {
+  font-size: 14px;
+  color: #666;
+}
+
+.duration {
+  font-size: 14px;
+  color: #999;
+}
+ 
+
+.congratulations-message {
+  margin-top: 10px; /* Space between status text and message */
+  color: #155724; /* Darker green for message */
+  font-weight: bold; /* Bold text for emphasis */
+  font-size: 1rem; /* Increased font size for better visibility */
+  margin-left: 35px; /* Adjust this value to change the indentation */
+  text-align: left; /* This can be omitted if you don't need it */
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .ticket-container {
+    padding: 20px;
+  }
+
+  .flight-info69 {
+    flex-direction: column; /* Stack flight sections on mobile */
+  }
+
+  .flight-section {
+    width: 100%; /* Full width on mobile */
+  }
+
+  .ticket-footer {
+    flex-direction: column; /* Stack QR and download on mobile */
+  }
+
+  .qr-code-container, .download-container {
+    width: 100%;
+    margin-bottom: 10px; /* Space between stacked items */
+  }
+}

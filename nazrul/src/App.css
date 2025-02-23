@@ -1,0 +1,94 @@
+/* src/App.css */
+/* src/index.css or src/App.css */
+
+
+.app {
+  text-align: left;
+}
+
+/* Light and dark mode background and text colors for the entire app */
+.app.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.app.dark-mode {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Logo animation */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+Header styles
+.App-header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: rgb(16, 172, 55);
+}
+/* src/App.css
+.main-content {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  
+}
+
+/* Different background colors for each section */
+
+
+/* Light and dark mode specific styles for header */
+.App-header.light-mode {
+  background-color: #282c34; /* Light mode header background */
+}
+
+.App-header.dark-mode {
+  background-color: #20232a; /* Darker background for dark mode */
+}
+
+/* Footer styles */
+.App-footer {
+  padding: 1em;
+  background-color: #282c34; /* Default footer background */
+  color: #ffffff; /* Default footer text color */
+  justify-content: flex-start; /* Align items to the left */
+}
+
+/* Light and dark mode specific styles for footer */
+.App-footer.light-mode {
+  background-color: #282c34; /* Light mode footer background */
+  color: #ffffff; /* Light mode footer text color */
+}
+
+.App-footer.dark-mode {
+  background-color: #20232a; /* Darker background for dark mode */
+  color: #ffffff; /* Dark mode footer text color */
+}
+
+/* Link styles */
+.App-link {
+  color: #0e1314; /* Link color */
+}
+

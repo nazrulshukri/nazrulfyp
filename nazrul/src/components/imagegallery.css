@@ -1,0 +1,194 @@
+.slide-container {
+  width: 98vw;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  margin-left: 3px; /* Shift the entire container to the right */
+}
+
+.each-slide {
+  width: 50%;
+  height: 80vh;
+  display: flex;
+  justify-content: flex-end; /* Aligns the image to the right */
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  padding-right: 20px; /* Adds space between the container and image */
+}
+
+.each-slide img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateX(20px); /* Slightly shifts the image to the right */
+}
+
+.each-slide:hover img {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.each-slide::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  z-index: 1;
+}
+
+/* Overlay for text or button */
+.overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 2;
+}
+
+.overlay h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.overlay button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #1dbeb6;
+  border: none;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+
+.video-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.video-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+}
+
+
+
+
+
+.slick-dots {
+  bottom: 10px;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.slick-dots li button:before {
+  font-size: 12px;
+  color: rgb(0, 0, 0);
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #25c7d3;
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .slick-prev,
+  .slick-next {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+
+.custom-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.mini-player {
+  width: 300px;
+  height: 200px;
+  top: 10%;
+  margin-top: 35%;
+  left: 700px; /* Move it 200px to the right */
+  transform: none;
+  cursor: grab;
+}
+
+.mini-player:active {
+  cursor: grabbing;
+}
+
+.modal-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.mini-toggle-button {
+  position: absolute;
+  top: 10px;
+  right: 50px; /* Position next to the close button */
+  background: #1dbeb6;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mini-toggle-button:hover {
+  background-color: #17a58b;
+}
+
+.close-button {
+  position: absolute; /* Absolute positioning within the modal */
+  top: 50px; /* Adjust top position */
+  right: 10px; /* Adjust right position */
+  background: transparent;
+  border: none;
+  font-size: 0.8rem; /* Smaller font size for a smaller button */
+  color: #000;
+  cursor: pointer;
+  z-index: 1001; /* Ensure it stays above other modal content */
+  padding: 5px; /* Adjust padding for better clickable area */
+}

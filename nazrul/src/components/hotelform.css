@@ -1,0 +1,120 @@
+.hotel-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  margin-top: 80px;
+  width: 100%;
+  max-width: 2500px; /* Set the max width */
+  justify-content: flex-start; /* Align items to the left */
+}
+
+.container34 {
+  display: flex;
+  justify-content: space-between;
+  gap: 0; /* Remove gap so they stretch out to the edges */
+  width: 100%;
+}
+
+.hotel-details-wrapper,
+.user-details-form-wrapper12 {
+  flex: 1; /* Both containers take equal width */
+  padding: 20px;
+  max-width: 300%; /* Ensure they can take full width */
+}
+
+.hotel-details-wrapper {
+  margin-right: 20px; /* Optional: Add margin to the right of hotel details */
+}
+
+.user-details-form-wrapper12 {
+  margin-left: 10px; /* Optional: Add margin to the left of user details */
+  width: 30%;
+}
+
+.stepper-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 2500px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+  background-color: #dcdcdc;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.line {
+  flex: 1;
+  height: 3px;
+  background-color: #dcdcdc;
+  margin: 0 10px;
+  transition: background-color 0.3s;
+}
+
+.step.active .circle,
+.step.completed .circle {
+  background-color: #4a90e2;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.step.completed .circle {
+  background-color: #34c759;
+}
+
+.step.active p,
+.step.completed p {
+  color: #333;
+  font-weight: 500;
+}
+
+.step p {
+  color: #999;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.line.completed-line {
+  background-color: #34c759;
+}
+
+.line.active-line {
+  background-color: #4a90e2;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hotel-details-wrapper,
+  .user-details-form-wrapper12 {
+    max-width: 100%;
+    padding: 10px;
+  }
+}

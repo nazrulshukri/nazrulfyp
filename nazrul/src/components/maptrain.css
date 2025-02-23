@@ -1,0 +1,65 @@
+/* Map.css */
+
+/* General Map Styling */
+.map-container {
+    height: 100vh; /* Full screen height */
+    width: 100%;   /* Full width */
+    position: relative;
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden;    /* Avoid marker overflow */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  }
+  
+  /* Floating UI Controls */
+  .controls-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* Start Button */
+  .start-button {
+    background-color: #4caf50; /* Professional green */
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Button shadow */
+  }
+  
+  .start-button:hover {
+    background-color: #45a049; /* Slightly darker green */
+  }
+  
+  /* Mode Icon */
+  .mode-icon {
+    background-color: #673ab7; /* Professional purple */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 50%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .mode-icon:hover {
+    transform: scale(1.1); /* Slight zoom effect */
+  }
+  
+  /* Font Awesome (for the bus icon) */
+  .mode-icon i {
+    color: white;
+    font-size: 20px;
+  }
+  

@@ -1,0 +1,140 @@
+/* src/components/inquiry.css */
+
+.inquiry-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #f9f9f9, #e3e8ee);
+    min-height: 30vh; /* Increase the height to make it taller */
+}
+.inquiry-form-wrapper {
+    display: flex;
+    max-width: 1500px; /* Keeps the maximum width */
+    background-color: white;
+    box-shadow: 0 30px 60px #0000001a;
+    border-radius: 40px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    width: 100%;
+    min-height: 20vh; /* Decrease the minimum height */
+    height: 20%; /* Decrease the height */
+}
+
+
+
+.inquiry-form-image {
+    flex: 1.7; /* Adjusted flex to make the image slightly larger */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0fd6f0, #52a7ec);
+    padding: 30px; /* Increased padding */
+}
+
+.inquiry-form-image img {
+    width: 80%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.inquiry-form-container {
+    flex: 3; /* Adjusted flex to give more space to the form */
+    padding: 70px; /* Increased padding for more space within the form */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.inquiry-form-container h2 {
+    color: #333;
+    font-size: 40px; /* Increase font size */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.inquiry-form-container .subheading {
+    color: #666;
+    font-size: 22px; /* Increase font size for subheading */
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.form-group {
+    margin-bottom: 30px; /* Add more space between form groups */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 700; /* Make the label bold */
+    color: #333;
+    font-size: 18px; /* Increase label font size */
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 20px; /* Increase padding for bigger input fields */
+    border: 1px solid #ddd;
+    border-radius: 12px; /* Slightly rounder borders */
+    font-size: 20px; /* Increase font size for input and textarea */
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 150px; /* Increase height for textarea */
+}
+
+button {
+    width: 100%;
+    padding: 20px; /* Increase padding for a bigger button */
+    border: none;
+    border-radius: 12px; /* Make the button slightly rounder */
+    background-color: #000000;
+    color: white;
+    font-size: 22px; /* Increase button font size */
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .inquiry-form-wrapper {
+        flex-direction: column;
+    }
+
+    .inquiry-form-image {
+        order: 2;
+    }
+
+    .inquiry-form-container {
+        order: 1;
+        padding: 40px 30px;
+    }
+
+    .inquiry-form-container h2 {
+        font-size: 28px; /* Adjust font size for mobile */
+    }
+
+    .inquiry-form-container .subheading {
+        font-size: 18px; /* Adjust font size for mobile */
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px; /* Adjust input size for mobile */
+    }
+
+    button {
+        font-size: 18px; /* Adjust button size for mobile */
+    }
+}

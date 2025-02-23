@@ -1,0 +1,91 @@
+/* Full-screen overlay with fade-in effect */
+.overlay1 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85); /* Slightly darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.4s ease-out;
+    backdrop-filter: blur(4px); /* Subtle background blur for a professional touch */
+  }
+
+/* Dialog box with shadow, rounded corners, and smooth scaling */
+.dialog1 {
+    background: #ffffff;
+    padding: 30px;
+    width: 380px;
+    max-width: 90%;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
+    animation: scaleUp 0.3s ease-out;
+    transform-origin: center;
+    transition: transform 0.3s ease-out;
+  }
+
+.dialog1:hover {
+    transform: scale(1.02); /* Slightly scale up on hover */
+}
+
+/* Icon with larger size and professional color */
+.dialog-icon1 {
+    font-size: 70px;
+    color: #4CAF50; /* Updated to a more professional green */
+    margin-bottom: 15px;
+  }
+
+/* Heading with refined font and subtle color */
+h2 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+/* Text with a lighter color for readability */
+p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 25px;
+  }
+
+/* Button with smooth animations, rounded corners, and shadow */
+.dialog-button1 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+.dialog-button1:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+    transform: scale(1.05); /* Enlarges on hover */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.dialog-button1:active {
+    transform: scale(0.98); /* Shrinks slightly on click */
+}
+
+/* Animation for overlay fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+/* Animation for dialog scale-up */
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }

@@ -1,0 +1,102 @@
+.carousel-container {
+  width: 100%;
+  position: relative;
+  padding: 3rem 1rem;
+  overflow: hidden;
+  background-color: #f8f9fa; /* Light neutral background for contrast */
+  border-radius: 12px;
+}
+
+.carousel-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.carousel-images {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  gap: 1.5rem;
+}
+
+.card {
+  min-width: 320px;
+  max-width: 360px;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-images img {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #ddd;
+}
+
+.card-content {
+  padding: 1.5rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.card-description {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.carousel-buttons {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  padding: 0 1rem;
+}
+
+.carousel-button {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.carousel-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.1);
+}
+
+.carousel-button:active {
+  transform: scale(1.05);
+}
+
+.carousel-container:hover .carousel-button {
+  visibility: visible;
+}

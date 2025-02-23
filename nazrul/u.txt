@@ -1,0 +1,1308 @@
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { generateMockFlights } from '../mockdata/flights';
+import './flightresults.css';
+import malaysiaLogo from '../img/assets/images.png';
+import britishAirwaysLogo from '../img/assets/britishairways.jpg';
+import emiratesLogo from '../img/assets/Emirates_logo.png';
+
+const airlineLogos = {
+  'Malaysia Airlines': malaysiaLogo,
+  'British Airways': britishAirwaysLogo,
+  'Emirates': emiratesLogo,
+};
+
+function FlightResults() {
+  const location = useLocation();
+  const { flightParams } = location.state || {};
+  const [flights, setFlights] = useState([]);
+  const [filteredFlights, setFilteredFlights] = useState([]);
+  const [people, setPeople] = useState(flightParams?.people || 1);
+  const [error, setError] = useState('');
+  const [startDate, setStartDate] = useState(flightParams?.departureDate || '');
+  const [returnDate, setReturnDate] = useState(flightParams?.returnDate || '');
+  const [locationInput, setLocationInput] = useState(flightParams?.origin || '');
+  const [destinationInput, setDestinationInput] = useState(flightParams?.destination || '');
+  const [selectedFlightId, setSelectedFlightId] = useState(null);
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    nonStop: false,
+    layovers: 'any',
+    journeyDuration: 59,
+    layoverDuration: 25,
+    cabinClass: 'Economy',
+    airline: 'All',
+  });
+
+  useEffect(() => {
+    if (flightParams) {
+      try {
+        const generatedFlights = generateMockFlights(
+          startDate,
+          returnDate,
+          locationInput,
+          destinationInput,
+          people
+        );
+        setFlights(generatedFlights);
+        setFilteredFlights(generatedFlights); // Initialize filtered flights
+      } catch (error) {
+        setError('Error fetching flight data.');
+        console.error('Error:', error);
+      }
+    }
+  }, [flightParams, startDate, returnDate, locationInput, destinationInput, people]);
+
+  useEffect(() => {
+    // Apply filters whenever flights or filters change
+    const applyFilters = () => {
+      let filtered = flights;
+
+      if (filters.nonStop) {
+        filtered = filtered.filter(flight => flight.nonStop);
+      }
+
+      if (filters.layovers === 'none') {
+        filtered = filtered.filter(flight => !flight.layovers || flight.layovers === 0);
+      }
+
+      if (filters.airline !== 'All') {
+        filtered = filtered.filter(flight => flight.airline === filters.airline);
+      }
+
+      // Add additional filters like journey duration or cabin class if needed
+
+      setFilteredFlights(filtered);
+    };
+
+    applyFilters();
+  }, [flights, filters]);
+
+  const getTotalCostForFlight = (pricePerPerson) => {
+    return (pricePerPerson * people).toFixed(2);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted:", { startDate, returnDate, locationInput, destinationInput, people });
+  };
+
+  const handleFilterChange = (e) => {
+    setFilters({
+      ...filters,
+      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+    });
+  };
+
+  const handleSelectFlight = (id) => {
+    setSelectedFlightId(id);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedFlightId(null);
+  };
+
+  const handleSubmitFlight = (id) => {
+    console.log(`Submit flight with ID: ${id}`);
+  };
+
+  return (
+    <div className="flight-results-container">
+      <div className="filters">
+        <h2>Filter by</h2>
+        <div className="filter-section">
+          <label>
+            <input
+              type="checkbox"
+              name="nonStop"
+              checked={filters.nonStop}
+              onChange={handleFilterChange}
+            />
+            Non-stop
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="layovers"
+              value="any"
+              checked={filters.layovers === 'any'}
+              onChange={handleFilterChange}
+            />
+            Any layover
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="layovers"
+              value="none"
+              checked={filters.layovers === 'none'}
+              onChange={handleFilterChange}
+            />
+            No layovers
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Journey Duration (min):
+            <input
+              type="range"
+              name="journeyDuration"
+              min="30"
+              max="120"
+              value={filters.journeyDuration}
+              onChange={handleFilterChange}
+            />
+            {filters.journeyDuration} min
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Layover Duration (min):
+            <input
+              type="range"
+              name="layoverDuration"
+              min="0"
+              max="60"
+              value={filters.layoverDuration}
+              onChange={handleFilterChange}
+            />
+            {filters.layoverDuration} min
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Cabin Class:
+            <select
+              name="cabinClass"
+              value={filters.cabinClass}
+              onChange={handleFilterChange}
+            >
+              <option value="Economy">Economy</option>
+              <option value="Business">Business</option>
+              <option value="First">First</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="filter-section">
+          <label>
+            Airline:
+            <select
+              name="airline"
+              value={filters.airline}
+              onChange={handleFilterChange}
+            >
+              <option value="All">All</option>
+              <option value="Malaysia Airlines">Malaysia Airlines</option>
+              <option value="British Airways">British Airways</option>
+              <option value="Emirates">Emirates</option>
+            </select>
+          </label>
+        </div>
+
+        <button className="filter-button" onClick={() => {/* Optional: Add additional filter apply logic here */}}>
+          Apply Filters
+        </button>
+      </div>
+
+      <div className="flight-results-content">
+        <h1>Flight Results</h1>
+        {error && <p className="error">{error}</p>}
+        <form className="booking-form" onSubmit={handleSubmit}>
+          <div className="form-inline">
+            <label>
+              From:
+              <input
+                type="text"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+              />
+            </label>
+            <label>
+              To:
+              <input
+                type="text"
+                value={destinationInput}
+                onChange={(e) => setDestinationInput(e.target.value)}
+              />
+            </label>
+            <label>
+              Start Date:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </label>
+            <label>
+              Return Date:
+              <input
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+              />
+            </label>
+            <label>
+              Number of People:
+              <input
+                type="number"
+                value={people}
+                onChange={(e) => setPeople(e.target.value)}
+                min="1"
+              />
+            </label>
+            <button type="submit">Search</button>
+          </div>
+        </form>
+
+        {filteredFlights.length > 0 ? (
+          <ul className="flight-list">
+            {filteredFlights.map(flight => (
+              <li key={flight.id} className="flight-item">
+                <div className="flight-header">
+                  <img
+                    src={airlineLogos[flight.airline] || emiratesLogo}
+                    alt={`${flight.airline} logo`}
+                    className="airline-logo"
+                  />
+                  <h3>{flight.airline}</h3>
+                  <h5>{flight.flightNumber}</h5>
+                </div>
+
+                <div className="flight-details">
+                  <div className="flight-times">
+                    <div className="departure">
+                      <p className="time">{flight.departure}</p>
+                      <p className="airport">{flight.origin}</p>
+                    </div>
+                    <div className="duration">
+                      <p>--------</p>
+                      <p>{flight.duration}</p>
+                    </div>
+                    <div className="arrival">
+                      <p className="time">{flight.arrival}</p>
+                      <p className="airport">{flight.destination}</p>
+                    </div>
+                  </div>
+                  <div className="flight-pricing">
+                    <p>Price: ${getTotalCostForFlight(flight.price)}</p>
+                    <button onClick={() => handleSelectFlight(flight.id)}>View Details</button>
+                    <button onClick={() => handleSubmitFlight(flight.id)}>Submit</button>
+                  </div>
+                </div>
+
+                {selectedFlightId === flight.id && (
+                  <div className="popup">
+                    <div className="popup-content">
+                      <span className="close" onClick={handleCloseDetails}>&times;</span>
+                      <h2>Flight Details</h2>
+                      <p>Flight Number: {flight.flightNumber}</p>
+                      <p>Departure: {flight.departure}</p>
+                      <p>Arrival: {flight.arrival}</p>
+                      <p>Price: ${flight.price}</p>
+                      {/* Add more flight details as needed */}
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No flights found.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default FlightResults;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.flight-results-container {
+  display: flex;
+  width: 80%;
+  margin: 20px auto;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.filters {
+  width: 300px; /* Width of the filter section */
+  padding: 20px;
+  border-right: 2px solid #ddd;
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.filters h2 {
+  margin-top: 0;
+  font-size: 1.5em; /* Adjust font size for better readability */
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em; /* Adjust font size for better readability */
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.filter-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1em; /* Adjust font size for consistency */
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.range-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  margin: 20px; /* Optional, for spacing */
+}
+
+.range-controls {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  width: 100%; /* Make sure the range controls take full width */
+}
+
+.range-label {
+  font-size: 14px;
+  color: #333;
+  margin: 0 10px; /* Spacing around the labels */
+}
+
+input[type="range"] {
+  flex-grow: 1; /* Make the range input grow to take available space */
+  -webkit-appearance: none; /* Remove default appearance in WebKit browsers */
+  -moz-appearance: none; /* Remove default appearance in Firefox */
+  appearance: none; /* Standard property for other browsers */
+  background: transparent; /* Set background to transparent */
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default appearance in WebKit browsers */
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: transparent; /* Remove default track styling */
+  border-color: transparent; /* Remove border */
+  color: transparent; /* Remove color */
+}
+
+input[type="range"]::-ms-fill-lower {
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-ms-fill-upper {
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-ms-thumb {
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-ms-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+.flight-results-content {
+  flex-grow: 1;
+  padding: 20px;
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 2em; /* Adjust font size for emphasis */
+}
+
+.flight-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.flight-item {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.flight-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.airline-logo {
+  width: 60px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 10px;
+  object-fit: contain; /* Ensure logos fit within the defined dimensions */
+}
+
+.flight-header h3 {
+  margin: 0;
+  color: #007bff;
+}
+
+.flight-header h5 {
+  margin: 0;
+  color: #666; /* Adjust color for visibility */
+}
+
+.flight-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.flight-times {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.departure, .arrival {
+  text-align: center;
+}
+
+.time {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.airport {
+  font-size: 14px;
+  color: #666;
+}
+
+.duration {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin: 0 20px;
+}
+
+.total-price-info {
+  text-align: right;
+}
+
+.total-price {
+  font-weight: bold;
+  font-size: 20px;
+  color: #ff4500;
+  margin-top: 10px;
+}
+
+.input-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.input-container input {
+  padding: 5px;
+  font-size: 16px;
+  width: 50px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em; /* Adjust font size for consistency */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.flight-details-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px; /* Ensure popup doesn't exceed a reasonable width */
+}
+
+.flight-details-popup h2 {
+  margin-top: 0;
+  font-size: 1.5em; /* Adjust font size for better readability */
+}
+
+.flight-details-content {
+  padding: 10px 0;
+}   
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { generateMockFlights } from '../mockdata/flights';
+import './flightresults.css';
+import malaysiaLogo from '../img/assets/images.png';
+import britishAirwaysLogo from '../img/assets/britishairways.jpg';
+import emiratesLogo from '../img/assets/Emirates_logo.png';
+
+const airlineLogos = {
+  'Malaysia Airlines': malaysiaLogo,
+  'British Airways': britishAirwaysLogo,
+  'Emirates': emiratesLogo,
+};
+
+function FlightResults() {
+  const location = useLocation();
+  const { flightParams } = location.state || {};
+  const [flights, setFlights] = useState([]);
+  const [people, setPeople] = useState(flightParams?.people || 1);
+  const [error, setError] = useState('');
+  const [startDate, setStartDate] = useState(flightParams?.departureDate || '');
+  const [returnDate, setReturnDate] = useState(flightParams?.returnDate || '');
+  const [locationInput, setLocationInput] = useState(flightParams?.origin || '');
+  const [destinationInput, setDestinationInput] = useState(flightParams?.destination || '');
+  const [selectedFlightId, setSelectedFlightId] = useState(null);
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    nonStop: false,
+    layovers: 'any',
+    journeyDuration: 59,
+    layoverDuration: 25,
+    cabinClass: 'Economy',
+    airline: 'All'
+  });
+
+  useEffect(() => {
+    if (flightParams) {
+      try {
+        const generatedFlights = generateMockFlights(
+          startDate,
+          returnDate,
+          locationInput,
+          destinationInput,
+          people
+        );
+        setFlights(generatedFlights);
+      } catch (error) {
+        setError('Error fetching flight data.');
+        console.error('Error:', error);
+      }
+    }
+  }, [flightParams, startDate, returnDate, locationInput, destinationInput, people]);
+
+  const getTotalCostForFlight = (pricePerPerson) => {
+    return (pricePerPerson * people).toFixed(2);
+    
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted:", { startDate, returnDate, locationInput, destinationInput, people });
+  };
+
+  const handleFilterChange = (e) => {
+    setFilters({
+      ...filters,
+      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
+    });
+  };
+
+  const handleSelectFlight = (id) => {
+    setSelectedFlightId(id);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedFlightId(null);
+  };
+
+  const handleSubmitFlight = (id) => {
+    console.log(Submit flight with ID: ${id});
+  };
+
+  return (
+    <div className="flight-results-container">
+      <div className="filters">
+        <h2>Filter by</h2>
+        <div className="filter-section">
+          <label>
+            <input
+              type="checkbox"
+              name="nonStop"
+              checked={filters.nonStop}
+              onChange={handleFilterChange}
+            />
+            Non-stop
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="layovers"
+              value="any"
+              checked={filters.layovers === 'any'}
+              onChange={handleFilterChange}
+            />
+            Any layover
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="layovers"
+              value="none"
+              checked={filters.layovers === 'none'}
+              onChange={handleFilterChange}
+            />
+            No layovers
+          </label>
+          <label>
+            Journey Duration (min):
+            <input
+              type="range"
+              name="journeyDuration"
+              min="30"
+              max="120"
+              value={filters.journeyDuration}
+              onChange={handleFilterChange}
+            />
+            {filters.journeyDuration} min
+          </label>
+          <label>
+            Layover Duration (min):
+            <input
+              type="range"
+              name="layoverDuration"
+              min="0"
+              max="60"
+              value={filters.layoverDuration}
+              onChange={handleFilterChange}
+            />
+            {filters.layoverDuration} min
+          </label>
+          <label>
+            Cabin Class:
+            <select
+              name="cabinClass"
+              value={filters.cabinClass}
+              onChange={handleFilterChange}
+            >
+              <option value="Economy">Economy</option>
+              <option value="Business">Business</option>
+              <option value="First">First</option>
+            </select>
+          </label>
+          <label>
+            Airline:
+            <select
+              name="airline"
+              value={filters.airline}
+              onChange={handleFilterChange}
+            >
+              <option value="All">All</option>
+              <option value="Malaysia Airlines">Malaysia Airlines</option>
+              <option value="British Airways">British Airways</option>
+              <option value="Emirates">Emirates</option>
+            </select>
+          </label>
+          <button className="filter-button" onClick={() => {/* Apply filters */}}>
+            Apply Filters
+          </button>
+        </div>
+      </div>
+
+      <div className="flight-results-content">
+        <h1>Flight Results</h1>
+        {error && <p className="error">{error}</p>}
+        <form className="booking-form" onSubmit={handleSubmit}>
+          <div className="form-inline">
+            <label>
+              From:
+              <input
+                type="text"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+              />
+            </label>
+            <label>
+              To:
+              <input
+                type="text"
+                value={destinationInput}
+                onChange={(e) => setDestinationInput(e.target.value)}
+              />
+            </label>
+            <label>
+              Start Date:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </label>
+            <label>
+              Return Date:
+              <input
+                type="date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+              />
+            </label>
+            <label>
+              Number of People:
+              <input
+                type="number"
+                value={people}
+                onChange={(e) => setPeople(e.target.value)}
+                min="1"
+              />
+            </label>
+            <button type="submit">Search</button>
+          </div>
+        </form>
+
+        {flights.length > 0 ? (
+          <ul className="flight-list">
+            {flights.map(flight => (
+              <li key={flight.id} className="flight-item">
+                <div className="flight-header">
+                  <img
+                    src={airlineLogos[flight.airline] || emiratesLogo}
+                    alt={${flight.airline} logo}
+                    className="airline-logo"
+                  />
+                  <h3>{flight.airline}</h3>
+                  <h5>{flight.flightNumber}</h5>
+                </div>
+
+                <div className="flight-details">
+                  <div className="flight-times">
+                    <div className="departure">
+                      <p className="time">{flight.departure}</p>
+                      <p className="airport">{flight.origin}</p>
+                    </div>
+                    <div className="duration">
+                      <p>--------</p>
+                      <p>{flight.duration}</p>
+                    </div>
+                    <div className="arrival">
+                      <p className="time">{flight.arrival}</p>
+                      <p className="airport">{flight.destination}</p>
+                    </div>
+                  </div>
+                  <div className="total-price-info">
+                  {/* Ensure flight.price is defined and is a number before calling toFixed */}
+                  <p>Price per Person: MYR {Number.isFinite(flight.price) ? flight.price.toFixed(2) : 'N/A'}</p>
+                   <p className="total-price">Total Price: MYR {Number.isFinite(flight.price) ? getTotalCostForFlight(flight.price) : 'N/A'}</p>
+                  </div>
+                  <p>Non-stop: {flight.nonStop ? 'Yes' : 'No'}</p>
+                  <button onClick={() => handleSelectFlight(flight.id)}>View Details</button>
+                  <button onClick={() => handleSubmitFlight(flight.id)}>Submit</button>
+                </div>
+
+                {selectedFlightId === flight.id && (
+                  <div className="flight-details-popup">
+                    <h2>Flight Details</h2>
+                    <div className="flight-details-content">
+                      <div className="flight-header">
+                        <img
+                          src={airlineLogos[flight.airline] || emiratesLogo}
+                          alt={${flight.airline} logo}
+                          className="airline-logo"
+                        />
+                        <h3>{flight.airline}</h3>
+                        <h5>{flight.flightNumber}</h5>
+                      </div>
+                      <p>Carry-on baggage: 7 kg per guest</p>
+                      <div className="flight-timeline">
+                        <div className="flight-segment">
+                          <div className="flight-info">
+                            <p>Departure: {flight.departure}</p>
+                            <p>Arrival: {flight.arrival}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <button onClick={handleCloseDetails}>Close</button>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          !error && <p>No flights found.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default FlightResults;  body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.flight-results-container {
+  display: flex;
+  width: 80%;
+  margin: 20px auto;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.filters {
+  width: 300px; /* Width of the filter section */
+  padding: 20px;
+  border-right: 2px solid #ddd;
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.filters h2 {
+  margin-top: 0;
+  font-size: 1.5em; /* Adjust font size for better readability */
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em; /* Adjust font size for better readability */
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.filter-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1em; /* Adjust font size for consistency */
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.range-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  margin: 20px; /* Optional, for spacing */
+}
+
+.range-controls {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  width: 100%; /* Make sure the range controls take full width */
+}
+
+.range-label {
+  font-size: 14px;
+  color: #333;
+  margin: 0 10px; /* Spacing around the labels */
+}
+
+input[type="range"] {
+  flex-grow: 1; /* Make the range input grow to take available space */
+  -webkit-appearance: none; /* Remove default appearance in WebKit browsers */
+  -moz-appearance: none; /* Remove default appearance in Firefox */
+  appearance: none; /* Standard property for other browsers */
+  background: transparent; /* Set background to transparent */
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default appearance in WebKit browsers */
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: transparent; /* Remove default track styling */
+  border-color: transparent; /* Remove border */
+  color: transparent; /* Remove color */
+}
+
+input[type="range"]::-ms-fill-lower {
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-ms-fill-upper {
+  background: #ddd; /* Light gray background */
+  border-radius: 5px; /* Rounded track corners */
+}
+
+input[type="range"]::-ms-thumb {
+  height: 24px; /* Slightly larger thumb */
+  width: 24px; /* Slightly larger thumb */
+  border-radius: 50%; /* Rounded thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #fff; /* White border around thumb */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* Shadow for better visibility */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="range"]:hover::-ms-thumb {
+  background: #0056b3; /* Darker thumb color on hover */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+.flight-results-content {
+  flex-grow: 1;
+  padding: 20px;
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 2em; /* Adjust font size for emphasis */
+}
+
+.flight-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.flight-item {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.flight-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.airline-logo {
+  width: 60px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 10px;
+  object-fit: contain; /* Ensure logos fit within the defined dimensions */
+}
+
+.flight-header h3 {
+  margin: 0;
+  color: #007bff;
+}
+
+.flight-header h5 {
+  margin: 0;
+  color: #666; /* Adjust color for visibility */
+}
+
+.flight-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.flight-times {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.departure, .arrival {
+  text-align: center;
+}
+
+.time {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.airport {
+  font-size: 14px;
+  color: #666;
+}
+
+.duration {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin: 0 20px;
+}
+
+.total-price-info {
+  text-align: right;
+}
+
+.total-price {
+  font-weight: bold;
+  font-size: 20px;
+  color: #ff4500;
+  margin-top: 10px;
+}
+
+.input-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.input-container input {
+  padding: 5px;
+  font-size: 16px;
+  width: 50px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em; /* Adjust font size for consistency */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.flight-details-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px; /* Ensure popup doesn't exceed a reasonable width */
+}
+
+.flight-details-popup h2 {
+  margin-top: 0;
+  font-size: 1.5em; /* Adjust font size for better readability */
+}
+
+.flight-details-content {
+  padding: 10px 0;
+} 
+	
+
+no i want to like this    	Image flight
+				     |
+				     |	Kuala Lumpur
+				     |	Kuala Lumpur International Airport (KUL)
+				     |
+				     |	AirAsia, AK 6320
+				     | Economy
+				Destination   

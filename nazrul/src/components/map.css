@@ -1,0 +1,118 @@
+/* General Map Container */
+/* Define styles for the map container */
+.map-container {
+  position: relative;
+  height: 800px;  /* Increased height */
+  width: 100%;    /* Set width to 100% of the parent container */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+  overflow: hidden; /* Keep everything inside the container clean */
+  margin-top: 80px; /* Moves the container 50px down */
+}
+
+.map-container .map-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Map Tools Panel */
+.map-tools {
+  position: absolute;
+  top: 80px;  /* Increased value to move buttons down */
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+
+/* Button Styles */
+.map-tools button {
+  background-color: #4e73df; /* Blue color */
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  margin: 6px 0;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-tools button:hover {
+  background-color: #2e59d9; /* Darker blue for hover */
+  transform: translateY(-3px); /* Lift button effect */
+}
+
+.map-tools button:active {
+  transform: translateY(1px); /* Button pressed effect */
+}
+
+/* Search Control Styles */
+.leaflet-control-geocoder {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px 15px;
+  display: block; /* Ensure it's displayed */
+}
+
+.leaflet-control-geocoder input {
+  width: 250px;
+  padding: 10px;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.leaflet-control-geocoder input:focus {
+  border-color: #4e73df;
+}
+
+.leaflet-control-geocoder .leaflet-bar {
+  display: flex;
+  align-items: center;
+}
+
+.leaflet-control-geocoder a {
+  background-color: #4e73df;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.leaflet-control-geocoder a:hover {
+  background-color: #2e59d9;
+}
+
+/* Map Popup Styling */
+.leaflet-popup-content-wrapper {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-content {
+  font-size: 16px;
+  color: #333;
+}
+
+.leaflet-popup-tip {
+  background-color: #f8f9fa;
+}

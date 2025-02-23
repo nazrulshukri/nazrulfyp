@@ -1,0 +1,378 @@
+/* Main Container */
+.hotel-results-container {
+  display: grid;
+  grid-template-columns: 1fr 6fr;
+  gap: 30px;
+  margin-top: 130px;
+  padding: 20px;
+  background-color: #f5f7fa;
+}
+
+/* Filters Section */
+.filters1 {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-section label {
+  display: block;
+  margin-bottom: 10px;
+  color: #555;
+  font-weight: 500;
+}
+
+.filter-section select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.filter-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 15px;
+  transition: background-color 0.3s;
+  width: 100%;
+  font-weight: bold;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+/* Hotel Results Content */
+.hotel-results-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-results-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Hotel List */
+.hotel-list-container {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+
+.hotel-list h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.hotel-card {
+  display: flex;
+  align-items: flex-start;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.filter-section select,
+.filter-section input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Styling for the map container */
+.map-container {
+  margin-top: 15px; /* Adds space below the location input field */
+  height: 200px;
+  width: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adds a light shadow around the map */
+}
+.filter-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 15px;
+  transition: background-color 0.3s;
+  width: 100%;
+  font-weight: bold;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.hotel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.hotel-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.hotel-details {
+  flex: 1;
+}
+
+
+.hotel-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-right: 8px;
+  color: #1dbdda;
+}
+
+
+.facilities
+{
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-right: 8px;
+  color: #1dbdda;
+}
+
+.amenities {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-right: 8px;
+  color: #1dbdda;
+}
+
+.star-rating {
+  color: #ff9f1a;
+  font-size: 1.2rem;
+}
+
+.location {
+  color: #0071c2;
+  font-size: 0.95rem;
+  margin-top: 5px;
+}
+
+.deal-tag {
+  display: inline-block;
+  background-color: #ff4d4f;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.room-info {
+  font-size: 1rem;
+  color: #555;
+  margin: 10px 0;
+}
+
+.availability {
+  color: #d9534f;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.price-section {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: baseline;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 8px;
+}
+
+.new-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.price-info {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.availability-btn {
+  background-color: #0071c2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.availability-btn:hover {
+  background-color: #0056a3;
+}
+
+.rating-container {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center;
+}
+
+.rating-section {
+  text-align: center;
+  background-color: #4c71b6;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0071c2;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.reviews {
+  text-align: center;
+  color: #333;
+  font-size: 0.9rem;
+  margin-top: 10px; /* Space between rating-section and reviews */
+}
+
+
+
+
+
+.rating-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.rating-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fcfcfc;
+}
+
+.rating-text {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+/* Adjustments for Better Spacing and Consistency */
+.hotel-header img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.hotel-details {
+  margin-top: 10px;
+}
+
+.hotel-times {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pricefont h4 {
+  margin-top: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d65e2f;
+  text-align: right;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hotel-results-container {
+      grid-template-columns: 1fr;
+  }
+
+  .hotel-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+
+  .hotel-image {
+      width: 100%;
+      height: auto;
+      margin: 0 0 20px;
+  }
+
+  .rating-section {
+      right: auto;
+      top: auto;
+      position: relative;
+      margin-top: 15px;
+  }
+}
+
+
+.map-container {
+  margin-top: 15px; /* Adds space below the location input field */
+  height: 200px;
+  width: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adds a light shadow around the map */
+}
+
+
+          <div className="map-container">
+            <MapContainer
+               center={[51.5074, 0.1272]} // Centered on London
+              zoom={6}
+              style={{ height: '200px', width: '100%' }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+            </MapContainer>
+          </div>
+        </div>

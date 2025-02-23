@@ -1,0 +1,104 @@
+* {
+  box-sizing: border-box;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  padding: 20px;
+  overflow: hidden;  /* Hide overflow to prevent scrolling */
+  
+
+}
+
+.h1 {
+  text-align: center;
+}
+
+
+/* Header styles */
+.feedback-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.feedback-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.feedback-header p {
+  font-size: 1.2rem;
+  color: #666;
+}
+.card2 {
+  flex: 0 0 auto;
+  width: 300px;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: move 200s linear infinite;  /* Move the grid infinitely */
+  margin-top: 70px;
+  margin-bottom: 70px;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center; /* Centers the image horizontally */
+  align-items: center; /* Centers the image vertically */
+  margin-bottom: 20px; /* Adds space between the image and the feedback content */
+}
+
+.circle-image {
+  width: 80px; /* Adjust the size as needed */
+  height: 80px; /* Same as width for a perfect circle */
+  border-radius: 50%; /* Makes the image circular */
+  object-fit: cover; /* Ensures the image covers the circle without distortion */
+  border: 2px solid #ddd; /* Optional: Adds a border around the image */
+}
+
+.add-feedback-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  width: 90%;
+  height: 70%;
+  margin-left: 80%;
+  margin-top: 0px;
+}
+
+.add-feedback-button:hover {
+  background-color: #0056b3;
+}
+
+
+/* Animation to move the entire grid from right to left */
+@keyframes move {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1000%);  /* Move the cards fully leftward */
+  }
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 800px) {
+  .card2 {
+    flex: 0 0 40%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .card2 {
+    flex: 0 0 100%;
+  }
+}

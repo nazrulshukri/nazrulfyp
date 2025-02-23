@@ -1,0 +1,514 @@
+/* Booking Details Section */
+/* Booking Details Section */
+/* Overall styling */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f7f8fa;
+  padding: 20px;
+}
+
+/* Hotel card container */
+.hotel-card {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.hotel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+
+/* Hotel header */
+.hotel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.hotel-type {
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #6c757d;
+  background-color: #eff2f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+}
+
+.stars {
+  font-size: 16px;
+  color: #ffc107; /* Gold color */
+  margin-right: 8px;
+}
+
+.rating-icon {
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #ff8c00; /* Vibrant orange */
+  padding: 4px 6px;
+  border-radius: 50%;
+}
+
+/* Hotel name */
+.hotel-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #212529;
+  margin: 8px 0;
+}
+
+/* Address */
+.hotel-address {
+  font-size: 14px;
+  color: #495057;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* Location and score */
+.hotel-location {
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #28a745; /* Green for excellent location */
+  font-weight: 600;
+}
+
+.location-score {
+  color: #212529;
+  font-weight: bold;
+}
+
+/* Divider line */
+.divider {
+  height: 1px;
+  background-color: #dee2e6;
+  margin: 15px 0;
+}
+
+/* Review section */
+.review-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.review-score {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #007bff; /* Blue for reviews */
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.review-info {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.review-type {
+  font-weight: bold;
+  color: #343a40;
+}
+
+.review-count {
+  color: #6c757d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hotel-card {
+    padding: 15px;
+  }
+
+  .hotel-name {
+    font-size: 18px;
+  }
+
+  .review-score {
+    font-size: 14px;
+  }
+
+  .review-info {
+    font-size: 12px;
+  }
+}
+
+
+.booking-details {
+  background-color: #ffffff; /* White background for clean design */
+  padding: 25px; /* Added padding for better spacing */
+  border-radius: 10px; /* Slightly rounded corners for a smooth look */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
+  margin-top: 50px;
+  margin-bottom: 30px; /* Space between sections */
+  max-width: 1200px; /* Set a max width for better layout control */
+
+  
+}
+
+.booking-details h3 {
+  font-size: 24px; /* Larger, bold header */
+  font-weight: 700; /* Bold for emphasis */
+  color: #333; /* Dark gray color for readability */
+  margin-bottom: 20px; /* Space below the header */
+  text-align: center; /* Center-align header */
+}
+
+.booking-info {
+  display: flex;
+  flex-direction: column; /* Stack the items vertically */
+  gap: 15px; /* Space between items */
+}
+
+.booking-item {
+  display: flex;
+  justify-content: space-between; /* Distribute space between label and value */
+  font-size: 16px; /* Standard font size for details */
+  color: #555; /* Lighter gray text for secondary information */
+  padding: 10px 0; /* Vertical padding for better spacing */
+  border-bottom: 1px solid #f1f1f1; /* Light border for separation */
+}
+
+.booking-item strong {
+  color: #333; /* Darker color for the label */
+  font-weight: 600; /* Slightly bold for the label */
+}
+
+.booking-item span {
+  font-weight: 500; /* Regular weight for the value */
+  color: #333; /* Dark color for better readability */
+}
+
+.booking-item:last-child {
+  border-bottom: none; /* Remove the border for the last item */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .booking-details {
+    max-width: 100%; /* Ensure the container takes full width on small screens */
+    padding: 15px; /* Adjust padding for smaller screens */
+  }
+
+  .booking-details h3 {
+    font-size: 20px; /* Reduce header size on small screens */
+  }
+
+  .booking-item {
+    font-size: 14px; /* Adjust text size for small screens */
+  }
+}
+
+  
+  /* You Selected Section */
+  .you-selected {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 80px;
+  }
+  
+  .you-selected h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .you-selected p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+.hotel-details {
+    background-color: #f9f9f9; /* Light gray background for a clean, modern look */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure it scales responsively */
+    max-width: 1200px; /* Increase the max width */
+    margin: 20px 0; /* Center it vertically */
+    margin-left: -300px; /* Shift it to the left */
+  }
+  
+  .hotel-header {
+    text-align: center;
+    margin-bottom: 30px;
+    
+  }
+  
+  .hotel-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .hotel-location {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+  }
+  
+  .hotel-description {
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  .hotel-description a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .hotel-description a:hover {
+    text-decoration: underline;
+  }
+  
+  .price-summary {
+    margin-top: 70px;
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    color: #333; /* Neutral text color */
+  }
+
+  .section-header25,
+  .section-subheader {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #007BFF; /* Stylish blue for headers */
+}
+
+  
+
+  .section-content {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .section-icon {
+    width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); /* Elevate icons */
+  }
+  
+  .payment-info,
+  .cancel-info,
+  .lucky-find p {
+    font-size: 16px;
+    color: #555;
+    margin: 0;
+  }
+  
+  .price-summary h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .payment-info,
+  .cancel-info {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  .lucky-find {
+    font-size: 16px;
+    color: #D9534F; /* Red for urgency */
+    font-weight: bold;
+  }
+  
+  .total-price {
+    font-size: 20px;
+    color: #28a745; /* Green for total price */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .total-price span {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    margin-left: 5px;
+  }
+  
+  .stay-dates {
+    font-size: 16px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+  
+  .stay-dates strong {
+    margin-left: 5px;
+  }
+  
+  /* Horizontal Line */
+  hr {
+    border: none;
+    border-top: 2px solid #e0e0e0;
+    margin: 15px 0;
+  }
+  
+  /* Buttons or Additional Styling */
+  .button {
+    background: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .button:hover {
+    background: #0056b3; /* Darker blue on hover */
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .price-summary {
+      padding: 15px;
+    }
+    .section-header,
+    .section-subheader {
+      font-size: 18px;
+    }
+  }
+
+  .payment-info, .cancel-info, .lucky-find {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  .price-details {
+    background-color: #f7f7f7;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .total-price {
+    font-size: 20px;
+    color: #28a745; /* Green for total price */
+    display: flex;
+    align-items: center;
+  }
+  
+  .stay-dates {
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+  }
+  
+  .stay-dates strong {
+    margin-left: 5px;
+  }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 15px 0;
+  }
+  
+  .lucky-find {
+    font-size: 16px;
+    color: #d9534f; /* Red for urgency */
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .total-price span {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin-left: 5px;
+  }
+  
+  @media (max-width: 768px) {
+    .hotel-details {
+      max-width: 100%;
+      margin-left: 0; /* Reset the left margin for smaller screens */
+    }
+  }
+
+
+  
+  
+/* Red container styling */
+.red-container {
+  background-color: #ffe5e5; /* Light red background */
+  border: 1px solid #ff5252; /* Border to match text highlight */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(255, 82, 82, 0.2); /* Subtle red shadow */
+  margin: 20px 0;
+}
+
+/* Section header */
+.red-container .section-subheader {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ff5252; /* Matching red for header text */
+  margin-bottom: 10px;
+}
+
+/* Section content */
+.red-container .section-content {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Spacing between icon and text */
+}
+
+.red-container .section-icon {
+  width: 24px; /* Icon size */
+  height: 24px;
+}
+
+.red-container .cancel-info {
+  font-size: 16px;
+  color: #333; /* Neutral text color */
+  line-height: 1.5;
+}
+
+/* Divider styling */
+.red-container hr {
+  border: none;
+  height: 1px;
+  background-color: #ff5252; /* Red horizontal line */
+  margin-top: 15px;
+}
+
+  

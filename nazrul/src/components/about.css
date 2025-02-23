@@ -1,0 +1,194 @@
+/* styles.css */
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(to bottom right, #a4c1e0, #364a5f);
+    color: white;
+    text-align: center;
+  }
+
+  
+  .full-width-container {
+    width: 100%; /* Makes it full width */
+    max-width: none; /* Removes Bootstrap's default max-width */
+  }
+
+  
+  /* About Us Section */
+  .about-us {
+    background-color: #f8f9fa;
+  }
+  
+  /* Mission and Vision Section */
+  .mission-vision .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Leadership Section */
+  .leadership img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 4px solid #f8f9fa;
+  }
+  
+ 
+
+ /* Horizontal Line */
+ .timeline-line {
+  position: absolute;
+  top: 50%;
+  right: 350px;
+  width: 100%;
+  height: 3px;
+  background-color: #95b7df;
+  z-index: 1;
+}
+
+
+/* Timeline Wrapper */
+.timeline-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 40px 0;
+  display: flex; /* Use flex to keep items in a row */
+  justify-content: space-between; /* Distribute items evenly */
+  align-items: center; /* Align vertically */
+  margin-bottom: 10%;
+}
+
+/* Horizontal Line */
+.timeline-line {
+  position: absolute;
+  top: 62%;
+  left: 0;
+  width: 100%; /* Ensure it spans the entire width */
+  height: 3px;
+  background-color: #95b7df;
+  z-index: 1;
+}
+
+/* Timeline Item */
+.timeline-item {
+  position: relative;
+  width: 16%;
+  text-align: left;
+  display: inline-block; /* Keep items inline */
+  background-color: transparent; /* Ensure no background */
+  visibility: visible; /* Keep it visible unless you want to hide it */
+
+}
+
+/* Timeline Points - Hide only the first dot */
+.timeline-item:first-child .timeline-point {
+  display: none; /* Hide the first dot completely */
+}
+
+/* Timeline Points (for the rest) */
+.timeline-point {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: transparent; /* Make dot invisible */
+  border: none;
+  margin: 0 auto;
+  z-index: 8;
+}
+
+/* Remove any pseudo-elements adding backgrounds */
+.timeline-item::before,
+.timeline-item::after {
+  content: "";
+  display: none; /* Ensure nothing extra is displayed */
+}
+
+/* Timeline Content */
+.timeline-content {
+  position: absolute;
+  top: 120%;
+  left: 30%;
+  transform: translateX(-20%);
+  text-align: left;
+  background-color: #f5f5f5;
+  padding: 15px; /* Add some spacing inside the container */
+  text-align: left; /* Align text to the left for professionalism */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  border-radius: 12px; /* Smooth rounded corners */
+  padding: 10px; /* Add consistent spacing inside the container */
+  
+}
+
+
+
+
+.timeline-year {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.timeline-description {
+  font-size: 0.9rem;
+  color: #000000;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .timeline-wrapper {
+    padding: 20px 0;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  }
+
+  .timeline-item {
+    width: 24%; /* Wider points for fewer items on smaller screens */
+  }
+
+  .timeline-content {
+    top: 140%; /* Increase spacing on smaller screens */
+  }
+}
+
+
+  
+  
+  
+  
+  /* Objectives Section */
+  .objectives ul li {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .objectives i {
+    margin-right: 0.5rem;
+  }
+  
+  /* Benefits Section */
+  .benefits ul li {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .benefits i {
+    margin-right: 0.5rem;
+  }
+  
+  /* Footer */
+  .footer {
+    background-color: #343a40;
+    color: #ffffff;
+  }
+
+  .leadership-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  

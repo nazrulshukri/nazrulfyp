@@ -1,0 +1,186 @@
+.payment-container1 {
+  display: flex;               
+  justify-content: center;     
+  align-items: flex-start;     
+  padding: 20px;
+  width: 150%;  
+  max-width: 2000px;                
+  margin-top: 80px;  
+}
+
+.details-summary {
+  display: flex;
+  justify-content: flex-start;
+  width: 150%;
+  max-width: 2500px;
+  gap: 20px;
+  
+}
+
+.flight-details-section,
+.fare-summary-section {
+  border-radius: 8px;          
+  padding: 20px; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition effects */
+}
+
+.flight-details-section {
+  flex: 2;                      /* Make the flight details section larger */
+  background-color: #f8f8f8;  
+}
+
+.fare-summary-section {
+  flex: 1;                      /* Fare summary section remains smaller */
+  background-color: #fff; 
+  border: 1px solid #ddd; 
+  margin-top: 40px;            /* Adjust to your preference */
+}
+
+/* Title Styling */
+.fare-summary-title {
+  font-size: 24px;
+  color: #444;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 10px;
+}
+
+/* Fare Details Styling */
+.fare-details {
+  margin-top: 0px;
+}
+
+.fare-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.fare-detail:last-child {
+  border-bottom: none;
+}
+
+/* Icon and Label Styling */
+.fare-label {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #555;
+}
+
+.fare-label i {
+  color: #4b9cd3;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Amount Styling */
+.fare-amount {
+  color: #007bff;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Styling for Total Section */
+.total .fare-label {
+  color: #d9534f;
+}
+
+.total .fare-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #d9534f;
+}
+
+/* Continue Button Styling */
+.continue-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 25px;
+  transition: background-color 0.3s ease;
+}
+
+.continue-btn:hover {
+  background-color: #0056b3;
+}
+
+.fare-summary-section {
+  border: 1px solid #ddd; 
+  border-radius: 8px;         
+  padding: 20px;              
+}
+
+.fare-summary-section {
+  background-color: #fff;  /* White background for contrast */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  margin-bottom: 50px;  /* Space between sections */
+}
+
+.flight-summary-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;  /* Space between the flight summary cards */
+}
+
+.flight-summary-card {
+  flex: 1;  /* Equal width for cards */
+  padding: 15px;  /* Internal padding */
+  border: 1px solid #ddd;  /* Border for card separation */
+  border-radius: 8px;  /* Rounded corners */
+  background-color: #f8f8f8;  /* Light background for cards */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Card shadow for depth */
+  transition: transform 0.2s;  /* Transition effect on hover */
+}
+
+.flight-summary-card:hover {
+  transform: translateY(-5px);  /* Lift effect on hover */
+}
+
+.selected-seats {
+  margin-top: 20px;  /* Space above selected seats */
+  padding: 10px;  /* Internal padding */
+  background-color: #f0f8ff;  /* Light background for distinction */
+  border-radius: 6px;  /* Rounded corners */
+}
+
+.selected-seats-title {
+  font-size: 20px;  /* Title size */
+  color: #333;  /* Title color */
+  margin-bottom: 10px;  /* Space below title */
+}
+
+.selected-seats-list {
+  font-size: 16px;  /* Font size for seat list */
+  color: #555;  /* Color for seat list */
+}
+
+
+@media (max-width: 1200px) {
+  .payment-container {
+    max-width: 100%; /* Limits width on medium screens */
+    padding: 10px; /* Adjust padding for smaller screens */
+  }
+}
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .details-summary {
+    flex-direction: column;     
+  }
+
+  .flight-details-section,
+  .fare-summary-section {
+    width: 100%;               
+  }
+} 

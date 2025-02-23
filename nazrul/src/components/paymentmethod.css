@@ -1,0 +1,219 @@
+/* Main Page Styling */
+.payment-page1 {
+  display: flex;
+  min-height: 100vh;
+  background-color: #e0e0e0d5; /* Darker shade for depth */
+  color: #ffffff; /* White text for contrast */
+  font-family: 'Arial', sans-serif;
+}
+
+/* Sidebar Styling */
+.payment-sidebar1 {
+  flex: 1;
+  max-width: 250px;
+  background-color: #80c5ec; /* Light background for contrast */
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Deeper shadow for depth */
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e0e0e0;
+  margin-top: 80px;
+  border-radius: 8px;
+}
+
+/* Payment Options Styling */
+.payment-options1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-option1 {
+  padding: 14px; /* Increased padding */
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; /* Added shadow transition */
+  border-radius: 6px;
+  background-color: #fffcfc; /* Blue background for modern look */
+  color: #080707; /* White text */
+  font-weight: 600; /* Bold text */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+}
+
+.payment-option1:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* More noticeable lift */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+}
+
+.payment-option1.active {
+  background-color: #1fb9ce; /* Active option background */
+}
+
+.payment-option1 label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+/* Icon Styling */
+.payment-icon {
+  margin-right: 10px;
+  width: 70px;
+  height: 60px; /* Increased size for better visibility */
+}
+
+/* Main Content Styling */
+.payment-content1 {
+  flex: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* Payment Form Styling */
+.payment-method-form1 {
+  background: #ffffff; /* Bright background for contrast */
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 40px;
+  width: 100%;
+  max-width: 1200px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+  transition: box-shadow 0.3s;
+}
+
+.payment-method-form1:hover {
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+
+/* Button Styling */
+.payment-button {
+  background-color: #000000; /* Green button for positive action */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+  width: 100%;
+}
+
+.payment-button:hover {
+  background-color: #e62727; /* Darker green on hover */
+  transform: translateY(-1px); /* Lift effect on hover */
+}
+
+.payment-button:active {
+  transform: scale(0.98); /* Press effect on click */
+}
+
+.input-icon-wrapper78 {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon1 {
+  position: absolute;
+  left: 10px;
+  width: 20px; /* Adjust size as needed */
+  height: 20px;
+  pointer-events: none; /* So it doesn’t interfere with input focus */
+}
+
+.input-icon-wrapper78 input {
+  padding-left: 40px; /* Add padding to make room for the icon */
+  padding-right: 10px; /* Optional: additional spacing */
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 40px; /* Standardize input height */
+  box-sizing: border-box;
+}
+
+.fare-summary-section {
+  background-color: #fff;  /* White background for contrast */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  margin-bottom: 20px;  /* Space between sections */
+}
+
+.flight-summary-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;  /* Space between the flight summary cards */
+}
+
+.flight-summary-card {
+  flex: 1;  /* Equal width for cards */
+  padding: 15px;  /* Internal padding */
+  border: 1px solid #ddd;  /* Border for card separation */
+  border-radius: 8px;  /* Rounded corners */
+  background-color: #f8f8f8;  /* Light background for cards */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Card shadow for depth */
+  transition: transform 0.2s;  /* Transition effect on hover */
+}
+
+.flight-summary-card:hover {
+  transform: translateY(-5px);  /* Lift effect on hover */
+}
+
+.selected-seats {
+  margin-top: 20px;  /* Space above selected seats */
+  padding: 10px;  /* Internal padding */
+  background-color: #f0f8ff;  /* Light background for distinction */
+  border-radius: 6px;  /* Rounded corners */
+}
+
+.selected-seats-title {
+  font-size: 20px;  /* Title size */
+  color: #333;  /* Title color */
+  margin-bottom: 10px;  /* Space below title */
+  font-family: 'Arial', sans-serif;  /* Stylish font */
+  font-weight: bold;  /* Bold text */
+}
+
+.selected-seats-container {
+  display: flex;  /* Flexbox for seat results */
+  flex-wrap: wrap;  /* Wrap seats to next line if needed */
+  gap: 10px;  /* Space between seat containers */
+}
+
+.seat-result {
+  background-color: #e0f7fa;  /* Light cyan for seat containers */
+  border: 1px solid #b2ebf2;  /* Border for seat containers */
+  border-radius: 5px;  /* Rounded corners for seat */
+  padding: 8px 12px;  /* Internal padding */
+  font-size: 16px;  /* Font size for seat */
+  color: #00796b;  /* Darker teal color for text */
+  font-weight: 500;  /* Medium font weight */
+  transition: background-color 0.2s;  /* Transition for hover effect */
+}
+
+.seat-result:hover {
+  background-color: #b2ebf2;  /* Darker shade on hover */
+}
+
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .payment-sidebar {
+    max-width: 100%;
+    margin-top: 0;
+    border-right: none; /* Remove right border on small screens */
+  }
+
+  .payment-page {
+    flex-direction: column; /* Stack for smaller screens */
+  }
+
+  .payment-content {
+    padding: 20px; /* Adjust padding for smaller screens */
+  }
+}

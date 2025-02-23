@@ -1,0 +1,238 @@
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { QRCodeCanvas } from 'qrcode.react';
+import generatePDF from './pdfgenerator'; 
+import bookingflex from '../img/assets/Booking1.png';
+import './ticketpage.css';
+import emiratesLogo from "../img/assets/Malaysiaarilineslogo.png"; // Update with actual path
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+
+const TicketPage = () => {
+  const location = useLocation();
+  const { state } = location || {};
+
+  useEffect(() => {
+    console.log("Received state in TicketPage:", state);
+  }, [state]);
+
+  const {
+    bookingId,
+    paymentMethod,
+    amount,
+    outboundFlight = {},
+    returnFlight = {},
+    passengerDetails = {},
+    selectedSeats = [],
+    selectedInsurance = false,
+  } = state || {};
+
+  const airlineLogos = {
+    Emirates: emiratesLogo,
+    // Add more airline logos if needed
+  };
+
+  if (!state) {
+    return <div>No booking information available.</div>;
+  }
+
+  const handleDownload = () => {
+    generatePDF({ bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance });
+  };
+
+  return (
+    <div className="ticket-page">
+      <div className="ticket-container" id="ticket">
+        <div className="ticket-header">
+          <img src={bookingflex} alt="Booking Logo" className="booking-logo" />
+          <h2>Your Flight Ticket</h2>
+        </div>
+        <div className="status-container">
+  <div className="status-text">
+    <FontAwesomeIcon icon={faCheckCircle} className="status-icon" />
+    <p><strong>Status:</strong> Confirmed</p>
+  </div>
+  <p className="congratulations-message">Congratulations! Your flight has been approved.</p>
+</div>
+        
+        <div className="flight-list">
+          <div className="flight-info">
+            <h3>Outbound Flight</h3>
+            <div className="flight-header">
+              <img
+                src={airlineLogos[outboundFlight.airline] || emiratesLogo}
+                alt={`${outboundFlight.airline} logo`}
+                className="airline-logo"
+              />
+              <h3>{outboundFlight.airline}</h3>
+              <h5>{outboundFlight.flightNumber}</h5>
+            </div>
+            <div className="flight-details">
+              <div className="flight-times">
+                <div className="departure">
+                  <p className="time">{outboundFlight.departure}</p>
+                  <p className="airport">{outboundFlight.origin}</p>
+                </div>
+                <div className="duration">
+                  <p>---------------------------------------</p>
+                  <p>{outboundFlight.duration}</p>
+                </div>
+                <div className="arrival">
+                  <p className="time">{outboundFlight.arrival}</p>
+                  <p className="airport">{outboundFlight.destination}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flight-info">
+            <h3>Return Flight</h3>
+            <div className="flight-header">
+              <img
+                src={airlineLogos[returnFlight.airline] || emiratesLogo}
+                alt={`${returnFlight.airline} logo`}
+                className="airline-logo"
+              />
+              <h3>{returnFlight.airline}</h3>
+              <h5>{returnFlight.flightNumber}</h5>
+            </div>
+            <div className="flight-details">
+              <div className="flight-times">
+                <div className="departure">
+                  <p className="time">{returnFlight.departure}</p>
+                  <p className="airport">{returnFlight.origin}</p>
+                </div>
+                <div className="duration">
+                  <p>---------------------------------------</p>
+                  <p>{returnFlight.duration}</p>
+                </div>
+                <div className="arrival">
+                  <p className="time">{returnFlight.arrival}</p>
+                  <p className="airport">{returnFlight.destination}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="ticket-details-container">
+          <h3>Ticket Details</h3>
+          <div className="ticket-details">
+            <div className="detail-item">
+              <p><strong>Passenger Name:</strong> {passengerDetails.firstName} {passengerDetails.lastName}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Email:</strong> {passengerDetails.email}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Booking ID:</strong> #{bookingId}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Payment Method:</strong> {paymentMethod}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Amount:</strong> MYR{amount}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
+            </div>
+            <div className="detail-item">
+              <p><strong>Insurance:</strong> {selectedInsurance ? 'Yes' : 'No'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="ticket-footer">
+          <div className="qr-code-container">
+            <h3>QR Code</h3>
+            <QRCodeCanvas value={bookingId} size={128} />
+            <p>Scan for details</p>
+          </div>
+          <div className="download-container">
+            <h3>Download Ticket</h3>
+            <button onClick={handleDownload} className="download-link">
+              <i className="fas fa-download"></i> Download PDF
+            </button>
+          </div>
+        </div>
+
+        <div className="additional-container">
+          <h3>Additional Information</h3>
+          <p>Please Bring you passport and you ticket </p>
+        </div>
+      </div>
+    </div>  
+  );
+};
+
+export default TicketPage;
+
+
+ <div className="ticket-details-container">
+  <h3>Ticket Details</h3>
+  <div className="ticket-details">
+    <div className="detail-item">
+      <i className="fas fa-user passenger-icon"></i>
+      <p><strong>Passenger Name:</strong> {passengerDetails.firstName} {passengerDetails.lastName}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fas fa-envelope email-icon"></i>
+      <p><strong>Email:</strong> {passengerDetails.email}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fas fa-id-card booking-icon"></i>
+      <p><strong>Booking ID:</strong> #{bookingId}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fab fa-cc-paypal"></i>
+      <p><strong>Payment Method:</strong> {paymentMethod}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fas fa-dollar-sign amount-icon"></i>
+      <p><strong>Amount:</strong> MYR{amount}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fas fa-chair seat-icon"></i>
+      <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
+    </div>
+    <div className="detail-item">
+      <i className="fas fa-shield-alt insurance-icon"></i>
+      <p><strong>Insurance:</strong> {selectedInsurance ? 'Yes' : 'No'}</p>
+    </div>
+  </div>
+</div>
+
+
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { QRCodeCanvas } from 'qrcode.react';
+import generatePDF from './pdfgenerator'; 
+import bookingflex from '../img/assets/Booking1.png'
+import './ticketpage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+
+
+ <img src={BoardingGate} alt="Boarding Gate" className="icon boarding-gate-icon" />
+      <p>
+        <strong>Check-in Counter:</strong> <strong>No. 5</strong>
+      </p>
+  </div>
+    <div className="detail-item">
+    <img src={Gatedeparture} alt="Gate Departure" className="icon gate-departure-icon" />
+      <p>
+        <strong>Gate:</strong> A5
+      </p>
+    </div>
+    <div className="detail-item">
+    <img src={Gatedeparture} alt="Gate Departure" className="icon gate-departure-icon" />
+      <p>
+        <strong>Passport Check:</strong> <strong>Checked</strong>
+      </p>
+
+
+('../img/assets/pdf/seat.png');
+
+
+
+Flight No: MH360  From: Kuala Lumpur International (KUL) (N/A) To: London Heathrow (LHR) (N/A) Date: 01/01/2025

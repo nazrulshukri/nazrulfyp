@@ -1,0 +1,70 @@
+/* General page layout */
+html, body {
+    height: 100%; /* Make sure the body takes full height */
+    margin: 0; /* Remove default margin */
+}
+
+body {
+    background-color: #f0f0f0; /* Optional: a background color for the body */
+}
+
+.signup-container {
+    padding-bottom: 100px; /* Add space at the bottom to ensure the footer doesn't overlap */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    align-items: center; /* Vertically center content */
+    justify-content: center; /* Horizontally center content */
+    background-image: url('../img/assets/singup.png'); /* Background image for the signup container */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.signup-form {
+    display: flex;
+    width: 100%; /* Ensure the form takes full width of the container */
+    max-width: 500px; /* Limit the max width */
+    background-color: white; /* Optional: to make the form stand out */
+    padding: 30px; /* Add padding inside the form */
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; /* Center the form horizontally */
+}
+
+/* Card styling for form container */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.fab {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: #3b5998; /* Facebook blue */
+    border: none;
+}
+
+.btn-danger {
+    background-color: #db4437; /* Google red */
+    border: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+a {
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}

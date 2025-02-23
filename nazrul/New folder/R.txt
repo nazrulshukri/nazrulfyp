@@ -1,0 +1,36 @@
+import React from 'react';
+import './transport.css';
+
+const TransportStep = ({ 
+  LineID, 
+  details, 
+  time, 
+  remark, 
+  price, 
+  totalPrice, 
+  departureTime, 
+  arrivalTime, 
+  travelTime 
+}) => {
+  return (
+    <div className="transport-step">
+      <div className="icon">
+        <span>{LineID}</span>
+      </div>
+      <div className="details">
+        <strong>{details}</strong> <br />
+        Status: {time} <br />
+        Remark: {remark || 'No remark available'} <br />
+        <p>Departure: {departureTime}</p>
+        <p>Arrival: {arrivalTime}</p>
+        <p>Travel Time: {travelTime}</p>
+      </div>
+      <div className="time-details">
+        <p>Price: {price} Ringgit</p>
+        <p>Total: {totalPrice} Ringgit</p>
+      </div>
+    </div>
+  );
+};
+
+export default TransportStep;

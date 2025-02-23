@@ -1,0 +1,210 @@
+/* General Header Styling */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: rgba(17, 17, 17, 0.6); /* Semi-transparent background */
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: #fff;
+  font-size: 1.2rem;
+  width: 100%;
+  height: 80px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid rgba(160, 159, 159, 0.5); /* Subtle border with transparency */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  font-family: 'Poppins', sans-serif;
+}
+
+.header-logo {
+  width: 80px;
+  height: auto;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Adds spacing between items */
+}
+
+.nav-list li {
+  margin: 0;
+}
+
+.nav-list a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-list a:hover {
+  color: #e74c3c; /* Accent color on hover */
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Space between search and actions */
+}
+
+/* Search Form */
+.search-form {
+  display: flex;
+  align-items: center;
+  background-color: #222; /* Darker background for form */
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.search-form input {
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  width: 200px;
+}
+
+.search-form button {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #282c2c;
+  color: #fcfcfc;
+  font-size: 0.85rem;
+}
+
+button img {
+  width: 20px;
+  height: auto;
+  margin: 0;
+}
+
+/* Dark/Light Mode Toggle Switch */
+.switch-toggle {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.switch-toggle.checked {
+  background-color: #4CAF50;
+}
+
+.switch-toggle-knob {
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease-in-out;
+}
+
+.switch-toggle.checked .switch-toggle-knob {
+  transform: translateX(20px);
+}
+
+/* Ensure proper styling for the home icon */
+.home-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+}
+
+.nav-icon {
+  width: 40px;
+  height: auto;
+}
+
+
+/* === User Dropdown Styles === */
+.user-dropdown1 {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.user-greeting1 {
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: white;
+  background-color: transparent;
+}
+
+.user-greeting1:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* === Dropdown Menu === */
+.dropdown-menu1 {
+  position: absolute;
+  top: 100%; /* Below the greeting */
+  right: 0; /* Right-align */
+  margin-top: 8px;
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  min-width: 180px;
+  overflow: hidden;
+  padding: 8px 0;
+}
+
+.dropdown-item1 {
+  padding: 10px 16px;
+  color: #e0e0e0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.dropdown-item1:hover {
+  background-color: #3e3e3e;
+}
+
+/* === Divider === */
+.dropdown-divider {
+  height: 1px;
+  background-color: #555;
+  margin: 6px 0;
+}
+
+/* === Logout Item === */
+.logout {
+  color: #ff5c5c;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background-color: #5c2b2b;
+}
+
+
+
+

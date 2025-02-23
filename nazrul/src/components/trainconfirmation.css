@@ -1,0 +1,133 @@
+/* General Container */
+.confirmation-container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Roboto', sans-serif;
+    transition: transform 0.3s ease;
+    margin-top: 90px;
+    margin-bottom: 250px;
+  }
+  
+  /* Header */
+  .confirmation-header {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 20px;
+ 
+  }
+  
+  /* Booking Summary */
+  .confirmation-summary {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Typography for Booking Details */
+  .confirmation-summary p {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  
+  /* Payment Status Container */
+  .payment-status-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  /* Payment Status */
+  .payment-status {
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    transition: color 0.3s ease;
+  }
+  
+  .payment-status.success {
+    color: #28a745;
+  }
+  
+  .payment-status.failed {
+    color: #e74c3c;
+  }
+  
+  /* Payment Status Icons */
+  .status-icon {
+    margin-right: 10px;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .status-icon:hover {
+    transform: scale(1.2);
+  }
+  
+  .success-icon {
+    color: #28a745;
+  }
+  
+  .failed-icon {
+    color: #e74c3c;
+  }
+  
+  /* Action Button */
+  .confirmation-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  
+  .confirmation-button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 8px;
+    text-transform: capitalize;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .confirmation-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  /* Hover Effects on Summary */
+  .confirmation-summary:hover {
+    background-color: #e9ecef;
+  }
+  
+  /* Media Queries for Responsive Design */
+  @media (max-width: 768px) {
+    .confirmation-container {
+      padding: 15px;
+    }
+  
+    .confirmation-header {
+      font-size: 2rem;
+    }
+  
+    .confirmation-summary p {
+      font-size: 1rem;
+    }
+  
+    .confirmation-button {
+      font-size: 1rem;
+    }
+  }
+  
