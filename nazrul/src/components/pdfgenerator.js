@@ -1,5 +1,5 @@
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
-const fs = require('fs');
+
 
 const generatePDF = async (ticketData) => {
   const {
