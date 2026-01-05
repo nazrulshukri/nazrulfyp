@@ -1,5 +1,4 @@
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
-const fs = require('fs');
 const bwipjs = require('bwip-js');
 
 
@@ -442,6 +441,7 @@ returnPage.drawText(`Arrival Time: ${returnArrivalTime}, Arrival Date: ${returnF
 };
 
 module.exports = { generatePDF1 };
+
 
 
 
