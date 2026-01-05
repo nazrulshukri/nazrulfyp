@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
@@ -74,7 +75,8 @@
     "stripe": "^17.1.0",
     "swiper": "^11.1.12",
     "tailwind-merge": "^2.5.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@craco/craco": "^7.1.0"
   },
   "devDependencies": {
     "@types/pdfkit": "^0.13.5",
