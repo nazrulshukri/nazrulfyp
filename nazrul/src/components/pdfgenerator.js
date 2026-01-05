@@ -11,14 +11,9 @@ const generatePDF = async (ticketData) => {
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   // ✅ Load and embed logo
-  const imagePath = __dirname + '/../img/assets/Malaysiaarilineslogo.png';
-  if (!fs.existsSync(imagePath)) throw new Error('Error: Image file not found at ' + imagePath);
-  const malaysiaLogoBytes = fs.readFileSync(imagePath);
-  const malaysiaLogo = await pdfDoc.embedPng(malaysiaLogoBytes);
+ 
 
-  // ✅ Draw background sections for a structured design
-  page.drawRectangle({ x: 30, y: 200, width: 540, height: 80, color: rgb(0.9, 0.9, 0.9) }); // Header
-  page.drawRectangle({ x: 30, y: 10, width: 570, height: 170, borderColor: rgb(0, 0, 0), borderWidth: 2 }); // Border
+
 
   // ✅ Draw Logo
   page.drawImage(malaysiaLogo, { x: 40, y: 210, width: 80, height: 50 });
@@ -46,5 +41,6 @@ const generatePDF = async (ticketData) => {
 };
 
 module.exports = { generatePDF };
+
 
 
