@@ -1,4 +1,3 @@
-import malaysiaLogo from '../img/assets/Malaysiaarilineslogo.png';
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const QRCode = require('qrcode');
 
@@ -12,12 +11,6 @@ const generatePDF = async (ticketData) => {
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   
-
-  // ✅ Draw Logo
-  page.drawImage(malaysiaLogo, { x: 40, y: 210, width: 80, height: 50 });
-
-  // ✅ Add headings
-  page.drawText('BOARDING PASS', { x: 250, y: 240, size: 18, font: helveticaBold });
 
   // ✅ Passenger Details
   page.drawText(`Passenger: ${passengerDetails.firstName} ${passengerDetails.lastName}`, { x: 40, y: 160, size: 12, font: helvetica });
@@ -39,6 +32,7 @@ const generatePDF = async (ticketData) => {
 };
 
 module.exports = { generatePDF };
+
 
 
 
