@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const QRCode = require('qrcode');
 
@@ -47,4 +46,5 @@ const generatePDF = async (ticketData) => {
 };
 
 module.exports = { generatePDF };
+
 
