@@ -11,7 +11,7 @@ const generatePDF = async (ticketData) => {
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   // ✅ Load and embed logo
- 
+ const imagePath = __dirname + '/../img/assets/Malaysiaarilineslogo.png';
 
 
 
@@ -41,6 +41,7 @@ const generatePDF = async (ticketData) => {
 };
 
 module.exports = { generatePDF };
+
 
 
 
