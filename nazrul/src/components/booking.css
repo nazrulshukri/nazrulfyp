@@ -241,3 +241,71 @@
 .input-with-icon input {
   padding-left: 40px; /* Add space for the icon */
 }
+
+
+@media (max-width: 1024px) {
+  .booking-wrapper {
+    padding: 2rem;
+    max-width: 95%;
+  }
+
+  .option-button {
+    flex: 1 1 45%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .button-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    min-width: 100%;
+  }
+
+  .form-group input {
+    width: 100%;
+  }
+
+  .input-with-icon .icon {
+    left: auto;
+    right: 1rem;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 600px) {
+  .booking-wrapper {
+    padding: 1.5rem;
+    border-radius: 10px;
+  }
+
+  .option-button {
+    flex: 1 1 100%;
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+
+  .form-group label {
+    font-size: 1rem;
+  }
+
+  .form-group input {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+
+  .submit-button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+}

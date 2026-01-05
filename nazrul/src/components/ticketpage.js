@@ -1,6 +1,7 @@
 import React, { useEffect ,useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
+import { generatePDF1 } from './pdfgenerator1';
 import generatePDF from './pdfgenerator'; 
 import bookingflex from '../img/assets/Booking1.png';
 import './ticketpage.css';
@@ -49,7 +50,7 @@ const TicketPage = () => {
   }
 
   const handleDownload = () => {
-    generatePDF({ bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance });
+    generatePDF1({ bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance });
   };
 
   return (

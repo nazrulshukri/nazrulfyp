@@ -553,6 +553,53 @@ label {
   background-color: #e01e1e; /* Darker shade on hover */
 }
 
+/* 📱 Mobile two-column fix — only affects screens below 740px */
+/* 📱 Make flight list 2-column layout on mobile */
+@media (max-width: 740px) {
+  .flight-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two flight items side-by-side */
+    gap: 15px;
+  }
+
+  .flight-item {
+    margin-bottom: 0;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .flight-header img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .flight-details {
+    font-size: 0.9rem;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .flight-details-button,
+  .flight-select-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* 📱 Even smaller screens (like iPhone SE) */
+@media (max-width: 480px) {
+  .flight-list {
+    grid-template-columns: 1fr; /* Stack one per row on very small screens */
+  }
+}
+
+
+
+
 
 
 

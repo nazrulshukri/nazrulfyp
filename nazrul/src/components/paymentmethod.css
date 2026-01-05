@@ -10,15 +10,54 @@
 /* Sidebar Styling */
 .payment-sidebar1 {
   flex: 1;
-  max-width: 250px;
-  background-color: #80c5ec; /* Light background for contrast */
+  max-width: 270px; /* Slightly bigger for better spacing */
+  background: linear-gradient(135deg, #222, #444); /* Dark gradient */
   padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Deeper shadow for depth */
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Deep shadow */
+  border-right: 2px solid #ffcc00; /* Gold accent border */
+  border-radius: 12px;
+}
+
+.payment-sidebar1 h2 {
+  color: #fff; /* White text */
+  font-size: 1.2rem; /* Slightly bigger for emphasis */
+  text-transform: uppercase; /* Makes it more professional */
+  font-weight: bold; /* Stronger presence */
+  margin-bottom: 15px; /* Good spacing */
+}
+
+
+.booking-details-container {
   margin-top: 80px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1); /* Glassmorphic effect */
+  padding: 12px; /* Compact padding */
+  border-radius: 10px; /* Soft rounded corners */
+  margin-bottom: 15px; /* Tighter layout */
+  font-size: 0.9rem; /* Slightly small font */
+  max-width: 220px; /* Keeps it small */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+  backdrop-filter: blur(8px); /* Frosted glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Soft border */
+  color: #fff; /* White text for contrast */
+}
+
+.booking-details-container h2 {
+  font-size: 1rem; /* Slightly bold title */
+  color: #ffcc00; /* Gold color for premium look */
+  margin-bottom: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.booking-details-container p {
+  font-size: 0.85rem; /* Compact size */
+  color: #ddd; /* Soft white text */
+  margin: 3px 0;
+  line-height: 1.3;
+}
+
+.booking-details-container p strong {
+  color: #ffcc00; /* Gold highlight */
 }
 
 /* Payment Options Styling */
@@ -34,7 +73,7 @@
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; /* Added shadow transition */
   border-radius: 6px;
   background-color: #fffcfc; /* Blue background for modern look */
-  color: #080707; /* White text */
+  color: #ffffff; /* White text */
   font-weight: 600; /* Bold text */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
 }
@@ -114,26 +153,29 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .input-icon1 {
   position: absolute;
-  left: 10px;
-  width: 20px; /* Adjust size as needed */
+  left: 10px; /* Adjust the left spacing */
+  width: 20px;
   height: 20px;
-  pointer-events: none; /* So it doesn’t interfere with input focus */
 }
 
 .input-icon-wrapper78 input {
-  padding-left: 40px; /* Add padding to make room for the icon */
-  padding-right: 10px; /* Optional: additional spacing */
+  padding-left: 45px !important; /* Pushes text further right */
+  padding-right: 10px;
   font-size: 16px;
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 4px;
-  height: 40px; /* Standardize input height */
+  height: 40px;
   box-sizing: border-box;
+  background-color: #fff; /* Ensure the input isn't transparent */
 }
+
+
 
 .fare-summary-section {
   background-color: #fff;  /* White background for contrast */

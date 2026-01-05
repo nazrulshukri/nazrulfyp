@@ -80,7 +80,7 @@ const PaymentMethodPage = () => {
     
     try {
         // Send payment data to the backend
-        const response = await axios.post('http://localhost:5000/submit-payment', paymentData);
+        const response = await axios.post('http://localhost:5001/submit-payment', paymentData);
 
         if (response.data.success) {
             console.log('Payment saved successfully:', response.data);
@@ -98,6 +98,18 @@ const PaymentMethodPage = () => {
   return (
     <div className="payment-page1">
       <div className="payment-sidebar1">
+      <div className="booking-details-container">
+      <h2>Booking Details</h2>
+      <p><strong>Email:</strong> {passengerDetails.email}</p>
+      <p><strong>Booking ID:</strong> {bookingId}</p>
+      <p><strong>Departure Flight:</strong> {outboundFlight.flightNumber} </p>
+      <p><strong>Departure Price: MYR</strong>  {outboundFlight.price}</p>
+      <p><strong>Return Flight:</strong> {returnFlight.flightNumber}  </p>
+      <p><strong>Return Price: MYR</strong>  {returnFlight.price}</p>
+      <p><strong>Selected Seats:</strong> {selectedSeats.join(", ")}</p>
+      <p><strong>Insurance:</strong> {selectedInsurance.name}  (MYR{selectedInsurance.price})</p>
+      <p><strong>Your amount : RM</strong> {totalAmount}</p>
+    </div>
         <h2>Select Payment Method</h2>
         <div
           className={`payment-option1 ${paymentType === 'paypal' ? 'active' : ''}`}

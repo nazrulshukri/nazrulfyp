@@ -10,7 +10,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/forgot-password', { email });
+      const response = await axios.post('http://localhost:5001/forgot-password', { email });
       setMessage(response.data.message);
       // Optionally navigate to another page after success
       // navigate('/some-route');

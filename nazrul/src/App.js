@@ -24,10 +24,10 @@ import FormPage from './components/fillform'
 import TrainPaymentMethod from './components/trainpayment'
 import TrainConfirmation from './components/trainconfirmation';
 import ForgotPassword from './components/forgotpassword'; // Correct this line if the file is in the components folder
+import FlightStatus from './components/flightstatus'; 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TrainPage from './components/train';
-
 
 function AppContent() {
   const { isDarkMode } = useTheme(); // Access theme context here
@@ -59,6 +59,7 @@ function AppContent() {
           <Route path="/trainpayment" element={<TrainPaymentMethod />} />
           <Route path="/trainconfirmation" element={<TrainConfirmation />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/FlightStatus" element={<FlightStatus />} />
         </Routes>
       </main>
       <Footer />

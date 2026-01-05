@@ -211,7 +211,7 @@ function Booking() {
           people: people,
         };
       
-        // Log the trainParams object for debugging
+        // Log the trainParams object for debuggingß
         console.log('Navigating with trainParams:', Train);
       
         // Navigate to TrainPage with trainParams in state
@@ -219,7 +219,7 @@ function Booking() {
       }
       
   
-      const response = await axios.post('http://localhost:5000/bookings', {
+      const response = await axios.post('http://localhost:5001/bookings', {
         startDate,
         returnDate,
         location,

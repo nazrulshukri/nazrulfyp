@@ -37,7 +37,7 @@ const HotelForm = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/hotelform', {
+      const response = await fetch('http://localhost:5001/hotelform', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

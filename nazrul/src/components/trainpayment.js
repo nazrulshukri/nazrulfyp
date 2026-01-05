@@ -38,7 +38,7 @@ const TrainPaymentMethod = () => {
         cardDetails: cardDetails,
       };
   
-      const response = await fetch('http://localhost:5000/trainsubmit-payment', {
+      const response = await fetch('http://localhost:5001/trainsubmit-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -41,7 +41,7 @@ const FormPage = () => {
 
     try {
       // Send form data to MongoDB via API
-      const response = await axios.post('http://localhost:5000/bookTrain', {
+      const response = await axios.post('http://localhost:5001/bookTrain', {
         ...formData,
         trainDetails: details,
         departureTime,

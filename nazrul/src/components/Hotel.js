@@ -160,7 +160,7 @@ const markerIcon = new L.Icon({
         console.log('Sending hotel data to backend:', hotelData);
     
         // Send the selected hotel data to the backend to save in MongoDB
-        fetch('http://localhost:5000/save-hotel', {
+        fetch('http://localhost:5001/save-hotel', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

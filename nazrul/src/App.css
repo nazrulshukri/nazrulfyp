@@ -1,7 +1,15 @@
-/* src/App.css */
+* src/App.css */
 /* src/index.css or src/App.css */
+* {
+  box-sizing: border-box;
+}
 
-
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
 .app {
   text-align: left;
 }
@@ -58,7 +66,6 @@ Header styles
 
 /* Different background colors for each section */
 
-
 /* Light and dark mode specific styles for header */
 .App-header.light-mode {
   background-color: #282c34; /* Light mode header background */
@@ -91,4 +98,3 @@ Header styles
 .App-link {
   color: #0e1314; /* Link color */
 }
-
