@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
@@ -1001,6 +1000,7 @@ app.get('/api/suggest', (req, res) => {
   ];
   res.json({ suggestions });
 });
+
 
 
 
