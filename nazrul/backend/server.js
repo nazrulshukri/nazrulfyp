@@ -8,10 +8,11 @@ const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const bwipjs = require('bwip-js');
 const { generatePDF } = require('../src/components/pdfgenerator');
 console.log(typeof generatePDF); // Should print 'function'
 const getStream = require('get-stream');
-const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
+// const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
 const app = express();
@@ -45,7 +46,7 @@ transporter.verify((error, success) => {
 
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://muhdnazrul:Nazrul_123@cluster0.e7c4d.mongodb.net/Bookingflight?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://muhdnazrul:Nazrul123@cluster0.e7c4d.mongodb.net/Bookingflight?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.log(err));
 
@@ -384,8 +385,7 @@ app.post('/submit-payment', async (req, res) => {
     bookingId,
     paymentMethod,
     amount,
-    paymentDetails,
-    email, // Ensure email is received in the request
+    email, // Ensure email is received
     outboundFlight,
     returnFlight,
     passengerDetails,
@@ -394,52 +394,74 @@ app.post('/submit-payment', async (req, res) => {
   } = req.body;
 
   try {
-    // Prepare data for PDF
-    const ticketData = {
-      bookingId,
-      paymentMethod,
-      amount,
-      outboundFlight,
-      returnFlight,
-      passengerDetails,
-      selectedSeats,
-      selectedInsurance,
-    };
-
-    // 🔥 Generate PDF using generatePDF function
+    // ✅ Generate PDF
+    const ticketData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
     const pdfBuffer = await generatePDF(ticketData);
-if (!pdfBuffer || pdfBuffer.length === 0) {
-  throw new Error("PDF generation failed. Buffer is empty.");
-}
 
-    // Configure Nodemailer
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error("PDF generation failed. Buffer is empty.");
+    }
+
+    // ✅ Read Malaysia Airlines logo image
+    const imagePath = path.join(__dirname, '../src/img/assets/Booking1.png');
+    if (!fs.existsSync(imagePath)) {
+      throw new Error('Error: Image file not found at ' + imagePath);
+    }
+    const imageBuffer = fs.readFileSync(imagePath);
+
+    // ✅ Configure Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER, // Set in .env file
-        pass: process.env.EMAIL_PASS, // Set in .env file
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
-    // Email content
+    // ✅ Email content
     const emailContent = `
-      <h1>Payment Confirmation</h1>
-      <p>Dear ${passengerDetails.lastName},</p>
-      <p>Thank you for your payment.</p>
-      <p><strong>Booking ID:</strong> ${bookingId}</p>
-      <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-      <p><strong>Amount Paid:</strong> MYR${amount}</p>
-      <h2>Flight Details</h2>
-      <p><strong>Departure Flight:</strong> ${outboundFlight.flightNumber} (${outboundFlight.departure} to ${outboundFlight.arrival})</p>
-      <p><strong>Return Flight:</strong> ${returnFlight.flightNumber} (${returnFlight.departure} to ${returnFlight.arrival})</p>
-      <p><strong>Selected Seats:</strong> ${selectedSeats.join(', ')}</p>
-      <p><strong>Insurance:</strong> ${selectedInsurance.name}</p>
-      <p>If you have any questions, feel free to contact us.</p>
-      <p>Telephone: (+60)011-6100-7484 (Malaysia)</p>
-      <p>Email Us: Bookingflex@flex.com.my</p>
+    <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+  
+  <!-- HEADER SECTION -->
+  <div style="display: flex; align-items: center; border-bottom: 2px solid #004C97; padding-bottom: 15px; margin-bottom: 15px;">
+    <img src="cid:malaysiaLogo" style="width: 120px; height:auto; margin-right: 15px;" />
+    <h1 style="color: #004C97; font-size: 22px; margin: 0;">Payment Confirmation</h1>
+  </div>
+
+  <!-- GREETING -->
+  <p style="font-size: 16px;">Dear <strong>${passengerDetails.lastName}</strong>,</p>
+  <p style="font-size: 14px;">Thank you for your payment. Your booking details are as follows:</p>
+
+  <!-- BOOKING DETAILS -->
+  <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+  <p style="margin: 5px 0;"><strong>📄 Booking ID:</strong> ${bookingId}</p>
+<p style="margin: 5px 0;"><strong>💳 Payment Method:</strong> ${paymentMethod}</p>
+<p style="margin: 5px 0;"><strong>💰 Amount Paid:</strong> MYR ${amount}</p>
+
+  </div>
+
+  <!-- FLIGHT DETAILS -->
+  <h2 style="color: #004C97; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+  ✈️ Flight Details
+</h2>
+<p><strong>🛫 From:</strong> ${outboundFlight.origin}</p>
+<p><strong>🛬 To:</strong> ${outboundFlight.destination}</p>
+<p><strong>🎫 Departure Flight:</strong> ${outboundFlight.flightNumber} (${outboundFlight.departure} to ${outboundFlight.arrival})</p>
+<p><strong>🔁 Return Flight:</strong> ${returnFlight.flightNumber} (${returnFlight.departure} to ${returnFlight.arrival})</p>
+<p><strong>💺 Selected Seats:</strong> ${selectedSeats.join(', ')}</p>
+<p><strong>🛡️ Insurance:</strong> ${selectedInsurance.name}</p>
+
+  <!-- CONTACT INFO -->
+  <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd;">
+    <p style="font-size: 14px;">If you have any questions, feel free to contact us:</p>
+    <p style="font-size: 14px; margin: 5px 0;"><strong>📞 Telephone:</strong> (+60)011-6100-7484 (Malaysia)</p>
+    <p style="font-size: 14px; margin: 5px 0;"><strong>📧 Email Us:</strong> Bookingflex@flex.com.my</p>
+  </div>
+
+</div>
     `;
 
-    // Email options with PDF attachment
+    // ✅ Email options with **PDF & Image attachment**
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -447,13 +469,20 @@ if (!pdfBuffer || pdfBuffer.length === 0) {
       html: emailContent,
       attachments: [
         {
-          content: Buffer.from(pdfBuffer), // ✅ Ensures correct format
+          filename: 'BoardingPass.pdf',
+          content: pdfBuffer,
           contentType: "application/pdf",
+        },
+        {
+          filename: 'MalaysiaAirlinesLogo.png',
+          content: imageBuffer,
+          contentType: "image/png",
+          cid: 'malaysiaLogo', // ✅ Embeds image in email
         },
       ],
     };
 
-    // 📧 Send email
+    // ✅ Send email
     await transporter.sendMail(mailOptions);
     console.log('Email sent successfully to:', email);
 
@@ -925,6 +954,53 @@ app.post('/trainsubmit-payment', async (req, res) => {
 
 
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.get('/generate-barcode', async (req, res) => {
+  try {
+    const { text } = req.query; // Get bookingId from query parameter
+
+    if (!text) {
+      return res.status(400).send("Missing text parameter for barcode.");
+    }
+
+    // ✅ Generate barcode using `bwip-js`
+    bwipjs.toBuffer(
+      {
+        bcid: 'code128', // Barcode type
+        text: text, // Booking ID
+        scale: 3, 
+        height: 10, 
+        includetext: true, 
+        textxalign: 'center',
+      },
+      (err, pngBuffer) => {
+        if (err) {
+          console.error("Barcode generation error:", err);
+          return res.status(500).send("Failed to generate barcode.");
+        }
+
+        // ✅ Send barcode as an image
+        res.setHeader('Content-Type', 'image/png');
+        res.send(pngBuffer);
+      }
+    );
+  } catch (error) {
+    console.error("Error generating barcode:", error);
+    res.status(500).send("Server error.");
+  }
+});
+
+// Node.js Express
+
+app.get('/api/suggest', (req, res) => {
+  const { q } = req.query;
+  const suggestions = [
+    q,
+    `flights to ${q}`,
+    `cheap ${q} flights`,
+    `${q} travel deals`,
+  ];
+  res.json({ suggestions });
+});
+
+
+

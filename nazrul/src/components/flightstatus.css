@@ -1,0 +1,449 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+
+body {
+    
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  
+ .flight-container {
+    max-width: 800px;
+    background: white;
+    padding: 5rem;
+    margin: 8% auto; /* increased margin-top to move it down */
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Optional fadeIn animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+  .logo {
+    width: 50px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+
+  .title {
+    font-size: 2rem;
+    color: #0d47a1;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+ 
+  
+ .input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  width: 100%;
+  max-width: 800px; /* increase this so input can grow */
+  margin: 1.5rem auto;
+  padding: 1.25rem;
+
+  border-radius: 18px;
+  background: #f8fafc;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  align-items: center;
+}
+
+.input-section:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .input-section {
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.6);
+}
+  
+
+  
+  .search-button {
+    background: #2196f3;
+    color: white;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .search-button:hover {
+    background: #1976d2;
+  }
+  
+  .flight-card {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f1f8ff;
+    border-radius: 15px;
+    text-align: left;
+  }
+  .flight-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #1565c0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .loading-text {
+    color: #ff9800;
+    font-weight: bold;
+  }
+  
+  .error-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6); /* dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .error-popup {
+    background-color: #f44336;
+    color: white;
+    padding: 2.5rem 1rem 1rem; /* extra top padding for space */
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    font-size: 1rem;
+    max-width: 320px;
+    width: 90%;
+    position: relative;
+    animation: popupFadeIn 0.3s ease;
+    text-align: center;
+  }
+  
+  .close-button {
+    position: absolute;
+    top: -60px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .error-popup strong {
+    margin-top: 1.2rem;
+    display: inline-block;
+  }
+  
+  @keyframes popupFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  height: 52px;
+  margin: 2rem auto;
+
+  background: #f5f7fb;
+  border-radius: 9999px;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  align-items: center;
+
+  transition: all 0.3s ease;
+}
+
+/* Glow + focus */
+.input-wrapper:focus-within {
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.18);
+}
+
+/* INPUT FIELD */
+.input-wrapper input {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0f172a;
+
+  padding-left: 0; /* start centered */
+  padding-right: 20px;
+
+  text-align: center;
+
+  transition:
+    padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    text-align 0.3s ease;
+}
+
+/* When focused or typed → text moves left */
+.input-wrapper:focus-within input,
+.input-wrapper input:not(:placeholder-shown) {
+  padding-left: 56px;
+  text-align: left;
+}
+
+/* PLACEHOLDER */
+.input-wrapper input::placeholder {
+    opacity: 0;
+  color: #94a3b8;
+  transition: opacity 0.25s ease;
+}
+
+.input-wrapper:focus-within input::placeholder {
+  opacity: 1;
+}
+
+/* SEARCH ICON */
+.input-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+  font-size: 1.1rem;
+  color: #64748b;
+
+  pointer-events: none;
+
+  transition:
+    left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s ease;
+}
+
+/* ICON SLIDES LEFT ON FOCUS / TYPE */
+.input-wrapper:focus-within .input-icon,
+.input-wrapper input:not(:placeholder-shown) + .input-icon {
+  left: 22px;
+  color: #2563eb;
+}
+
+.flight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.flight-card {
+  background: linear-gradient(135deg, #ffffff, #e0f7fa);
+  border-radius: 15px;
+  padding: 1.5rem;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.flight-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+}
+
+.flight-title {
+  font-size: 1.5rem;
+  color: #1565c0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  color: #ff9800;
+  font-weight: bold;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.error-popup {
+  background: #f44336;
+  color: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+  font-size: 1rem;
+  text-align: center;
+  max-width: 350px;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Add small badges for status */
+.flight-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.status-on-ground { background: #4caf50; }
+.status-airborne { background: #2196f3; }
+
+
+/* Flight route line container */
+.flight-route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+/* Airports container */
+.flight-airport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 120px;
+}
+
+.flight-airport .icon {
+  font-size: 1.5rem;
+  color: #1565c0;
+  margin-bottom: 0.5rem;
+}
+
+.flight-airport .airport-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.flight-airport .airport-time {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.25rem;
+}
+
+/* Line between departure & arrival */
+.flight-line {
+  flex: 1;
+  height: 4px;
+  background: linear-gradient(to right, #2196f3, #90caf9);
+  position: relative;
+  margin: 0 1rem;
+  border-radius: 2px;
+}
+
+/* Airplane on the line */
+.flight-line .plane-icon {
+  position: absolute;
+  top: -8px;
+  left: 0%;
+  transform: rotate(90deg);
+  color: #fbc02d;
+  font-size: 1.5rem;
+  animation: fly 3s linear infinite;
+}
+
+@keyframes fly {
+  0% { left: 0%; }
+  100% { left: 100%; }
+}
+
+  .flight-info-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+.flight-info-item {
+  flex: 1 1 150px;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0d47a1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.flight-info-item:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.flight-info-item svg {
+  font-size: 1.3rem;
+  color: #2196f3;
+}
+
+/* Optional small badge for delays */
+.delay-badge {
+  display: inline-block;
+  background: #ff9800;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 50px;
+  margin-left: auto;
+}

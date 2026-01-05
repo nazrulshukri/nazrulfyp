@@ -92,7 +92,7 @@ const Payment = ({ user }) => {
     console.log('Booking Data:', bookingData);
   
     try {
-      const response = await axios.post('http://localhost:5000/process-payment', bookingData);
+      const response = await axios.post('http://localhost:5001/process-payment', bookingData);
       console.log('API Response:', response.data);
       
       if (response.data.success) {

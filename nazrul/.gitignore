@@ -21,3 +21,19 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.env
+
+
+# environment variables
+.env
+.env.*
+backend/.env
+nazrul/backend/.env
+
+# OS files
+.DS_Store
+
+# local / junk files
+*.txt
+*.pdf
+*.sln

@@ -112,7 +112,7 @@ const Return = () => {
   const handleNextPage = async (flight) => {
     try {
       // Send flight data to the backend for inserting into MongoDB
-      const response = await fetch('http://localhost:5000/flightreturn', {
+      const response = await fetch('http://localhost:5001/flightreturn', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

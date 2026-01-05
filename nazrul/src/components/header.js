@@ -12,6 +12,17 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
+  const isActive = (path) => location.pathname === path;
+  const [suggestions, setSuggestions] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const handleHelpSelect = (text) => {
+  setSearchTerm(text);          // put text into input
+  
+  setSearchFocused(false);      // close dropdown
+  setSuggestions([]);           // optional
+  navigate(`/search?query=${encodeURIComponent(text)}`);
+};
 
   const email = location.state?.email || localStorage.getItem('userEmail');
 
@@ -25,13 +36,31 @@ function Header() {
         setDropdownOpen(false);
       }
     };
-
+      if (!location.pathname.startsWith("/search")) {
+    setSearchTerm("");
+    setSuggestions([]);
+    setSearchFocused(false);
+  }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [location.pathname]);
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  const handleSearchChange = async (event) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+
+    if (value.length >= 2) {
+      const base = value.toLowerCase();
+      const fakeSuggestions = [
+        base,
+        `flights to ${base}`,
+        `cheap ${base} flights`,
+        `${base} travel deals`,
+      ];
+      setSuggestions(fakeSuggestions);
+    } else {
+      setSuggestions([]);
+    }
   };
 
   const handleSearchSubmit = (event) => {
@@ -44,34 +73,87 @@ function Header() {
     navigate('/');
   };
 
+  const [searchFocused, setSearchFocused] = useState(false);
+
+
   return (
     <header className={`header ${isDarkMode ? 'darkMode' : 'lightMode'}`}>
       <div className="header-content">
-        <img src={logo} alt="Booking Flex Logo" className="header-logo" />
+        <div className="logo-wrapper">
+  <img src={logo} alt="Booking Flex Logo" className="header-logo" />
+</div>
+        
+        {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />}
 
-        {/* <nav>
-          <ul className="nav-list">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/about">About</Link></li>
-            <li><Link to="/services">Check-in</Link></li>
-            <li><Link to="/contact">Flight Status</Link></li>
-            <li><Link to="/signup" >Sign Up</Link></li>
-            <li><Link to="/signin">Login</Link></li>
-          </ul>
-        </nav> */}
+      <button className={`hamburger ${menuOpen ? 'open' : ''}`}onClick={toggleMenu} aria-label="Menu"> 
+      <span></span>
+      <span></span>
+      <span></span>
+      </button>
 
-<nav>
+<nav className={`nav-container ${menuOpen ? 'open' : ''}`}>
   <ul className="nav-list">
-    <li><Link to="/">Home</Link></li>
-    <li><Link to="/about">About</Link></li>
-    <li><Link to="/services">Check-in</Link></li>
-    <li><Link to="/contact">Flight Status</Link></li>
+    <li>
+      <Link
+        to="/"
+        className={isActive('/') ? 'nav-active' : ''}
+        onClick={() => setMenuOpen(false)}
+      >
+        Home
+      </Link>
+    </li>
 
-    {/* Hide Sign Up & Sign In when logged in */}
+    <li>
+      <Link
+        to="/about"
+        className={isActive('/about') ? 'nav-active' : ''}
+        onClick={() => setMenuOpen(false)}
+      >
+        About
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/services"
+        className={isActive('/services') ? 'nav-active' : ''}
+        onClick={() => setMenuOpen(false)}
+      >
+        Check-in
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/flightstatus"
+        className={isActive('/flightstatus') ? 'nav-active' : ''}
+        onClick={() => setMenuOpen(false)}
+      >
+        Flight Status
+      </Link>
+    </li>
+
     {!email && (
       <>
-        <li><Link to="/signup">Sign Up</Link></li>
-        <li><Link to="/signin">Login</Link></li>
+        <li>
+          <Link
+            to="/signup"
+            className={isActive('/signup') ? 'nav-active' : ''}
+            onClick={() => setMenuOpen(false)}
+          >
+            Sign Up
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            to="/signin"
+            className={isActive('/signin') ? 'nav-active' : ''}
+            onClick={() => setMenuOpen(false)}
+          >
+            Login
+          </Link>
+        </li>
       </>
     )}
   </ul>
@@ -80,12 +162,8 @@ function Header() {
 
         <div className="header-actions">
           {email ? (
-            // 👤 "Hi, email" replaces theme toggle & search bar
             <div className="user-dropdown1" ref={dropdownRef}>
-              <div
-                className="user-greeting1"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
+              <div className="user-greeting1" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 Hi, {email.split('@')[0]} ▼
               </div>
 
@@ -98,25 +176,107 @@ function Header() {
               )}
             </div>
           ) : (
-            // 🌗 Theme Toggle & 🔍 Search Bar (for non-logged-in users)
             <>
-              <div className={`switch-toggle ${isDarkMode ? 'checked' : ''}`} onClick={toggleTheme}>
-                <div className="switch-toggle-knob"></div>
-              </div>
+            <div
+  className={`theme-toggle ${isDarkMode ? 'dark' : 'light'}`}
+  onClick={toggleTheme}
+  aria-label="Toggle theme"
+>
+  <div className="theme-track">
+    <span className="theme-icon sun">☀️</span>
+    <span className="theme-icon moon">🌙</span>
+  </div>
+
+  <div className="theme-thumb">
+    <span className="thumb-icon">
+      {isDarkMode ? "🌙" : "☀️"}
+    </span>
+  </div>
+</div>
+
+
 
               <form className="search-form" onSubmit={handleSearchSubmit}>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  placeholder="Search..."
-                />
-                <button type="submit">
-                  <img src={searchIcon} alt="Search Icon" />
-                </button>
-              </form>
+  <input
+    type="text"
+    value={searchTerm}
+    onChange={handleSearchChange}
+    onFocus={() => setSearchFocused(true)}
+    onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+    placeholder="Search..."
+  />
 
-             
+  <button type="submit">
+    <img src={searchIcon} alt="Search Icon" />
+  </button>
+
+  {/* HELP DROPDOWN */}
+  {searchFocused && (
+  <div className="search-help-dropdown">
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("How to search flights")}
+    >
+      ✈️ How to search flights
+    </div>
+
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("How to book a hotel")}
+    >
+      🏨 How to book a hotel
+    </div>
+
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("How to book train tickets")}
+    >
+      🚆 How to book train tickets
+    </div>
+
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("How to claim flight vouchers")}
+    >
+      🎟️ How to claim flight vouchers
+    </div>
+
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("Member discounts")}
+    >
+      💳 How to get member discounts
+    </div>
+
+    <div
+      className="search-help-item"
+      onMouseDown={() => handleHelpSelect("Student discount pricing")}
+    >
+      🎓 Student discount pricing
+    </div>
+  </div>
+)}
+
+
+  {/* NORMAL SEARCH SUGGESTIONS */}
+  {suggestions.length > 0 && (
+    <ul className="search-suggestions">
+      {suggestions.map((item, i) => (
+        <li
+          key={i}
+          onClick={() => {
+            setSearchTerm(item);
+            setSuggestions([]);
+            navigate(`/search?query=${item}`);
+          }}
+        >
+          {item}
+        </li>
+      ))}
+    </ul>
+  )}
+</form>
+
             </>
           )}
         </div>

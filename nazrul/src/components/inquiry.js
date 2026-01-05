@@ -19,7 +19,7 @@ const InquiryForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/inquiries', {
+            const response = await fetch('http://localhost:5001/inquiries', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

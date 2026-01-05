@@ -13,7 +13,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     console.log('Form submitted with email:', email); // Debugging line
     try {
-      const response = await axios.post('http://localhost:5000/forgotpassword', { email });
+      const response = await axios.post('http://localhost:5001/forgotpassword', { email });
       toast.success(response.data.message, {
         position: "top-center", // Corrected position as string
         autoClose: 3000,
