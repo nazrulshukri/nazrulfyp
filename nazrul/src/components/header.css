@@ -1,10 +1,9 @@
-/* General Header Styling */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: rgba(17, 17, 17, 0.6); /* Semi-transparent background */
+  background-color: rgba(17, 17, 17, 0.6); 
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   color: #fff;
@@ -12,7 +11,7 @@
   width: 100%;
   height: 80px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  border-bottom: 2px solid rgba(160, 159, 159, 0.5); /* Subtle border with transparency */
+  border-bottom: 2px solid rgba(160, 159, 159, 0.5); 
   position: fixed;
   top: 0;
   left: 0;
@@ -20,25 +19,6 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* .hamburger {
-  display: none; 
-  flex-direction: column;
-  justify-content: space-between;
-  width: 25px;
-  height: 18px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1100;
-}
-
-.hamburger .bar {
-   display: none; 
-  height: 3px;
-  width: 100%;
-  background-color: white;
-  border-radius: 2px;
-} */
 
 .header-logo {
   width: 80px;
@@ -178,11 +158,10 @@ button img {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* === Dropdown Menu === */
 .dropdown-menu1 {
   position: absolute;
-  top: 100%; /* Below the greeting */
-  right: 0; /* Right-align */
+  top: 100%; 
+  right: 0; 
   margin-top: 8px;
   background-color: #2d2d2d;
   border-radius: 8px;
@@ -208,14 +187,12 @@ button img {
   background-color: #3e3e3e;
 }
 
-/* === Divider === */
 .dropdown-divider {
   height: 1px;
   background-color: #555;
   margin: 6px 0;
 }
 
-/* === Logout Item === */
 .logout {
   color: #ff5c5c;
   cursor: pointer;
@@ -232,8 +209,6 @@ button img {
   position: relative;
   transition: all 0.3s ease-in-out;
 }
-
-/* Add an animated underline */
 .nav-active::after {
   content: '';
   position: absolute;
@@ -247,15 +222,6 @@ button img {
   animation: slideIn 0.4s ease forwards;
 }
 
-
-/* .menu-toggle {
-  display: none;
-
-} */
-
-
-
-/* Animation */
 @keyframes slideIn {
   0% {
     width: 0;
@@ -304,8 +270,6 @@ button img {
 .hamburger {
   display: none;
 }
-
-/* === SEARCH HELP DROPDOWN === */
 .search-help-dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -332,7 +296,6 @@ button img {
   animation: dropdownReveal 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* === REVEAL ANIMATION === */
 @keyframes dropdownReveal {
   from {
     opacity: 0;
@@ -344,7 +307,6 @@ button img {
   }
 }
 
-/* === ITEMS === */
 .search-help-item {
   padding: 14px 18px;
   font-size: 0.9rem;
@@ -364,12 +326,10 @@ button img {
     padding-left 0.18s ease;
 }
 
-/* Divider line (auto except last item) */
 .search-help-item:not(:last-child) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* === HOVER === */
 .search-help-item:hover {
   background: linear-gradient(
     90deg,
@@ -379,7 +339,6 @@ button img {
   color: #ffffff;
   padding-left: 22px;
 }
-/* === THEME TOGGLE WRAPPER === */
 .theme-toggle-wrapper {
   display: flex;
   align-items: center;
@@ -487,34 +446,23 @@ button img {
 .theme-toggle:active {
   transform: scale(0.96);
 }
-
-
-
-/* Icons */
 .theme-icon {
   font-size: 0.9rem;
   opacity: 0.45;
   transition: opacity 0.25s ease, transform 0.25s ease;
   cursor: default;
 }
-
-/* Active side pops */
 .theme-icon.active {
   opacity: 1;
   transform: scale(1.1);
 }
-
-
-/* ================= MOBILE (iPhone) ================= */
 @media (max-width: 768px) {
 
-  /* Header height smaller */
   .header {
     height: 56px;
     padding: 0 12px;
   }
 
-  /* Logo smaller */
  
   .header-logo {
     width: 48px;
@@ -573,7 +521,7 @@ button img {
   position: absolute;
   width: 26px;
   height: 2px;
-  background: #fff; /* IMPORTANT */
+  background: #fff; 
   border-radius: 2px;
   z-index: 1;
 
@@ -598,8 +546,6 @@ button img {
   transform: translateY(0) rotate(-45deg);
 }
 
-
-  /* Hide nav by default */
   .nav-container {
     position: fixed;
     top: 64px;
@@ -616,21 +562,19 @@ button img {
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
   }
-
-  /* Open menu */
   .nav-container.open {
   opacity: 1;
     transform: translateX(-50%) translateY(0);
     pointer-events: auto;
   }
 
-  /* Stack nav items */
+  
   .nav-list {
    flex-direction: column;
     padding: 0;
   }
 
-  /* Smaller text */
+  
   .nav-list a {
   display: flex;
     align-items: center;
@@ -649,14 +593,14 @@ button img {
     padding: 6px 14px;
     border-radius: 999px;
 
-    /* Modern blue gradient */
+  
     background: linear-gradient(
       135deg,
       #3b82f6 0%,
       #2563eb 100%
     );
 
-    /* Glass + depth */
+  
     box-shadow:
       0 8px 20px rgba(37, 99, 235, 0.35),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -667,54 +611,45 @@ button img {
     width: fit-content;
     flex: 0 0 auto;
 
-    /* Smooth, professional animation */
+ 
     transition:
       transform 0.25s ease,
       box-shadow 0.25s ease,
       background 0.25s ease;
   }
-
   
-
-  /* Space between items */
   .nav-list li {
-    /* margin: 4px 0; */
     width: 100%;
   }
 
-  /* Header actions stay visible */
+ 
   .header-actions {
     gap: 10px;
   }
 
-  /* Search input smaller */
-   /* Compact mobile search */
 .search-form {
   padding: 2px;
   gap: 4px;
   border-radius: 6px;
 }
 
-/* Smaller input */
 .search-form input {
-  width: 90px;          /* compact but usable */
+  width: 90px;          
   padding: 4px 6px;
   font-size: 0.75rem;
 }
 
-/* Smaller button */
+
 .search-form button {
   padding: 4px 6px;
   min-width: auto;
 }
 
-/* Smaller search icon */
 .search-form button img {
   width: 14px;
   height: 14px;
 }
 
-/* === SEARCH HELP DROPDOWN === */
 .search-help-dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -741,7 +676,7 @@ button img {
   animation: dropdownReveal 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* === REVEAL ANIMATION === */
+
 @keyframes dropdownReveal {
   from {
     opacity: 0;
@@ -753,7 +688,6 @@ button img {
   }
 }
 
-/* === ITEMS === */
 .search-help-item {
   padding: 14px 18px;
   font-size: 0.9rem;
@@ -773,12 +707,10 @@ button img {
     padding-left 0.18s ease;
 }
 
-/* Divider line (auto except last item) */
 .search-help-item:not(:last-child) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* === HOVER === */
 .search-help-item:hover {
   background: linear-gradient(
     90deg,
@@ -789,14 +721,10 @@ button img {
   padding-left: 22px;
 }
 
-
-
-  /* Search icon smaller */
   button img {
     width: 16px;
   }
 
-  /* Dark mode switch smaller */
   .switch-toggle {
     width: 34px;
     height: 18px;
@@ -816,3 +744,4 @@ button img {
   to { opacity: 1; }
 }
 }
+
