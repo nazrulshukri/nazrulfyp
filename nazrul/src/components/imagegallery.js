@@ -42,12 +42,12 @@ function ImageGallery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [isMiniPlayer, setIsMiniPlayer] = useState(false);
-  const [miniPlayerPosition, setMiniPlayerPosition] = useState({ x: 50, y: 50 }); // Position for mini-player
+  const [miniPlayerPosition, setMiniPlayerPosition] = useState({ x: 200, y: 200 }); // Position for mini-player
 
   const settings = {
     dots: true,
     infinite: true,
-    speed: 1000,
+    speed: 1500,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
@@ -70,11 +70,12 @@ function ImageGallery() {
   };
 
   const handleDrag = (event) => {
-    setMiniPlayerPosition({
-      x: event.clientX - 100, // Adjust to center mini-player on drag
-      y: event.clientY - 50,
-    });
-  };
+  event.preventDefault();
+  setMiniPlayerPosition({
+    x: event.clientX - 180, // half mini width
+    y: event.clientY - 100, // half mini height
+  });
+};
 
   return (
     <div className="slide-container">
@@ -92,30 +93,47 @@ function ImageGallery() {
 
       {/* Plain Modal */}
       {isModalOpen && (
-        <div
-          className={`custom-modal ${isMiniPlayer ? "mini-player" : ""}`}
-          style={isMiniPlayer ? { top: miniPlayerPosition.y, left: miniPlayerPosition.x } : {}}
-         
-        >
-          <div className="modal-content">
-            <button className="close-button" onClick={closeModal}>×</button>
-            <button className="mini-toggle-button" onClick={toggleMiniPlayer}>
-              {isMiniPlayer ? "Full Screen" : "Mini Player"}
-            </button>
-            {currentVideo && (
-              <iframe
-                src={currentVideo}
-                title="Video"
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              ></iframe>
-            )}
-          </div>
-        </div>
-      )}
+  <>
+    {/* Dark overlay */}
+    <div className="video-modal-overlay" onClick={closeModal}></div>
+
+    {/* Modal */}
+   <div
+  className={`video-modal ${isMiniPlayer ? "mini-player" : ""}`}
+  style={isMiniPlayer ? { top: miniPlayerPosition.y, left: miniPlayerPosition.x } : {}}
+>
+  {/* Top bar only in full modal */}
+  {!isMiniPlayer && (
+    <div className="top-bar">
+      <button className="close-button" onClick={closeModal}>×</button>
+    </div>
+  )}
+
+  {/* Close button inside mini-player */}
+ {isMiniPlayer && (
+  <button
+    className="close-button"
+    onClick={closeModal}
+    style={{ top: '25px', right: '15px' }} // moved down dynamically
+  >
+    ×
+  </button>
+)}
+
+  {/* Mini Toggle Button */}
+  <button className="mini-toggle-button" onClick={toggleMiniPlayer} style={{ position: isMiniPlayer ? 'absolute' : 'static', bottom: isMiniPlayer ? '5px' : 'auto', right: isMiniPlayer ? '5px' : 'auto', zIndex: 1002 }}>
+    {isMiniPlayer ? "Full Screen" : "Mini Player"}
+  </button>
+
+  <iframe
+    src={currentVideo}
+    title="Video"
+    allow="autoplay; fullscreen"
+    allowFullScreen
+  />
+</div>
+  </>
+)}
     </div>
   );
 }
