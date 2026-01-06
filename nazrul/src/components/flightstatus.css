@@ -13,15 +13,13 @@ body {
     max-width: 800px;
     background: white;
     padding: 5rem;
-    margin: 8% auto; /* increased margin-top to move it down */
+    margin: 8% auto; 
     border-radius: 20px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     text-align: center;
     position: relative;
     animation: fadeIn 0.5s ease;
 }
-
-/* Optional fadeIn animation */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -53,7 +51,7 @@ body {
   gap: 14px;
 
   width: 100%;
-  max-width: 800px; /* increase this so input can grow */
+  max-width: 800px;
   margin: 1.5rem auto;
   padding: 1.25rem;
 
@@ -123,7 +121,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6); /* dark overlay */
+    background: rgba(0, 0, 0, 0.6); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -134,7 +132,7 @@ body {
   .error-popup {
     background-color: #f44336;
     color: white;
-    padding: 2.5rem 1rem 1rem; /* extra top padding for space */
+    padding: 2.5rem 1rem 1rem;
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     font-size: 1rem;
@@ -183,14 +181,13 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Glow + focus */
+
 .input-wrapper:focus-within {
   background: #ffffff;
   border-color: #2563eb;
   box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.18);
 }
 
-/* INPUT FIELD */
 .input-wrapper input {
   width: 100%;
   height: 100%;
@@ -203,7 +200,7 @@ body {
   font-weight: 500;
   color: #0f172a;
 
-  padding-left: 0; /* start centered */
+  padding-left: 0; 
   padding-right: 20px;
 
   text-align: center;
@@ -213,14 +210,13 @@ body {
     text-align 0.3s ease;
 }
 
-/* When focused or typed → text moves left */
 .input-wrapper:focus-within input,
 .input-wrapper input:not(:placeholder-shown) {
   padding-left: 56px;
   text-align: left;
 }
 
-/* PLACEHOLDER */
+
 .input-wrapper input::placeholder {
     opacity: 0;
   color: #94a3b8;
@@ -231,7 +227,6 @@ body {
   opacity: 1;
 }
 
-/* SEARCH ICON */
 .input-icon {
   position: absolute;
   left: 50%;
@@ -248,7 +243,6 @@ body {
     color 0.3s ease;
 }
 
-/* ICON SLIDES LEFT ON FOCUS / TYPE */
 .input-wrapper:focus-within .input-icon,
 .input-wrapper input:not(:placeholder-shown) + .input-icon {
   left: 22px;
@@ -328,7 +322,7 @@ body {
   cursor: pointer;
 }
 
-/* Add small badges for status */
+
 .flight-status {
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -341,8 +335,6 @@ body {
 .status-on-ground { background: #4caf50; }
 .status-airborne { background: #2196f3; }
 
-
-/* Flight route line container */
 .flight-route {
   display: flex;
   align-items: center;
@@ -351,7 +343,6 @@ body {
   margin: 1.5rem 0;
 }
 
-/* Airports container */
 .flight-airport {
   display: flex;
   flex-direction: column;
@@ -377,7 +368,6 @@ body {
   margin-top: 0.25rem;
 }
 
-/* Line between departure & arrival */
 .flight-line {
   flex: 1;
   height: 4px;
@@ -387,7 +377,6 @@ body {
   border-radius: 2px;
 }
 
-/* Airplane on the line */
 .flight-line .plane-icon {
   position: absolute;
   top: -8px;
@@ -436,7 +425,6 @@ body {
   color: #2196f3;
 }
 
-/* Optional small badge for delays */
 .delay-badge {
   display: inline-block;
   background: #ff9800;
@@ -446,4 +434,5 @@ body {
   padding: 2px 6px;
   border-radius: 50px;
   margin-left: auto;
+
 }
