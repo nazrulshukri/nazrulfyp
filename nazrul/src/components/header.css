@@ -589,7 +589,7 @@ button img {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    left: 35%;
+    left: 25%;
     padding: 6px 14px;
     border-radius: 999px;
 
@@ -744,4 +744,5 @@ button img {
   to { opacity: 1; }
 }
 }
+
 
