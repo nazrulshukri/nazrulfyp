@@ -7,6 +7,11 @@
   border-radius: 15px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
+.app.dark-mode .booking-wrapper {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
 .option-button {
   padding: 1.2rem 2.5rem;
   border-radius: 12px;
@@ -242,6 +247,193 @@
   padding-left: 40px; /* Add space for the icon */
 }
 
+
+/* Trip Type Dropdown (Flight only) */
+.trip-type-select select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  appearance: none; /* Remove default arrow */
+  background-image:
+    linear-gradient(135deg, #f5f5f5, #ffffff),
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23007bff' d='M5.516 7.548l4.484 4.484 4.484-4.484L16 8.516l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.trip-type-select select:hover,
+.trip-type-select select:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Match label styling */
+.trip-type-select label {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 600;
+}
+
+/* Dark mode for trip-type select */
+.app.dark-mode .trip-type-select select {
+  background-color: #020617; /* Dark input background */
+  color: #0053f8;            /* Light text for readability */
+  border: 1px solid #3b82f6; /* Subtle blue border */
+  background-image:
+    linear-gradient(135deg, #020617, #020617), /* Dark gradient */
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2393c5fd' d='M5.516 7.548l4.484 4.484 4.484-4.484L16 8.516l-6 6-6-6z'/%3E%3C/svg%3E"); /* Arrow in blue */
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+/* Focus and hover effects in dark mode */
+.app.dark-mode .trip-type-select select:hover,
+.app.dark-mode .trip-type-select select:focus {
+  border-color: #60a5fa; /* Bright blue on focus */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); /* Blue glow */
+  outline: none;
+}
+
+/* Dark mode label */
+.app.dark-mode .trip-type-select label {
+  color: #93c5fd; /* Light blue for label */
+}
+
+/* General select styling (light mode) */
+.form-group select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fdfdfd; /* Light mode background */
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  appearance: none;
+  background-image:
+    linear-gradient(135deg, #f5f5f5, #ffffff),
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23007bff' d='M5.516 7.548l4.484 4.484 4.484-4.484L16 8.516l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.form-group select:focus,
+.form-group select:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Dark mode select dropdown */
+.app.dark-mode .form-group select {
+  background-color: #020617; /* Dark background */
+  color: #e5e7eb;           /* Light text */
+  border: 1px solid #3b82f6; /* Subtle blue border */
+  background-image:
+    linear-gradient(135deg, #020617, #020617),
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2393c5fd' d='M5.516 7.548l4.484 4.484 4.484-4.484L16 8.516l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.app.dark-mode .form-group select:focus,
+.app.dark-mode .form-group select:hover {
+  border-color: #60a5fa; /* Bright blue on focus */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Label styling in dark mode */
+.app.dark-mode .form-group label {
+  color: #93c5fd;
+}
+
+/* Make the input and select consistent: same background, border, text */
+.app.dark-mode .form-group input,
+.app.dark-mode .form-group select {
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+  background-image:
+    linear-gradient(#020617, #020617),
+    linear-gradient(135deg, #3b82f6, #9333ea); /* gradient border effect */
+}
+
+/* Optional: arrow color for modern style */
+.app.dark-mode .form-group select::-ms-expand {
+  display: none; /* Remove default arrow in IE */
+}
+
+.app.dark-mode .form-group select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+
+
+
+/* Dark mode for form group labels and inputs */
+.app.dark-mode .form-group label {
+  color: #93c5fd; /* Light blue text for labels */
+}
+
+.app.dark-mode .form-group input {
+  background-color: #020617; /* Dark input background */
+  color: #e5e7eb;           /* Light text for typing */
+  border: 1px solid #3b82f6; /* Subtle blue border */
+}
+
+.app.dark-mode .form-group input:focus {
+  border-color: #60a5fa; /* Brighter blue on focus */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); /* Blue glow */
+}
+
+/* Suggestions list dark mode */
+.app.dark-mode .suggestions-list {
+  background-color: #020617;
+  color: #e5e7eb;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+}
+
+.app.dark-mode .suggestions-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.app.dark-mode .suggestions-list li:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.app.dark-mode .form-group input {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+  background-image:
+    linear-gradient(#020617, #020617),
+    linear-gradient(135deg, #3b82f6, #9333ea);
+}
 
 @media (max-width: 1024px) {
   .booking-wrapper {

@@ -25,13 +25,36 @@ header {
 }
 
 /* Styling individual sections */
-.booking-form,
-.travel-list {
- 
-  border-radius: 8px;
+/* ========================= */
+/* BODY SECTIONS - LIGHT MODE */
+/* ========================= */
+.app.light-mode .booking-form,
+.app.light-mode .travel-list,
+.app.light-mode .image-gallery,
+.app.light-mode .carousel,
+.app.light-mode .feedback,
+.app.light-mode .inquiry,
+.app.light-mode .tabs {
   background-color: #ffffff;
-  padding: 1rem;
+  color: #000000;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
+
+/* ========================= */
+/* BODY SECTIONS - DARK MODE */
+/* ========================= */
+.app.dark-mode .booking-form,
+.app.dark-mode .travel-list,
+.app.dark-mode .image-gallery,
+.app.dark-mode .carousel,
+.app.dark-mode .feedback,
+.app.dark-mode .inquiry,
+.app.dark-mode .tabs {
+  background-color: #121212;   /* Dark background */
+  color: #ffffff;
+  border-bottom: 1px solid rgb(84, 135, 206);
+}
+
 
 .carousel
 {

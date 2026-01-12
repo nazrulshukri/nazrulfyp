@@ -6,6 +6,72 @@
   background-color: #f8f9fa; /* Light neutral background for contrast */
   border-radius: 12px;
 }
+.app.dark-mode .carousel-container {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+.app.dark-mode .carousel-container {
+  background:
+    radial-gradient(
+      1200px 500px at 10% -20%,
+      rgba(59, 130, 246, 0.08),
+      transparent 40%
+    ),
+    linear-gradient(
+      180deg,
+      #020617,
+      #0b1220
+    );
+  border-radius: 16px;
+  color: #e5e7eb;
+}
+
+.app.dark-mode .card {
+  background: linear-gradient(
+    180deg,
+    #020617,
+    #020617
+  );
+  color: #e5e7eb;
+  border-radius: 18px;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05),
+    0 20px 45px rgba(0, 0, 0, 0.7);
+
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.app.dark-mode .card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 1px 0 rgba(59, 130, 246, 0.4),
+    0 30px 70px rgba(59, 130, 246, 0.25);
+}
+
+.app.dark-mode .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px; /* thickness of the line */
+  border-radius: inherit;
+
+  background: linear-gradient(
+    135deg,
+    #3b82f6,
+    #9333ea
+  );
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+}
 
 .carousel-title {
   font-family: 'Poppins', sans-serif;
@@ -15,6 +81,11 @@
   margin-bottom: 1rem;
   text-align: center;
 }
+.app.dark-mode .carousel-title {
+  color: #6ea7d9e7;
+}
+
+
 
 .carousel-images {
   display: flex;

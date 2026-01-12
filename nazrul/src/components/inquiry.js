@@ -53,15 +53,15 @@ const InquiryForm = () => {
                     <form onSubmit={handleSubmit} className="inquiry-form">
                         <div className="form-group">
                             <label htmlFor="name">Full Name</label>
-                            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
+                            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Alice" required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="email">Email Address</label>
-                            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="john.doe@example.com" required />
+                            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="Alice@BookingFlex.com.my" required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="phone">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="(123) 456-7890" />
+                            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="+60 1161007484" />
                         </div>
                         <div className="form-group">
                             <label htmlFor="message">Your Message</label>
