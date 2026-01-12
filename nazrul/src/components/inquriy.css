@@ -61,6 +61,47 @@
     margin-bottom: 50px;
 }
 
+.app.dark-mode .form-group input,
+.app.dark-mode .form-group textarea {
+    background-color: #020617; /* Dark background */
+    color: #e5e7eb;           /* Light text */
+    border: 1px solid #3b82f6; /* Subtle blue border */
+}
+
+.app.dark-mode .form-group input:focus,
+.app.dark-mode .form-group textarea:focus {
+    border-color: #60a5fa; /* Bright blue on focus */
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); /* Blue glow */
+    outline: none;
+}
+
+
+.app.dark-mode .form-group label {
+    color: #93c5fd; /* Light blue labels */
+}
+
+
+
+.app.dark-mode button:hover {
+    background-color: #2563eb;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+
+
+.app.dark-mode .inquiry-form-container h2 {
+    color: #2465de;
+    font-size: 40px; /* Increase font size */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.app.dark-mode .inquiry-form-container .subheading {
+    color: #00eaff;
+    font-size: 22px; /* Increase font size for subheading */
+    text-align: center;
+    margin-bottom: 50px;
+}
+
 .form-group {
     margin-bottom: 30px; /* Add more space between form groups */
 }
@@ -99,6 +140,49 @@ button {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.app.dark-mode .inquiry-container{
+  background: linear-gradient(
+    180deg,
+    #020617,
+    #020617
+  );
+}
+.app.dark-mode .inquiry-form-container {
+  position: relative;
+  background-color: #020617;
+  border-radius: 20px;
+  padding: 70px;
+  z-index: 1;
+}
+
+/* Gradient border */
+.app.dark-mode .inquiry-form-wrapper {
+  background:
+    linear-gradient(#020617, #020617) padding-box,
+    linear-gradient(135deg, #3b82f6, #9333ea) border-box;
+
+  border: 2px solid transparent;
+  border-radius: 40px;
+  background-clip: padding-box, border-box;
+}
+.app.dark-mode .inquiry-form-container {
+  background-color: #020617;
+  border-radius: 30px; /* slightly smaller */
+  box-shadow:
+  0 0 0 1px rgba(147, 51, 234, 0.5),
+  0 20px 50px rgba(59, 130, 246, 0.25);
+}
+
+.app.dark-mode .inquiry-form-image {
+  background: linear-gradient(
+    135deg,
+    #020617 0%,
+    #0f172a 50%,
+    #1e293b 100%
+  );
+  box-shadow: inset -1px 0 0 rgba(59, 130, 246, 0.15);
 }
 
 button:hover {

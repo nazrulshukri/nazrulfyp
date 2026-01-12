@@ -1,25 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { FaPlane, FaHotel, FaTrain, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import './booking.css';
 
-
-function Booking() {
-  const [startDate, setStartDate] = useState('');
-  const [returnDate, setReturnDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [location1, setLocation1] = useState('');
-  const [people, setPeople] = useState(1);
-  const [selectedOption, setSelectedOption] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [showFromSuggestions, setShowFromSuggestions] = useState(false);
-  const [showToSuggestions, setShowToSuggestions] = useState(false);
-  const [filteredFromLocations, setFilteredFromLocations] = useState([]);
-  const [filteredToLocations, setFilteredToLocations] = useState([]);
-
-  const locations = useMemo(() => [
+  const locations = [
     'Kabul International Airport (Afghanistan)',
     'Tirana International Airport (Albania)',
     'Houari Boumediene International Airport (Algeria)',
@@ -145,259 +130,235 @@ function Booking() {
     'Ninoy Aquino International Airport (Philippines)',
     'Noi Bai International Airport (Vietnam)',
     'London','Malaysia','Petaling jaya','KLIA2','KLIA','Terminal Bersepadu Selatan(TBS)'
-], []);
-    
- 
-  
-  const fromInputRef = useRef(null);
-  const toInputRef = useRef(null);
+];
+
+
+function Booking() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setFilteredFromLocations(locations.filter(loc => 
-      loc.toLowerCase().includes(location.toLowerCase())
-    ));
-  }, [location, locations]);
-  
-  useEffect(() => {
-    setFilteredToLocations(locations.filter(loc => 
-      loc.toLowerCase().includes(location1.toLowerCase())
-    ));
-  }, [location1, locations]);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [tripType, setTripType] = useState('return');
 
-  const handleLocationChange = (e, setLocation, setShowSuggestions) => {
-    setLocation(e.target.value);
-    setShowSuggestions(true);
-  };
+  const [location, setLocation] = useState('');
+  const [location1, setLocation1] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [returnDate, setReturnDate] = useState('');
+  const [people, setPeople] = useState(1);
 
-  const handleSuggestionClick = (location, setLocation, setShowSuggestions) => {
-    setLocation(location);
-    setShowSuggestions(false);
-  };
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const [showFromSuggestions, setShowFromSuggestions] = useState(false);
+  const [showToSuggestions, setShowToSuggestions] = useState(false);
+  const [filteredFromLocations, setFilteredFromLocations] = useState([]);
+  const [filteredToLocations, setFilteredToLocations] = useState([]);
+
+  const fromInputRef = useRef(null);
+  const toInputRef = useRef(null);
+
+  useEffect(() => {
+    setFilteredFromLocations(
+      locations.filter(loc =>
+        loc.toLowerCase().includes(location.toLowerCase())
+      )
+    );
+  }, [location]);
+
+  useEffect(() => {
+    setFilteredToLocations(
+      locations.filter(loc =>
+        loc.toLowerCase().includes(location1.toLowerCase())
+      )
+    );
+  }, [location1]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!selectedOption) {
       setError('Please select a booking option.');
       return;
     }
-  
+
     try {
       if (selectedOption === 'flight') {
-        const flightParams = {
-          departureDate: startDate,
-          returnDate: returnDate,
-          origin: location,
-          destination: location1,
-          people: people,
-        };
-  
-        navigate('/flight-results', { state: { flightParams } });
-      } else if (selectedOption === 'hotel') {
-        const hotelParams = {
-          checkInDate: startDate,
-          checkOutDate: returnDate,
-          location: location1,
-          people: people,
-        };
-  
-        navigate('/hotel', { state: { hotelParams } });
-      } else if (selectedOption === 'train') {
-        const Train = {
-          departureDate: startDate,
-          returnDate: returnDate,
-          origin: location,
-          destination: location1,
-          people: people,
-        };
-      
-        // Log the trainParams object for debuggingß
-        console.log('Navigating with trainParams:', Train);
-      
-        // Navigate to TrainPage with trainParams in state
-        navigate('/train', { state: { Train } });
+        navigate('/flight-results', {
+          state: {
+            departureDate: startDate,
+            returnDate: tripType === 'oneway' ? null : returnDate,
+            origin: location,
+            destination: location1,
+            people,
+            tripType,
+          },
+        });
       }
-      
-  
-      const response = await axios.post('http://localhost:5001/bookings', {
-        startDate,
-        returnDate,
+
+      if (selectedOption === 'hotel') {
+        navigate('/hotel', {
+          state: {
+            checkInDate: startDate,
+            checkOutDate: returnDate,
+            location: location1,
+            people,
+          },
+        });
+      }
+
+      if (selectedOption === 'train') {
+        navigate('/train', {
+          state: {
+            departureDate: startDate,
+            returnDate,
+            origin: location,
+            destination: location1,
+            people,
+          },
+        });
+      }
+
+      await axios.post('http://localhost:5001/bookings', {
+        selectedOption,
+        tripType,
         location,
         location1,
+        startDate,
+        returnDate,
         people,
-        bookingType: selectedOption,
       });
-  
+
       setSuccess('Booking submitted successfully!');
       setError('');
-  
-      if (selectedOption === 'flight') {
-        navigate('/flight-results', { state: { bookingData: response.data } });
-      } else if (selectedOption === 'hotel') {
-        navigate('/hotel', { state: { bookingData: response.data } });
-      } else if (selectedOption === 'train') {
-        navigate('/train', { state: { bookingData: response.data } });
-      }
-    } catch (error) {
+    } catch (err) {
       setError('Error submitting booking.');
       setSuccess('');
-      console.error('Error:', error);
     }
   };
 
   return (
     <div className="booking-wrapper">
-     <div className="button-container">
-  <button
-    className={`option-button ${selectedOption === 'flight' ? 'active' : ''}`}
-    onClick={() => setSelectedOption(selectedOption === 'flight' ? '' : 'flight')}
-  >
-    <span className="icon">
-      <FaPlane />
-    </span>
-    <span className="text">Flight</span>
-  </button>
-  <button
-    className={`option-button ${selectedOption === 'hotel' ? 'active' : ''}`}
-    onClick={() => setSelectedOption(selectedOption === 'hotel' ? '' : 'hotel')}
-  >
-    <span className="icon">
-      <FaHotel />
-    </span>
-    <span className="text">Hotel</span>
-  </button>
-  <button
-    className={`option-button ${selectedOption === 'train' ? 'active' : ''}`}
-    onClick={() => setSelectedOption(selectedOption === 'train' ? '' : 'train')}
-  >
-    <span className="icon">
-      <FaTrain />
-    </span>
-    <span className="text">Train</span>
-  </button>
-</div>
 
+      {/* Booking Type Buttons */}
+      <div className="button-container">
+        <button
+          className={`option-button ${selectedOption === 'flight' ? 'active' : ''}`}
+          onClick={() => setSelectedOption('flight')}
+        >
+          <FaPlane /> Flight
+        </button>
 
+        <button
+          className={`option-button ${selectedOption === 'hotel' ? 'active' : ''}`}
+          onClick={() => setSelectedOption('hotel')}
+        >
+          <FaHotel /> Hotel
+        </button>
 
-<form className="booking-form" onSubmit={handleSubmit}>
-  <div className="form-row">
-    {/* From Section */}
-    <div className="form-group">
-      <label>
-        <i className="fas fa-map-marker-alt icon"></i> From:
-      </label>
-      <input
-        type="text"
-        value={location}
-        onChange={(e) =>
-          handleLocationChange(e, setLocation, setShowFromSuggestions)
-        }
-        onFocus={() => setShowFromSuggestions(true)}
-        ref={fromInputRef}
-        placeholder="Enter a departure city"
-      />
-      {showFromSuggestions && (
-        <ul className="suggestions-list1">
-          {filteredFromLocations.map((suggestion, index) => (
-            <li
-              key={index}
-              onClick={() =>
-                handleSuggestionClick(
-                  suggestion,
-                  setLocation,
-                  setShowFromSuggestions
-                )
-              }
-            >
-              <span className="icon">&#x1F4CD;</span>
-              <div className="suggestion-main">{suggestion}</div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+        <button
+          className={`option-button ${selectedOption === 'train' ? 'active' : ''}`}
+          onClick={() => setSelectedOption('train')}
+        >
+          <FaTrain /> Train
+        </button>
+      </div>
 
-    {/* To Section */}
-    <div className="form-group">
-      <label>
-        <i className="fas fa-map-marker-alt icon"></i> To:
-      </label>
-      <input
-        type="text"
-        value={location1}
-        onChange={(e) =>
-          handleLocationChange(e, setLocation1, setShowToSuggestions)
-        }
-        onFocus={() => setShowToSuggestions(true)}
-        ref={toInputRef}
-        placeholder="Enter a destination city"
-      />
-      {showToSuggestions && (
-        <ul className="suggestions-list1">
-          {filteredToLocations.map((suggestion, index) => (
-            <li
-              key={index}
-              onClick={() =>
-                handleSuggestionClick(
-                  suggestion,
-                  setLocation1,
-                  setShowToSuggestions
-                )
-              }
-            >
-              <span className="icon">&#x1F4CD;</span>
-              <div className="suggestion-main">{suggestion}</div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  </div>
+      <form className="booking-form" onSubmit={handleSubmit}>
 
+        {/* From */}
+        <div className="form-group">
+          <label>From</label>
+          <input
+            ref={fromInputRef}
+            value={location}
+            onChange={(e) => {
+              setLocation(e.target.value);
+              setShowFromSuggestions(true);
+            }}
+            placeholder="Departure city"
+          />
+          {showFromSuggestions && (
+            <ul className="suggestions-list">
+              {filteredFromLocations.map((loc, i) => (
+                <li key={i} onClick={() => {
+                  setLocation(loc);
+                  setShowFromSuggestions(false);
+                }}>
+                  {loc}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-  <div className="form-row">
-  <div className="form-group">
-    <label>
-      <i className="fas fa-calendar-alt icon"></i> Departure Date:
-    </label>
-    <input
-      type="date"
-      value={startDate}
-      onChange={(e) => setStartDate(e.target.value)}
-    />
-  </div>
+        {/* To */}
+        <div className="form-group">
+          <label>To</label>
+          <input
+            ref={toInputRef}
+            value={location1}
+            onChange={(e) => {
+              setLocation1(e.target.value);
+              setShowToSuggestions(true);
+            }}
+            placeholder="Destination city"
+          />
+          {showToSuggestions && (
+            <ul className="suggestions-list">
+              {filteredToLocations.map((loc, i) => (
+                <li key={i} onClick={() => {
+                  setLocation1(loc);
+                  setShowToSuggestions(false);
+                }}>
+                  {loc}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-  <div className="form-group">
-    <label>
-      <i className="fas fa-calendar-alt icon"></i> Return Date:
-    </label>
-    <input
-      type="date"
-      value={returnDate}
-      onChange={(e) => setReturnDate(e.target.value)}
-    />
-  </div>
+        {/* Trip Type SELECT (Flight only) */}
+        {selectedOption === 'flight' && (
+          <div className="form-group">
+            <label>Trip Type</label>
+            <select value={tripType} onChange={(e) => setTripType(e.target.value)}>
+              <option value="return">Return</option>
+              <option value="oneway">One Way</option>
+              <option value="multicity">Multi-City</option>
+            </select>
+          </div>
+        )}
 
-  <div className="form-group">
-    <label>
-      <i className="fas fa-users icon"></i> People:
-    </label>
-    <input
-      type="number"
-      value={people}
-      onChange={(e) => setPeople(Number(e.target.value))}
-      min="1"
-    />
-  </div>
-</div>
+        {/* Dates */}
+        <div className="form-group">
+          <label>Departure Date</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        </div>
 
-  <button type="submit" className="submit-button">
-    Submit Booking
-  </button>
-  {error && <div className="error-message"><FaTimesCircle /> {error}</div>}
-  {success && <div className="success-message"><FaCheckCircle /> {success}</div>}
-</form>
+        {selectedOption === 'flight' && tripType !== 'oneway' && (
+          <div className="form-group">
+            <label>Return Date</label>
+            <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+          </div>
+        )}
 
+        {/* People */}
+        <div className="form-group">
+          <label>People</label>
+          <input
+            type="number"
+            min="1"
+            value={people}
+            onChange={(e) => setPeople(Number(e.target.value))}
+          />
+        </div>
+
+        <button className="submit-button" type="submit">
+          Submit Booking
+        </button>
+
+        {error && <div className="error-message"><FaTimesCircle /> {error}</div>}
+        {success && <div className="success-message"><FaCheckCircle /> {success}</div>}
+      </form>
     </div>
   );
 }
