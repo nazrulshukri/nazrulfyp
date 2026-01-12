@@ -64,10 +64,6 @@
     #9333ea
   );
 
-
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-
   pointer-events: none;
 }
 
@@ -170,6 +166,7 @@
 .carousel-container:hover .carousel-button {
   visibility: visible;
 }
+
 
 
 
