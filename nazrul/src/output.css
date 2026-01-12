@@ -1,10 +1,6 @@
 /* src/input.css */
 
-@tailwind base;
 
-@tailwind components;
-
-@tailwind utilities;
 
 /* ! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com */
 
@@ -282,12 +278,6 @@ Correct the cursor style of increment and decrement buttons in Safari.
 2. Correct the outline style in Safari.
 */
 
-[type='search'] {
-  -webkit-appearance: textfield;
-  /* 1 */
-  outline-offset: -2px;
-  /* 2 */
-}
 
 /*
 Remove the inner padding in Chrome and Safari on macOS.
@@ -416,7 +406,7 @@ embed,
 object {
   display: block;
   /* 1 */
-  vertical-align: middle;
+
   /* 2 */
 }
 
@@ -543,4 +533,3 @@ video {
   --tw-contain-paint:  ;
   --tw-contain-style:  ;
 }
-
