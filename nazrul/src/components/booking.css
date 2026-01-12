@@ -49,7 +49,6 @@
 }
 
 .option-button.active {
-  background-image: linear-gradient(135deg, #af7844c9, #af5252);
   transform: scale(1.08);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
@@ -358,9 +357,6 @@
   border: 2px solid transparent;
   background-clip: padding-box, border-box;
   background-origin: border-box;
-  background-image:
-    linear-gradient(#020617, #020617),
-    linear-gradient(135deg, #3b82f6, #9333ea); /* gradient border effect */
 }
 
 /* Optional: arrow color for modern style */
@@ -417,9 +413,6 @@
   border-radius: 12px;
   background-clip: padding-box, border-box;
   background-origin: border-box;
-  background-image:
-    linear-gradient(#020617, #020617),
-    linear-gradient(135deg, #3b82f6, #9333ea);
 }
 
 @media (max-width: 1024px) {
@@ -488,4 +481,5 @@
     padding: 0.8rem;
   }
 }
+
 
