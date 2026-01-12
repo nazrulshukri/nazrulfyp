@@ -242,14 +242,7 @@ select {
 button,
 input:where([type='button']),
 input:where([type='reset']),
-input:where([type='submit']) {
-  -webkit-appearance: button;
-  /* 1 */
-  background-color: transparent;
-  /* 2 */
-  background-image: none;
-  /* 2 */
-}
+
 
 /*
 Use the modern Firefox focus style for all focusable elements.
@@ -550,3 +543,4 @@ video {
   --tw-contain-paint:  ;
   --tw-contain-style:  ;
 }
+
