@@ -92,12 +92,12 @@
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
   },
-  "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "react-scripts eject"
-  },
+"scripts": {
+  "start": "craco start",
+  "build": "tailwindcss -i ./src/input.css -o ./src/output.css --minify && craco build",
+  "test": "craco test",
+  "eject": "react-scripts eject"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
