@@ -55,17 +55,38 @@
   content: "";
   position: absolute;
   inset: 0;
-  padding: 1px; /* thickness of the line */
+  padding: 1.5px;          /* thickness of the outline */
   border-radius: inherit;
 
-  background: linear-gradient(
-    135deg,
-    #3b82f6,
-    #9333ea
-  );
+  background:
+    linear-gradient(135deg, #3b82f6, #9333ea),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.15) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.15) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    100% 100%,
+    18px 18px,
+    18px 18px;
+
+  /* MASK MAGIC */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 
   pointer-events: none;
+  opacity: 0.8;
 }
+
 
 .carousel-title {
   font-family: 'Poppins', sans-serif;
@@ -88,6 +109,7 @@
 }
 
 .card {
+   position: relative;
   min-width: 320px;
   max-width: 360px;
   flex-shrink: 0;
