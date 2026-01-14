@@ -30,6 +30,7 @@ const videoLinks = [
 const BottomBooking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const openModal = (video) => {
     setCurrentVideo(video);
@@ -42,19 +43,29 @@ const BottomBooking = () => {
   };
 
   return (
-    <div className="bottom-booking-container">
-      <h2 className="section-title">Popular Destinations</h2>
+    <div className={`bottom-booking-container ${isDarkMode ? 'darkmode' : ''}`}>
+
+      {/* Dark mode toggle */}
+      {/* <button
+        className="darkmode-toggle"
+        onClick={() => setIsDarkMode(!isDarkMode)}
+      >
+        {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
+      </button> */}
+
+      <h1 className="section-title">Popular Destinations</h1>
+
       <div className="bottom-booking-gallery">
         {images.map((image, index) => (
           <div className="bottom-booking-item" key={index}>
-            <img 
-              src={image} 
-              alt={`Destination ${index}`} 
-              className="bottom-booking-image" 
+            <img
+              src={image}
+              alt={`Destination ${index}`}
+              className="bottom-booking-image"
             />
-            <div 
+            <div
               className="destination-overlay"
-              onClick={() => openModal(videoLinks[index])}
+              onClick={() => openModal(videoLinks[index % videoLinks.length])}
             >
               <p className="destination-text">Discover More</p>
             </div>
@@ -65,16 +76,14 @@ const BottomBooking = () => {
       {isModalOpen && (
         <div className="modal-overlay123" onClick={closeModal}>
           <div className="modal-content123" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal123" onClick={closeModal}>x</button>
+            <button className="close-modal123" onClick={closeModal}>×</button>
             <div className="iframe-container123">
               <iframe
-                src={currentVideo.replace("watch?v=", "embed/")}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+                src={currentVideo.replace('watch?v=', 'embed/')}
                 title="Destination Video"
                 className="modal-iframe123"
-              ></iframe>
+                allowFullScreen
+              />
             </div>
           </div>
         </div>

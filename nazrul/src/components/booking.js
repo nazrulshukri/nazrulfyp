@@ -152,7 +152,8 @@ function Booking() {
   const [showToSuggestions, setShowToSuggestions] = useState(false);
   const [filteredFromLocations, setFilteredFromLocations] = useState([]);
   const [filteredToLocations, setFilteredToLocations] = useState([]);
-
+  const [fromSelected, setFromSelected] = useState(false);
+ const [toSelected, setToSelected] = useState(false);
   const fromInputRef = useRef(null);
   const toInputRef = useRef(null);
 
@@ -267,53 +268,72 @@ function Booking() {
         {/* From */}
         <div className="form-group">
           <label>From</label>
-          <input
-            ref={fromInputRef}
-            value={location}
-            onChange={(e) => {
-              setLocation(e.target.value);
-              setShowFromSuggestions(true);
-            }}
-            placeholder="Departure city"
-          />
+         <input ref={fromInputRef} value={location} onFocus={() => {if (fromSelected) {setLocation(''); setFromSelected(false);} setShowFromSuggestions(true);}}
+        onChange={(e) => {
+    setLocation(e.target.value);
+    setShowFromSuggestions(true);
+  }}
+  placeholder="Departure city"
+/>
           {showFromSuggestions && (
-            <ul className="suggestions-list">
-              {filteredFromLocations.map((loc, i) => (
-                <li key={i} onClick={() => {
-                  setLocation(loc);
-                  setShowFromSuggestions(false);
-                }}>
-                  {loc}
-                </li>
-              ))}
-            </ul>
-          )}
+  <ul className="suggestions-list modern">
+    {filteredFromLocations.map((loc, i) => (
+      <li
+        key={i}
+        onClick={() => {
+          setLocation(loc);
+          setShowFromSuggestions(false);
+           setFromSelected(true); // 👈 mark as selected
+        }}
+      >
+        <span className="suggestion-icon">
+          <FaPlane />
+        </span>
+        <span className="suggestion-text">{loc}</span>
+      </li>
+    ))}
+  </ul>
+)}
         </div>
 
         {/* To */}
         <div className="form-group">
           <label>To</label>
           <input
-            ref={toInputRef}
-            value={location1}
-            onChange={(e) => {
-              setLocation1(e.target.value);
-              setShowToSuggestions(true);
-            }}
-            placeholder="Destination city"
-          />
-          {showToSuggestions && (
-            <ul className="suggestions-list">
-              {filteredToLocations.map((loc, i) => (
-                <li key={i} onClick={() => {
-                  setLocation1(loc);
-                  setShowToSuggestions(false);
-                }}>
-                  {loc}
-                </li>
-              ))}
-            </ul>
-          )}
+  ref={toInputRef}
+  value={location1}
+  onFocus={() => {
+    if (toSelected) {
+      setLocation1('');
+      setToSelected(false);
+    }
+    setShowToSuggestions(true);
+  }}
+  onChange={(e) => {
+    setLocation1(e.target.value);
+    setShowToSuggestions(true);
+  }}
+  placeholder="Destination city"
+/>
+         {showToSuggestions && (
+  <ul className="suggestions-list modern">
+    {filteredToLocations.map((loc, i) => (
+      <li
+        key={i}
+        onClick={() => {
+          setLocation1(loc);
+          setShowToSuggestions(false);
+          setToSelected(true);
+        }}
+      >
+        <span className="suggestion-icon">
+          <FaPlane />
+        </span>
+        <span className="suggestion-text">{loc}</span>
+      </li>
+    ))}
+  </ul>
+)}
         </div>
 
         {/* Trip Type SELECT (Flight only) */}
