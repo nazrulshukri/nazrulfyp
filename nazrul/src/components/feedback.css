@@ -3,13 +3,7 @@
 }
 
 .image-grid {
-  /* display: flex;
-  flex-wrap: nowrap;
-  gap: 20px;
-  padding: 20px;
-  overflow: hidden;  /* Hide overflow to prevent scrolling */
- 
-position: relative; /* make absolute positioning inside work */
+ position: relative; 
   overflow: visible; 
   padding: 40px 0;
 }
@@ -43,7 +37,7 @@ position: relative; /* make absolute positioning inside work */
 .scroll-track {
   display: flex;
   gap: 24px;
-  overflow-x: auto; /* allow horizontal scroll if needed */
+  overflow-x: auto;
   scroll-behavior: smooth;
   animation: scroll 45s linear infinite;
 }
@@ -65,7 +59,7 @@ position: relative; /* make absolute positioning inside work */
   color: #6ea7d9e7;
 }
 
-/* Header styles */
+
 .feedback-header {
   text-align: center;
   margin-bottom: 20px;
@@ -104,9 +98,6 @@ position: relative; /* make absolute positioning inside work */
     0 25px 40px rgba(37, 99, 235, 0.25);
 }
 
-/* =========================
-   DARK MODE FIX – FEEDBACK
-========================= */
 
 .app.dark-mode .feedback-section {
   background: linear-gradient(
@@ -124,7 +115,6 @@ position: relative; /* make absolute positioning inside work */
   color: #94a3b8;
 }
 
-/* Ensure no white gaps behind cards */
 .app.dark-mode .image-grid {
   background: transparent;
 }
@@ -146,22 +136,22 @@ position: relative; /* make absolute positioning inside work */
     #020617
   );
 }
-/* Inside-section controls */
+
 .feedback-controls.inside-section {
   position: absolute;
   bottom: 16px;
   right: 16px;
   display: flex;
   gap: 8px;
-  z-index: 1000; /* on top of cards */
+  z-index: 1000; 
   background: rgba(15,23,42,0.5);
   border-radius: 12px;
   padding: 6px;
   backdrop-filter: blur(8px);
-  opacity: 1; /* always visible */
+  opacity: 1; 
 }
 
-/* Smaller buttons for inside section */
+
 .feedback-controls.inside-section button {
   width: 60px;
   height: 60px;
@@ -181,10 +171,9 @@ position: relative; /* make absolute positioning inside work */
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
 }
 
-/* Make sure image-grid is position: relative so absolute works */
 .image-grid {
   position: relative;
-  overflow: visible; /* prevent clipping */
+  overflow: visible; 
 }
 .feedback-controls.inside-section {
   opacity: 0;
@@ -274,9 +263,6 @@ position: relative; /* make absolute positioning inside work */
 }
 
 
-/* ===========================
-   PAUSE & NAVIGATION CONTROLS
-=========================== */
 
 .scroll-track {
   display: flex;
@@ -284,7 +270,7 @@ position: relative; /* make absolute positioning inside work */
   overflow-x: auto;
   scroll-behavior: smooth;
   animation: scroll 45s linear infinite;
-  z-index: 1; /* lower than buttons */
+  z-index: 1; 
 }
 
 .scroll-track.paused {
@@ -292,11 +278,11 @@ position: relative; /* make absolute positioning inside work */
 }
 
 .feedback-controls.inside-section button svg {
-  width: 35px;   /* icon smaller than button so it fits nicely */
+  width: 35px;   
   height: 35px;
 }
 
-/* Floating control dock */
+
 .feedback-controls .feedback-controls.inside-section {
   position: fixed;
   bottom: 24px;
@@ -312,9 +298,8 @@ position: relative; /* make absolute positioning inside work */
   animation: popIn 0.5s ease-out;
 }
 
-/* Buttons */
 .feedback-controls.inside-section button {
-  width: 70px;    /* bigger button */
+  width: 70px;    
   height: 70px;
   border-radius: 50%;
   display: flex;
@@ -331,7 +316,7 @@ position: relative; /* make absolute positioning inside work */
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.9);
 }
 
-/* Boom animation */
+
 @keyframes popIn {
   0% {
     transform: scale(0.5) translateY(20px);
@@ -344,7 +329,7 @@ position: relative; /* make absolute positioning inside work */
 }
 
 
-/* Responsive adjustments for smaller screens */
+
 @media screen and (max-width: 800px) {
   .card2 {
     flex: 0 0 40%;
@@ -364,7 +349,7 @@ position: relative; /* make absolute positioning inside work */
   }
 }
 
-/* Mobile */
+
 @media (max-width: 768px) {
   .scroll-track {
     animation-duration: 90s;
@@ -398,9 +383,7 @@ position: relative; /* make absolute positioning inside work */
   }
 }
 
-/* ===========================
-   MOBILE CONTROL ADAPTATION
-=========================== */
+
 
 @media (max-width: 768px) {
   .feedback-controls {
