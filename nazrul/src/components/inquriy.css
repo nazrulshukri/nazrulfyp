@@ -80,8 +80,6 @@
     color: #93c5fd; /* Light blue labels */
 }
 
-
-
 .app.dark-mode button:hover {
     background-color: #2563eb;
     box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
