@@ -1,10 +1,313 @@
-/* Disable hover effects on the entire container */
-.no-hover-container {
-  transition: none !important; /* Remove transition */
+/* Page */
+.si-page {
+  min-height: 100vh;
+  padding: 56px 14px;
+  display: grid;
+  place-items: center;
+
+  background:
+    radial-gradient(900px 420px at 15% 10%, rgba(59,130,246,0.18), transparent 55%),
+    radial-gradient(800px 380px at 85% 20%, rgba(147,51,234,0.16), transparent 55%),
+    linear-gradient(180deg, #f6f8fc, #eef2ff);
 }
 
-.no-hover-container:hover {
-  background-color: inherit !important; /* Keep background the same on hover */
-  box-shadow: none !important; /* Remove hover shadow */
-  color: inherit !important; /* Keep text color the same on hover */
+.si-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: center;
+}
+
+/* Card */
+.si-card {
+  width: 100%;
+  max-width: 1200px;   /* laptop / desktop */
+  border-radius: 22px !important;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 28px 80px rgba(2, 6, 23, 0.14);
+}
+
+/* IMPORTANT: never force min-height (this was breaking iPad/laptop) */
+.si-row {
+  min-height: unset !important;
+}
+
+/* Left panel */
+.si-left {
+  position: relative;
+  display: block;
+  background: #0b1220;
+}
+
+.si-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.1) contrast(1.05);
+   filter: brightness(0.9) contrast(1.05) saturate(1.05);
+}
+
+
+
+.si-leftOverlay {
+  position: absolute;
+  inset: 0;
+  padding: 32px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+
+  /* STRONGER overlay for readability */
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.25) 0%,
+    rgba(2, 6, 23, 0.75) 55%,
+    rgba(2, 6, 23, 0.92) 100%
+  );
+
+  color: #ffffff;
+}
+
+.si-leftBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  color: #e0f2fe;
+  background: rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(147, 197, 253, 0.45);
+
+  backdrop-filter: blur(6px);
+}
+
+.si-leftTitle {
+  margin: 6px 0 4px;
+
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+
+  color: #ffffff;
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.si-leftText {
+  margin: 0;
+  max-width: 420px;
+
+  font-size: 14px;
+  line-height: 1.8;
+  font-weight: 500;
+
+  color: rgba(255, 255, 255, 0.92);
+
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* Right side */
+.si-body {
+  position: relative;
+  overflow: hidden;
+}
+
+/* background pattern + gradient */
+.si-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background:
+    radial-gradient(700px 260px at 20% 10%, rgba(59,130,246,0.12), transparent 60%),
+    radial-gradient(600px 240px at 85% 20%, rgba(147,51,234,0.10), transparent 60%),
+    radial-gradient(800px 300px at 55% 100%, rgba(34,211,238,0.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.86));
+}
+
+/* subtle grid dots */
+.si-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(15,23,42,0.10) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(closest-side at 50% 15%, black 55%, transparent 100%);
+}
+
+.si-body > * {
+  position: relative;
+  z-index: 1;
+}
+
+.si-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.si-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.si-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  color: #0f172a;
+}
+
+.si-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.si-form {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(15,23,42,0.08);
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: 0 18px 60px rgba(2,6,23,0.08);
+}
+
+/* Error alert */
+.si-alert {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+}
+
+/* Button */
+.si-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.2px;
+}
+
+/* Links */
+.si-links {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.si-link {
+  color: #2563eb;
+  font-weight: 800;
+  text-decoration: none;
+}
+.si-link:hover { text-decoration: underline; }
+
+.si-dot { opacity: 0.5; }
+
+/* Divider */
+.si-divider {
+  margin: 16px 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.si-divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(15, 23, 42, 0.10);
+}
+.si-divider span {
+  position: relative;
+  padding: 0 10px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.55);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+}
+
+/* Social */
+.si-social {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.si-socialBtn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+  border: 1px solid rgba(37, 99, 235, 0.12) !important;
+  color: #2563eb !important;
+}
+
+/* Modal */
+.si-modal {
+  border-radius: 18px !important;
+}
+.si-modalHeader {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+.si-modalBody {
+  color: rgba(15, 23, 42, 0.75);
+  font-weight: 700;
+}
+
+/* ===========================
+   RESPONSIVE (FIXED)
+   - iPad/tablet: show left as top banner
+   - phone: hide left
+=========================== */
+/* ===========================
+   RESPONSIVE WIDTH CONTROL
+=========================== */
+
+/* Large laptops / desktop */
+@media (min-width: 1200px) {
+  .si-card {
+    max-width: 1200px;
+  }
+}
+
+/* iPad / tablets */
+@media (max-width: 1199px) {
+  .si-card {
+    max-width: 960px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .si-card {
+    max-width: 100%;
+    margin: 0 10px;
+  }
 }

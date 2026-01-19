@@ -30,7 +30,7 @@ const videoLinks = [
 const BottomBooking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const isDarkMode = false;
 
   const openModal = (video) => {
     setCurrentVideo(video);
@@ -45,13 +45,6 @@ const BottomBooking = () => {
   return (
     <div className={`bottom-booking-container ${isDarkMode ? 'darkmode' : ''}`}>
 
-      {/* Dark mode toggle */}
-      {/* <button
-        className="darkmode-toggle"
-        onClick={() => setIsDarkMode(!isDarkMode)}
-      >
-        {isDarkMode ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
-      </button> */}
 
       <h1 className="section-title">Popular Destinations</h1>
 
@@ -64,11 +57,18 @@ const BottomBooking = () => {
               className="bottom-booking-image"
             />
             <div
-              className="destination-overlay"
-              onClick={() => openModal(videoLinks[index % videoLinks.length])}
-            >
-              <p className="destination-text">Discover More</p>
-            </div>
+  className="destination-overlay"
+  role="button"
+  tabIndex={0}
+  onClick={() => openModal(videoLinks[index % videoLinks.length])}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      openModal(videoLinks[index % videoLinks.length]);
+    }
+  }}
+>
+  <p className="destination-text">Discover More</p>
+</div>
           </div>
         ))}
       </div>

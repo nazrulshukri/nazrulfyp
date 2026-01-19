@@ -24,10 +24,6 @@ header {
   
 }
 
-/* Styling individual sections */
-/* ========================= */
-/* BODY SECTIONS - LIGHT MODE */
-/* ========================= */
 .app.light-mode .booking-form,
 .app.light-mode .travel-list,
 .app.light-mode .image-gallery,
@@ -40,9 +36,7 @@ header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* ========================= */
-/* BODY SECTIONS - DARK MODE */
-/* ========================= */
+
 .app.dark-mode .booking-form,
 .app.dark-mode .travel-list,
 .app.dark-mode .image-gallery,
@@ -50,7 +44,7 @@ header {
 .app.dark-mode .feedback,
 .app.dark-mode .inquiry,
 .app.dark-mode .tabs {
-  background-color: #121212;   /* Dark background */
+  background-color: #121212;   
   color: #ffffff;
   border-bottom: 1px solid rgb(84, 135, 206);
 }
