@@ -33,14 +33,14 @@ const Payment = ({ user }) => {
   const outboundFlight = outboundFlightOld || selectedOutboundFlight;
   const returnFlight = returnFlightOld || selectedReturnFlight;
   const price = returnPriceFromState ?? priceOld ?? 0;
-  const totalPrice = outboundPriceFromState ?? totalPriceOld ?? 0;
 
-  const { firstName = "Guest" } = user || {};
+
+
 
   const [insurancePrice, setInsurancePrice] = useState(0);
   const totalSeatPrice = selectedSeats.length * 20;
 
-  const insuranceName = selectedInsurance ? selectedInsurance.name : 'No Insurance';
+
   const [showModal, setShowModal] = useState(false);
 
   const [returnPrice] = useState(price || 0);
@@ -78,9 +78,7 @@ const Payment = ({ user }) => {
     total: (outboundPrice + returnPrice) + 50.00 + totalSeatPrice + insurancePrice,
   };
 
-  const handleContinue = () => {
-    navigate('/paymentmethod');
-  };
+
 
   const handleBooking = async () => {
     if (!passengerDetails || !passengerDetails.email) {
@@ -215,3 +213,4 @@ const Payment = ({ user }) => {
 };
 
 export default Payment;
+
