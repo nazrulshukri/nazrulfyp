@@ -2,7 +2,6 @@ import React, { useEffect ,useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { generatePDF1 } from './pdfgenerator1';
-import generatePDF from './pdfgenerator'; 
 import bookingflex from '../img/assets/Booking1.png';
 import './ticketpage.css';
 import ConfirmationDialog from './confirmationdialog';
@@ -219,5 +218,6 @@ const TicketPage = () => {
     </div>  
   );
 };
+
 
 export default TicketPage;
