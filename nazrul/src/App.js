@@ -27,6 +27,8 @@ import ForgotPassword from './components/forgotpassword'; // Correct this line i
 import FlightStatus from './components/flightstatus'; 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "mdb-react-ui-kit/dist/css/mdb.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import TrainPage from './components/train';
 
 function AppContent() {

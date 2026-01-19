@@ -10,15 +10,30 @@ const Payment = ({ user }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  const {
-    totalPrice,
+   const {
+    // new keys (from FlightResults)
+    selectedOutboundFlight,
+    selectedReturnFlight,
+    outboundPrice: outboundPriceFromState,
+    returnPrice: returnPriceFromState,
+
+    // old keys (from your other pages)
+    outboundFlight: outboundFlightOld,
+    returnFlight: returnFlightOld,
+    price: priceOld,
+
+    // common
     passengerDetails,
     selectedInsurance,
     selectedSeats = [],
-    outboundFlight,
-    returnFlight,
-    price,
+    totalPrice: totalPriceOld,
   } = state || {};
+
+  // ✅ Final variables used by this component
+  const outboundFlight = outboundFlightOld || selectedOutboundFlight;
+  const returnFlight = returnFlightOld || selectedReturnFlight;
+  const price = returnPriceFromState ?? priceOld ?? 0;
+  const totalPrice = outboundPriceFromState ?? totalPriceOld ?? 0;
 
   const { firstName = "Guest" } = user || {};
 
@@ -46,8 +61,8 @@ const Payment = ({ user }) => {
     return <Loading />; // Show loading screen while processing
   }
 
-  if (!outboundFlight || !returnFlight) {
-    return <div>No flight details available.</div>;
+    if (!outboundFlight) {
+    return <div>No outbound flight selected. Please go back and choose a flight.</div>;
   }
 
   const getTotalCostForFlight = (price) => {

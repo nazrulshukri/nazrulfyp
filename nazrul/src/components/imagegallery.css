@@ -1,304 +1,444 @@
-/* ✅ Base (Desktop/Laptop) */
-.slide-container {
-  width: 100vw;
-  position: relative;
-  overflow: hidden;
+/* ============================
+   2026 MODERN SLIDER
+============================ */
+
+.slide-container.modern {
+  width: 100%;
+  max-width: 2500px;
   margin: 0 auto;
-}
-
-.each-slide {
-  width: 100%;
-  height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  padding: 18px 14px 28px;
   position: relative;
 }
 
-/* .each-slide img {
+.each-slide.modern {
   width: 100%;
-  height: 100%;
-  object-fit: cover; 
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}  */
+  height: clamp(350px, 70vh, 720px);
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(2, 6, 23, 0.18);
+}
 
-.each-slide img {
+.each-slide.modern img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;   /* 🔥 MOVE IMAGE UP */
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-
-.each-slide:hover img {
-  transform: scale(1.05);
-  opacity: 0.9;
+.each-slide.modern:hover img {
+  transform: scale(1.06);
 }
 
-/* Overlay Text/Button */
-.overlay {
+/* cinematic overlay */
+.hero-overlay {
   position: absolute;
-  bottom: 30px;
-  left: 30px;
-  background-color: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: radial-gradient(900px 420px at 12% 10%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(800px 380px at 85% 20%, rgba(147, 51, 234, 0.18), transparent 55%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.05), rgba(2, 6, 23, 0.65));
+}
+
+/* ============================
+   TEXT OVERLAY (GLASS)
+============================ */
+
+.overlay.modern {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  width: min(520px, calc(100% - 44px));
+  border-radius: 18px;
+  padding: 18px;
+
+  color: #fff;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px);
+
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+}
+
+.overlay-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(59, 130, 246, 0.22);
+  border: 1px solid rgba(147, 197, 253, 0.3);
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 8px;
+}
+
+button.ghost {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+button.ghost:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.overlay.modern h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
+}
+
+.overlay.modern p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* CTA buttons */
+.overlay-cta {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button.cta {
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+button.cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 60px rgba(37, 99, 235, 0.32);
+}
+
+button.cta.secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+
+/* ============================
+   DOTS (SLICK)
+============================ */
+
+.modern-dots {
+  bottom: 14px !important;
+}
+
+.modern-dots li button:before {
+  font-size: 10px;
+  opacity: 0.35;
+}
+
+.modern-dots li.slick-active button:before {
+  opacity: 1;
+}
+
+/* ============================
+   VIDEO MODAL (2026)
+============================ */
+
+.video-modal-overlay.modern {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  z-index: 999;
+}
+
+.video-modal.modern{
+  position: fixed;
+  inset: 12px;                 /* keeps it inside the screen */
+  margin: auto;                /* centers it */
+  width: min(1100px, 92vw);
+  height: min(650px, 80vh);
+
+  border-radius: 22px;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;            /* important for clean edges */
+}
+
+.video-modal.modern .video-header{
+  flex: 0 0 auto;
+}
+.overlay.modern h2,
+.overlay.modern p {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.video-modal.modern .video-body{
+  flex: 1 1 auto;
+  min-height: 0;               /* IMPORTANT so iframe can fit */
+  padding: 12px;
+}
+
+.video-modal.modern .video-frame{
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;        /* keeps video from being cut */
+}
+
+.video-modal.modern .video-frame iframe{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 16px;
+}
+
+/* topbar */
+.video-topbar {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.video-title .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22d3ee, #a78bfa);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
+}
+
+.video-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.close-button.modern {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: white;
-  padding: 15px 20px;
-  border-radius: 8px;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.close-button.modern:hover {
+  transform: scale(1.03);
+  background: rgba(255, 59, 59, 0.3);
+}
+
+.mini-toggle-button.modern {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* ============================
+   VIDEO FRAME (NO CUTTING)
+   - makes the iframe always fit
+============================ */
+video-frame {
+  flex: 1;
+  display: flex;
+  align-items: center;     /* ✅ vertical center */
+  justify-content: center; /* ✅ horizontal center */
+  padding: 16px;
+  overflow: hidden;
+}
+
+.video-frame iframe {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+
+  aspect-ratio: 16 / 9;    /* ✅ keep ratio */
+  border-radius: 16px;
+  border: none;
+
+  background: black;
+}
+
+/* ============================
+   MINI PLAYER (draggable)
+   - always stays 16:9 and never cuts
+============================ */
+
+.video-modal.modern.mini-player {
+  width: min(360px, calc(100vw - 24px)); /* never overflow on small phones */
+  aspect-ratio: 16 / 9;                 /* ALWAYS keep video ratio */
+  height: auto;                         /* don't force height */
+  transform: none;
+  cursor: grab;
+}
+
+.video-modal.modern.mini-player:active {
+  cursor: grabbing;
+}
+
+/* topbar becomes overlay so it doesn't steal video height */
+.video-modal.modern.mini-player .video-topbar {
+  position: absolute;
+  inset: 10px 10px auto 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
   z-index: 2;
 }
 
-.overlay h2 {
-  margin: 0;
-  font-size: 1.8rem;
+/* mini: video should fill entire box */
+.video-modal.modern.mini-player .video-frame {
+  padding: 0;
 }
 
-.overlay button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #1dbeb6;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 1rem;
+.video-modal.modern.mini-player .video-frame::before {
+  padding-top: 56.25%;
 }
 
-.overlay button:hover {
-  background-color: #17a58b;
-}
-
-/* ✅ Video Modal */
-.video-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 85%;
-  height: 85%;
-  transform: translate(-50%, -50%) scale(0.95);
-  background: #0d0d0d;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  animation: modalOpen 0.25s forwards;
-  transition: all 0.3s ease;
-}
-.video-modal iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 12px;
-}
-
-@keyframes modalOpen {
-  to { transform: translate(-50%, -50%) scale(1); }
-}
-
-.video-modal .top-bar {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  display: flex;
-  gap: 15px;
-  z-index: 1001;
-}
-
-.mini-player {
-  width: 360px;
-  height: 200px;
-  top: 25%;           /* 🔥 move it slightly lower */
-  left: 60%;         /* reset left */
-  right: 40px;        /* 🔥 move it to the right */
-  position: fixed;
-  transform: none;
-  cursor: grab;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.7);
-  border: 2px solid #1dbeb6;
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-.mini-player:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 50px rgba(0,0,0,0.8);
-}
-
-.mini-player iframe {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-}
-
-/* Mini-player close button inside */
-.video-modal .top-bar {
-  position: absolute;
-  top: 90px; /* moved down from 20px */
-  right: 30px;
-  display: flex;
-  gap: 15px;
-  z-index: 1001;
-}
-
-
-/* Overlay */
-.video-modal-overlay {
-  position: fixed;
+.video-modal.modern.mini-player .video-frame iframe {
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(6px);
-  z-index: 999;
-  transition: opacity 0.3s ease;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
 }
 
-.close-button {
-  background: rgba(0,0,0,0.8);
-  color: white;
-  font-size: 1.6rem;
-  width: 50px;
-  top:50px;
-  height: 50px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
+/* hint */
+.mini-hint {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.close-button:hover {
-  background: #ff3b3b;
-  transform: scale(1.15);
-}
+/* ============================
+   RESPONSIVE
+============================ */
 
-.mini-toggle-button {
-  background: rgba(0,0,0,0.7);
-  color: white;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
-}
-
-.mini-toggle-button:hover {
-  background: #1dbeb6;
-  transform: scale(1.05);
-}
-
-
-
-.slick-dots {
-  bottom: 20px;   /* default is -25px */
-}
-
-/* ✅ MEDIA QUERIES */
-
-/* 💻 Laptops (≤ 1024px) */
 @media (max-width: 1024px) {
-  .each-slide {
-    height: 65vh;
-  }
-  .overlay h2 {
-    font-size: 1.4rem;
-  }
-  .overlay button {
-    font-size: 0.9rem;
-    padding: 8px 16px;
+  .each-slide.modern {
+    height: 62vh;
   }
 }
 
-/* 📱 Tablets (≤ 768px) */
 @media (max-width: 768px) {
-  .each-slide {
+  .each-slide.modern {
     height: 55vh;
-  }
-  .overlay {
-    bottom: 15px;
-    left: 15px;
-    padding: 10px 15px;
-  }
-  .overlay h2 {
-    font-size: 1.2rem;
-  }
-  .overlay button {
-    font-size: 0.85rem;
-    padding: 7px 14px;
-  }
-  .mini-player {
-    width: 240px;
-    height: 140px;
-    right: 10px;
-    bottom: 10px;
+    border-radius: 18px;
   }
 
-   .slick-dots {
-    bottom: 10px;
+  .overlay.modern {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: auto;
+  }
+
+  .overlay.modern h2 {
+    font-size: 22px;
+  }
+
+  .video-modal.modern {
+    width: 94vw;
+    height: 72vh;
+  }
+
+  /* IMPORTANT: only change width, never set height */
+  .video-modal.modern.mini-player {
+    width: min(300px, calc(100vw - 24px));
   }
 }
 
 @media (max-width: 480px) {
-  .slick-dots {
-    bottom: 5px;
-  }
-}
-
-
-
-
-/* 📞 Phones (≤ 480px) */
-@media (max-width: 480px) {
-  .each-slide {
-    height: 45vh;
-  }
-  .overlay {
-    bottom: 10px;
-    left: 10px;
-    padding: 8px 10px;
-  }
-  .overlay h2 {
-    font-size: 1rem;
-  }
-  .overlay button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-  .mini-player {
-    width: 200px;
-    height: 120px;
-  }
-}
-
-@media (max-width: 768px) {
-  .mini-player {
-    width: 260px;
-    height: 150px;
-    left: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .mini-player {
-    width: 200px;
-    height: 120px;
-    left: 10px;
-    top: 10px;
+  .each-slide.modern {
+    height: 46vh;
   }
 
-  .close-button {
-    top: 20px;
-    right: 15px;
+  .overlay.modern h2 {
+    font-size: 18px;
+  }
+
+  .overlay.modern p {
+    font-size: 13px;
+  }
+
+  .video-modal.modern{
+    inset: 10px;
+    width: auto;
+    height: auto;
+    max-height: 90vh;
+  }
+
+  .video-modal.modern .video-body{
+    padding: 10px;
+  }
+
+  .video-modal.modern .video-frame{
+    height: auto;              /* aspect-ratio drives height */
+  }
+
+  /* IMPORTANT: only change width, never set height */
+  .video-modal.modern.mini-player {
+    width: min(260px, calc(100vw - 24px));
   }
 }

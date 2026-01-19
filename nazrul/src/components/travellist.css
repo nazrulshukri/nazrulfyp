@@ -1,150 +1,224 @@
-/* ===============================
-   TITLE
-================================ */
+/* ===== Base container ===== */
+.bottom-booking-container {
+  padding: clamp(16px, 3vw, 28px);
+  border-radius: 18px;
+}
+
+/* Title */
 .section-title {
-  color: black;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
+  color: #0b1220;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  transition: color 0.25s ease;
 }
 
 .bottom-booking-container.darkmode .section-title {
-  color: #1e3a8a; /* blue */
+  color: #93c5fd;
 }
 
-/* ===============================
-   DARK MODE BUTTON
-================================ */
-.darkmode-toggle {
-  margin-bottom: 1rem;
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #1e3a8a;
-  color: white;
-  font-weight: 600;
-}
-
-/* ===============================
-   GALLERY
-================================ */
+/* ===== Gallery: scroll-snap modern carousel ===== */
 .bottom-booking-gallery {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
+  gap: 14px;
   overflow-x: auto;
-  white-space: nowrap;
+  padding: 10px 2px 14px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Hide ugly whitespace on iOS */
+.bottom-booking-gallery:focus {
+  outline: none;
+}
+
+/* Cards */
 .bottom-booking-item {
+  scroll-snap-align: start;
   position: relative;
-  flex: 0 0 auto;
-  width: 220px;
-  height: 150px;
-  border-radius: 10px;
+  border-radius: 18px;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  height: 160px;
+  background: #0b1220;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.14);
+  transform: translateZ(0);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .bottom-booking-item:hover {
-  transform: scale(1.05);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 18px 48px rgba(0,0,0,0.18);
 }
 
+/* Image */
 .bottom-booking-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 0.5s ease, filter 0.35s ease;
 }
 
-/* ===============================
-   OVERLAY
-================================ */
+.bottom-booking-item:hover .bottom-booking-image {
+  transform: scale(1.08);
+  filter: saturate(1.05);
+}
+
+/* Top gradient for readability */
+.bottom-booking-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(2,6,23,0.15),
+    rgba(2,6,23,0.55)
+  );
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* Overlay CTA */
 .destination-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 10px;
-  background: rgba(0,0,0,0.5);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  text-align: center;
-}
-
-.bottom-booking-item:hover .destination-overlay {
-  opacity: 1;
-}
-
-.destination-text {
-  color: white;
-  font-weight: bold;
-}
-
-/* ===============================
-   SCROLLBAR (LIGHT MODE)
-================================ */
-.bottom-booking-gallery::-webkit-scrollbar {
-  height: 8px;
-}
-
-.bottom-booking-gallery::-webkit-scrollbar-track {
-  background: #f0f0f0;
-}
-
-.bottom-booking-gallery::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-/* ===============================
-   SCROLLBAR (DARK MODE)
-================================ */
-.bottom-booking-container.darkmode
-.bottom-booking-gallery::-webkit-scrollbar-track {
-  background: #1e3a8a;
-}
-
-.bottom-booking-container.darkmode
-.bottom-booking-gallery::-webkit-scrollbar-thumb {
-  background: #03f77d;
-}
-
-/* ===============================
-   MODAL
-================================ */
-.modal-overlay123 {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
+  inset: auto 0 0 0;
+  padding: 12px 12px 14px;
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  transform: translateY(0);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* CTA pill */
+.destination-text {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.destination-overlay:active .destination-text {
+  transform: scale(0.98);
+}
+
+/* Dark mode card tweaks */
+.bottom-booking-container.darkmode .bottom-booking-item {
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+}
+
+.bottom-booking-container.darkmode .destination-text {
+  background: rgba(148,163,184,0.10);
+  border: 1px solid rgba(148,163,184,0.22);
+}
+
+/* ===== Scrollbar (desktop) ===== */
+.bottom-booking-gallery::-webkit-scrollbar {
+  height: 10px;
+}
+
+.bottom-booking-gallery::-webkit-scrollbar-track {
+  background: rgba(2,6,23,0.06);
+  border-radius: 999px;
+}
+
+.bottom-booking-gallery::-webkit-scrollbar-thumb {
+  background: rgba(59,130,246,0.55);
+  border-radius: 999px;
+}
+
+.bottom-booking-container.darkmode .bottom-booking-gallery::-webkit-scrollbar-track {
+  background: rgba(148,163,184,0.12);
+}
+.bottom-booking-container.darkmode .bottom-booking-gallery::-webkit-scrollbar-thumb {
+  background: rgba(34,197,94,0.65);
+}
+
+/* ===== Modal (premium) ===== */
+.modal-overlay123 {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.72);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
   z-index: 1000;
+  padding: 18px;
+  animation: modalFade 0.18s ease-out;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-content123 {
-  background: white;
-  width: 80%;
-  max-width: 800px;
-  border-radius: 10px;
+  width: min(920px, 96vw);
+  border-radius: 18px;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.35);
+  transform: translateY(0);
+  animation: modalPop 0.22s ease-out;
   position: relative;
 }
 
+@keyframes modalPop {
+  from { transform: translateY(10px) scale(0.98); opacity: 0.7; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.bottom-booking-container.darkmode .modal-content123 {
+  background: #0b1220;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+}
+
+/* Close button */
 .close-modal123 {
   position: absolute;
   top: 10px;
   right: 10px;
-  border: none;
-  background: white;
-  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(148,163,184,0.2);
+  background: rgba(255,255,255,0.85);
   cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+  z-index: 2;
 }
 
+.close-modal123:hover {
+  transform: scale(1.04);
+  background: rgba(255,255,255,1);
+}
+
+.bottom-booking-container.darkmode .close-modal123 {
+  background: rgba(2,6,23,0.65);
+  color: #e5e7eb;
+}
+
+/* Responsive iframe */
 .iframe-container123 {
   position: relative;
   padding-top: 56.25%;
+  background: #000;
 }
 
 .modal-iframe123 {
@@ -153,4 +227,36 @@
   width: 100%;
   height: 100%;
   border: none;
+}
+
+/* ===== Mobile adjustments ===== */
+@media (max-width: 768px) {
+  .bottom-booking-gallery {
+    grid-auto-columns: 82%;
+    gap: 12px;
+  }
+
+  .bottom-booking-item {
+    height: 190px;
+  }
+
+  .destination-text {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+
+  .modal-overlay123 {
+    padding: 10px;
+  }
+
+  .close-modal123 {
+    top: 8px;
+    right: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .bottom-booking-gallery {
+    grid-auto-columns: 88%;
+  }
 }

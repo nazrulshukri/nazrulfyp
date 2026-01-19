@@ -1,103 +1,756 @@
-.flight-results-container {
-  display: grid;
-  grid-template-columns: 1fr 5fr;
-  gap: 30px;
-  margin-top: 130px;
-  padding: 20px;
+/* Theme tokens */
+:root{
+  --bg: #f6f7fb;
+  --panel: rgba(255,255,255,0.78);
+  --panel-solid: #ffffff;
+  --text: #0b1220;
+  --muted: rgba(15, 23, 42, 0.62);
+  --border: rgba(2, 6, 23, 0.12);
+  --shadow: 0 30px 90px rgba(2, 6, 23, 0.12);
+  --shadow-soft: 0 12px 35px rgba(2, 6, 23, 0.10);
 
-}
+  --accent: #3b82f6;
+  --accent2: #22c55e;
 
-.filters {
-  background-color: #f4f4f4;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+  --radius-xl: 22px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
 
-.filter-section {
-  margin-bottom: 20px;
-  padding: 10px; /* Add some padding to the filter section */
-  border: 1px solid #e0e0e0; /* Light border for definition */
-  border-radius: 8px; /* Rounded corners */
-  background-color: #f9f9f9; /* Light background color */
-}
-
-.filter-section h6 {
-  margin: 0; /* Remove default margin */
-  margin-right: 20px; /* Space between header and options */
-  font-weight: bold; /* Make header bold */
-  color: #0a0b0c; /* Change header color */
-}
-
-.filterlayovers {
-  display: flex; /* Use flexbox */
-  align-items: center; /* Center items vertically */
-  gap: 15px; /* Space between radio button options */
-}
-
-.radio-label {
-  display: flex; /* Use flexbox for labels */
-  align-items: center; /* Center items vertically */
+  --blur: blur(14px);
 }
 
 
+.flight-detailsSheet{
+  margin-top: 14px !important;
+  display: grid !important;
+  grid-template-columns: 52px 1fr !important;
+  gap: 14px !important;
 
-.filter-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 16px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(148,163,184,0.16) !important;
+  background: rgba(255,255,255,0.65) !important;
+  box-shadow: 0 22px 70px rgba(2,6,23,0.10) !important;
+
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.app.dark-mode .flight-detailsSheet{
+  background: rgba(2,6,23,0.42) !important;
+  border-color: rgba(148,163,184,0.14) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55) !important;
+}
+
+/* Left rail */
+
+
+.fd-leftRail{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* makes it always match right column height */
+  align-self: stretch;
+
+  /* control where the rail starts/ends */
+  padding-top: 18px;
+  padding-bottom: 90px; /* stops before baggage/close */
+}
+
+.fd-rail{
+  flex: 1 !important;              /* key: takes remaining height */
+  min-height: 120px !important;
+}
+
+
+.fd-rail{
+  transition: filter .25s ease;
+}
+
+
+.fd-rail{
+  width: 4px;
+  flex: 1;           /* <-- THIS is the key: auto grow */
+  min-height: 120px; /* safety */
+
+  margin: 10px 0;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(148,163,184,0.70),
+    rgba(59,130,246,0.45),
+    rgba(45,212,191,0.35)
+  );
+
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.10),
+    0 0 18px rgba(59,130,246,0.10);
+}
+
+/* dark mode */
+.app.dark-mode .fd-dot{
+  background: rgba(2,6,23,0.9);
+  border-color: rgba(96,165,250,0.65);
+  box-shadow: 0 0 0 6px rgba(96,165,250,0.12);
+}
+
+.app.dark-mode .fd-rail{
+  background: linear-gradient(
+    180deg,
+    rgba(255,95,109,0.55),
+    rgba(96,165,250,0.55),
+    rgba(45,212,191,0.30)
+  );
+
+  box-shadow:
+    0 0 0 1px rgba(96,165,250,0.12),
+    0 0 22px rgba(96,165,250,0.12);
+}
+
+.fd-rail-short{ flex: 0.35; }
+
+.fd-dot{
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid rgba(148,163,184,0.75);
+  box-shadow: 0 0 0 6px rgba(59,130,246,0.08);
+}
+
+.app.dark-mode .fd-dot{
+  background: rgba(2,6,23,0.9) !important;
+  border-color: rgba(96,165,250,0.65) !important;
+  box-shadow: 0 0 0 6px rgba(96,165,250,0.12) !important;
+}
+
+.app.dark-mode .fd-rail{
+  background: linear-gradient(180deg, rgba(96,165,250,0.55), rgba(45,212,191,0.18));
+}
+
+.fd-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(148,163,184,0.14);
+}
+
+
+.fd-headLeft{
+  display:flex;
+  align-items:baseline;
+  gap: 10px;
+}
+
+/* Body */
+.fd-body{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Segment card */
+.fd-segment{
+  border-radius: 18px;
+  border: 1px solid rgba(148,163,184,0.16);
+  background: rgba(255,255,255,0.55);
+  padding: 14px;
+}
+
+.app.dark-mode .fd-segment{
+  background: rgba(2,6,23,0.30);
+  border: 1px solid rgba(148,163,184,0.14);
+}
+
+/* Segment header */
+.fd-segHead{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.fd-airline{
+  font-weight: 1000;
+}
+
+.fd-airline{ color: rgba(15,23,42,0.85); }
+.fd-flightNo{ color: rgba(15,23,42,0.55); }
+
+.fd-flightNo{
+  opacity: 0.7;
+  font-weight: 900;
+}
+
+.fd-infoBtn{
+  margin-left: auto !important;   /* pushes button to the right */
+  border: 1px solid rgba(59,130,246,0.28) !important;
+  background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(45,212,191,0.10)) !important;
+  color: rgba(59,130,246,0.98) !important;
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  font-weight: 1000 !important;
+  cursor: pointer !important;
+  box-shadow: 0 14px 35px rgba(2,6,23,0.10) !important;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease !important;
+  width: fit-content !important;  /* prevents full-width pill */
+}
+
+.fd-infoBtn:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.04) !important;
+  box-shadow: 0 18px 45px rgba(59,130,246,0.16) !important;
+}
+.fd-infoBtn:active{
+  transform: translateY(0) scale(.99);
+}
+
+.app.dark-mode .fd-infoBtn{
+  border-color: rgba(45,212,191,0.22) !important;
+  background: linear-gradient(135deg, rgba(45,212,191,0.14), rgba(96,165,250,0.12)) !important;
+  color: rgba(45,212,191,0.95) !important;
+}
+
+.fd-stop{
+  padding: 12px 0;
+}
+
+.fd-stop + .fd-stop{
+  border-top: 1px dashed rgba(148,163,184,0.22);
+}
+
+.fd-expand{
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: max-height .35s ease, opacity .25s ease, transform .25s ease;
+}
+
+.fd-expand.open{
+  max-height: 320px; /* enough for rows */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fd-expandInner{
+  margin-top: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(148,163,184,0.16);
+  background: rgba(255,255,255,0.60);
+  padding: 14px 16px;
+}
+
+.app.dark-mode .fd-expandInner{
+  background: rgba(2,6,23,0.30);
+  border-color: rgba(148,163,184,0.14);
+}
+
+/* Info rows */
+.fd-infoRow{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 8px 0;
+  font-weight: 900;
+  color: rgba(15,23,42,0.75);
+}
+
+.app.dark-mode .fd-infoRow{
+  color: rgba(226,232,240,0.78);
+}
+
+
+
+/* dashed divider inside expand */
+.fd-dash{
+  height: 1px;
+  border-top: 2px dashed rgba(148,163,184,0.22);
+  margin: 10px 0;
+}
+
+/* ===== Layover pill nicer ===== */
+.fd-layover{
+  background: rgba(236,72,153,0.08);
+  border: 1px solid rgba(236,72,153,0.22);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+/* Make time/code stronger */
+.fd-time{ font-size: 20px; font-weight: 1000; }
+.fd-code{ font-size: 18px; font-weight: 1000; }
+
+.app.dark-mode .fd-airline{ color: rgba(226,232,240,0.92); }
+.app.dark-mode .fd-flightNo{ color: rgba(226,232,240,0.62); }
+
+/* Time row */
+.fd-row{
+  grid-template-columns: 92px 64px minmax(0, 1fr) !important;
+  align-items: center !important;
+}
+
+.fd-time{
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.fd-code{
+  white-space: nowrap !important;
+}
+
+.fd-place{
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app.dark-mode .fd-time{ color: rgba(226,232,240,0.95); }
+.app.dark-mode .fd-code{ color: rgba(226,232,240,0.80); }
+.app.dark-mode .fd-place{ color: rgba(226,232,240,0.62); }
+
+/* Meta chips */
+.fd-meta{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.fd-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 12px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(59,130,246,0.08);
+  color: rgba(15,23,42,0.75);
+
+  font-weight: 900;
+  font-size: 13px;
+
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.fd-chip:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+/* Dark mode chips */
+.app.dark-mode .fd-chip{
+  background: rgba(96,165,250,0.10);
+  border-color: rgba(148,163,184,0.14);
+  color: rgba(226,232,240,0.78);
+}
+
+.fd-link{
+  margin-left: auto;
+  font-weight: 900;
+  color: rgba(59,130,246,0.95);
   cursor: pointer;
-  font-size: 16px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.app.dark-mode .fd-link{
+  color: rgba(45,212,191,0.95);
+}
+
+/* Layover pill (like screenshot) */
+.fd-layover{
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(236,72,153,0.25);
+  background: rgba(236,72,153,0.08);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fd-layoverTime{
+  font-weight: 1000;
+  color: rgba(236,72,153,0.95);
+}
+
+.fd-layoverText{
+  font-weight: 900;
+  color: rgba(15,23,42,0.72);
+}
+
+.fd-layoverTag{
+  margin-left: auto;
+  font-weight: 1000;
+  color: rgba(236,72,153,0.95);
+}
+
+.app.dark-mode .fd-layover{
+  background: rgba(236,72,153,0.10);
+  border-color: rgba(236,72,153,0.25);
+}
+.app.dark-mode .fd-layoverText{
+  color: rgba(226,232,240,0.72);
+}
+
+/* Baggage */
+.fd-baggage{
+  border-top: 1px solid rgba(148,163,184,0.14);
+  padding-top: 12px;
+}
+.fd-bagTitle{
+  font-weight: 1000;
+  color: rgba(15,23,42,0.80);
+  margin-bottom: 10px;
+}
+.app.dark-mode .fd-bagTitle{
+  color: rgba(226,232,240,0.85);
+}
+.fd-bagRow{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(15,23,42,0.65);
+  font-weight: 700;
+}
+.app.dark-mode .fd-bagRow{
+  color: rgba(226,232,240,0.70);
+}
+
+/* Close button */
+.fd-closeBtn{
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 1000;
+  color: #031018;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  box-shadow: 0 20px 45px rgba(239,68,68,0.18);
+  cursor: pointer;
+}
+.fd-closeBtn:hover{ filter: brightness(1.03); transform: translateY(-1px); }
+.fd-closeBtn:active{ transform: translateY(0px) scale(0.99); }
+
+
+
+.app.dark-mode{
+  --bg: #050812;
+  --panel: rgba(10, 18, 38, 0.72);
+  --panel-solid: #0b1220;
+  --text: #e5e7eb;
+  --muted: rgba(226, 232, 240, 0.62);
+  --border: rgba(148, 163, 184, 0.14);
+  --shadow: 0 40px 120px rgba(0,0,0,0.60);
+  --shadow-soft: 0 20px 60px rgba(0,0,0,0.40);
+
+  --accent: #60a5fa;
+  --accent2: #2dd4bf;
+}
+
+/* Page background */
+.flight-results-container{
+  background:
+    radial-gradient(900px 500px at 20% -10%, rgba(59,130,246,0.22), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(34,197,94,0.18), transparent 55%),
+    var(--bg);
+  padding: 22px;
+  margin-top: 110px;
+  gap: 22px;
+
+  /* desktop layout */
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  align-items: start;
+}
+
+/* Sticky glass sidebar */
+.filters{
+  position: sticky;
+  top: 110px;
+  height: calc(100vh - 140px);
+  overflow: auto;
+
+  background: var(--panel);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+
+  padding: 18px;
+}
+
+.filter-section{
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(2,6,23,0.08);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+
+.app.dark-mode .filter-section{
+  background: rgba(2,6,23,0.30);
+  border: 1px solid var(--border);
+}
+
+.filter-section h6{
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.filterlayovers{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.radio-label{
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.55);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.app.dark-mode .radio-label{
+  background: rgba(2,6,23,0.35);
+}
+
+.radio-label:hover{
+  transform: translateY(-2px);
+  border-color: rgba(59,130,246,0.45);
+}
+.filter-section select{
+  width: 100%;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.65);
+  color: var(--text);
+}
+
+.app.dark-mode .filter-section select{
+  background: rgba(2,6,23,0.45);
+  color: var(--text);
+}
+
+.filter-section input[type="range"]{
+  width: 100%;
   margin-top: 10px;
 }
-
-.flight-results-content {
-  background-color: #ebebeb;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 50px 70px rgba(0, 0, 0, 0.1);
-  
- 
+.filter-button{
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), #38bdf8);
+  box-shadow: 0 18px 40px rgba(59,130,246,0.28);
+  transition: transform .18s ease, filter .18s ease;
 }
 
-.flight-list {
-  list-style-type: none;
-  padding: 0;
- 
+.filter-button:hover{ transform: translateY(-2px); filter: brightness(1.03); }
+.filter-button:active{ transform: translateY(0px) scale(0.99); }
+
+.app.dark-mode .timeline-time90,
+.app.dark-mode .timeline-time90 p,
+.app.dark-mode .timeline-content90 p,
+.app.dark-mode .baggage-info p {
+  color: rgba(226, 232, 240, 0.85) !important; /* brighter */
 }
 
-.flight-item {
-  background-color: #ffffff;
-  border-radius: 10px;
-  margin-bottom: 100px; /* Adjust the value as needed for desired spacing */
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+.app.dark-mode .baggage-info {
+  border-top: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+.app.dark-mode .timeline-time90 h4,
+.app.dark-mode .timeline-content90 h4,
+.app.dark-mode .baggage-info h4 {
+  color: #e5e7eb !important;
 }
 
-.flight-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.app.dark-mode .timeline-time90 h4{
+  color: #e5e7eb !important;
 }
+.app.dark-mode .timeline-time90 p{
+  color: rgba(226,232,240,0.82) !important;
+}
+.app.dark-mode .timeline-content90{
+  background: rgba(2,6,23,0.35) !important;
+}
+.app.dark-mode .timeline-content90 p{
+  color: rgba(226,232,240,0.82) !important;
+}
+
+.timeline-time90,
+.timeline-content90 {
+  color: var(--text, #0b1220);
+}
+
+
+/* 2) Make the WHITE blocks become “glass outline” (modern) */
+.timeline-content90 {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(2, 6, 23, 0.10) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 55px rgba(2, 6, 23, 0.10) !important;
+}
+
+.app.dark-mode .timeline-content90 {
+  background: rgba(2, 6, 23, 0.35) !important; /* glass */
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.55) !important;
+}
+
+.flight-results-content{
+  background: var(--panel);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+/* Flight list becomes modern card stack */
+.flight-list{
+  margin-top: 16px;
+}
+/* Card */
+.flight-item{
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(2,6,23,0.10);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 55px rgba(2,6,23,0.10);
+  padding: 16px;
+  margin-bottom: 14px;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  overflow: hidden;
+  position: relative;
+}
+.app.dark-mode .flight-item{
+  background: rgba(2,6,23,0.45);
+  border: 1px solid var(--border);
+  box-shadow: 0 26px 70px rgba(0,0,0,0.45);
+}
+.flight-item:hover{
+  transform: translateY(-4px);
+  border-color: rgba(59,130,246,0.35);
+}
+.flight-header {
+  background: transparent !important;     /* remove fill */
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+
+  /* premium outline */
+  border: 1px solid rgba(59,130,246,0.28) !important;
+
+  /* neon edge glow */
+  box-shadow:
+    inset 0 0 0 1px rgba(34,197,94,0.12),
+    0 20px 60px rgba(2,6,23,0.12) !important;
+
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.flight-header::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(59,130,246,0.18) 35%,
+    rgba(45,212,191,0.16) 55%,
+    transparent 75%
+  );
+  transform: translateX(-60%);
+  animation: headerScan2026 4.5s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+@keyframes headerScan2026 {
+  0%   { transform: translateX(-70%); opacity: 0.35; }
+  45%  { transform: translateX(25%);  opacity: 0.65; }
+  100% { transform: translateX(85%);  opacity: 0.35; }
+}
+
+/* Dark mode: stronger outline + glow */
+.app.dark-mode .flight-header {
+  border: 1px solid rgba(96,165,250,0.22) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(45,212,191,0.10),
+    0 28px 90px rgba(0,0,0,0.55) !important;
+}
+
+.flight-header h3,
+.flight-header h5 {
+  color: var(--text) !important;
+}
+
+.app.dark-mode .flight-header h3 {
+  color: rgba(226,232,240,0.95) !important;
+}
+
+.app.dark-mode .flight-header h5 {
+  color: rgba(226,232,240,0.70) !important;
+}
+
+/* Card glow */
+.flight-item::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background: radial-gradient(700px 200px at 20% 0%, rgba(59,130,246,0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events:none;
+}
+.flight-item:hover::before{ opacity: 1; }
 
 .flight-header img {
-  width: 150px; /* Set the desired width */
-  height: auto; /* Maintain the aspect ratio */
-  border-radius: 5px; /* Optional: keeps the rounded corners */
+  background: transparent !important;
+  padding: 8px 12px;
+  border-radius: 16px;
+
+  /* outline badge */
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow: 0 14px 40px rgba(2,6,23,0.10);
+}
+
+/* Dark mode: glass outline + glow */
+.app.dark-mode .flight-header img {
+  border: 1px solid rgba(96,165,250,0.22);
+  background: rgba(2,6,23,0.18) !important;
+  filter: brightness(1.1) contrast(1.2);
+  mix-blend-mode: screen;
 }
 
 .flight-details {
   margin-top: 15px;
 }
 
-.flight-times {
-  display: flex;
-  justify-content: space-between;
+.flight-times{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   align-items: center;
+  gap: 14px;
 }
+
+.departure{ text-align: left; }
+.arrival{ text-align: right; }
 
 .time {
   font-size: 18px;
@@ -109,35 +762,89 @@
   color: #888;
 }
 
-.duration {
+.duration{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.route-line{
+  width: clamp(26px, 80vw, 200px); /* min, responsive, max */
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(56,189,248,0.20), rgba(56,189,248,0.95));
+}
+
+.route-line.right{
+  background: linear-gradient(90deg, rgba(56,189,248,0.95), rgba(56,189,248,0.20));
+}
+
+.route-plane{
+  font-size: 0.95rem;
+  color: #38bdf8;
+  position: relative;
+  top: -1px;
+  animation: planePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes planePulse {
+  0%   { opacity: 0.6; transform: translateX(0); }
+  50%  { opacity: 1;   transform: translateX(4px); }
+  100% { opacity: 0.6; transform: translateX(0); }
+}
+
+/* duration label text under the route line */
+.flight-duration{
+  margin-top: 6px;
   text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
 
 
-.flight-details-button {
-  background-color: #1a9397;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 15px; /* This adds space between this button and the next */
+.flight-details-button{
+  background: rgba(59,130,246,0.10);
+  border: 1px solid rgba(59,130,246,0.28);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 800;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.app.dark-mode .flight-details-button{
+  background: rgba(59,130,246,0.12);
+  border-color: rgba(96,165,250,0.30);
+}
+.flight-details-button:hover{
+  transform: translateY(-2px);
+  border-color: rgba(59,130,246,0.55);
 }
 
-.button-container {
-  display: flex; /* Use flex for button layout */
-  gap: 15px; /* Optional: Use gap for uniform spacing */
+
+/* Buttons: futuristic */
+.button-container{
+  gap: 10px;
 }
 
-
-.flight-select-button {
-  background-color: #206e08;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+/* Primary CTA */
+.flight-select-button{
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 900;
+  color: #031018;
+  background: linear-gradient(135deg, var(--accent2), #38bdf8);
+  box-shadow: 0 18px 40px rgba(45,212,191,0.22);
+  transition: transform .18s ease, filter .18s ease;
+}
+.flight-select-button:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+.flight-select-button:active{
+  transform: translateY(0px) scale(0.99);
 }
 
 
@@ -154,19 +861,39 @@
 }
 
 .flight-timeline90 {
-  position: relative;
-  background-color: #ffffff;
-  border-radius: 15px;
-  padding: 30px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  font-family: "Poppins", sans-serif;
-  overflow: hidden;
+  position: relative !important;
+  overflow: hidden !important;     /* prevents line going outside */
+  padding-bottom: 26px;            /* gives safe space at bottom */
+}
+/* Details timeline becomes “glass sheet” */
+.flight-timeline90 {
+  position: relative !important;
+
+  /* these match your layout values:
+     timeline-time90 flex-basis: 100px
+     timeline-time90 margin-right: 20px
+     timeline-icon90 width: 50px
+  */
+  --time-col: 100px;
+  --gap: 20px;
+  --icon: 50px;
+
+  /* line goes through icon center */
+  --line-x: calc(var(--time-col) + var(--gap) + (var(--icon) / 2));
+
+  /* colors */
+  --line-a: #ff4d5a;
+  --line-b: #3b82f6;
 }
 
 .timeline-item90 {
   display: flex;
   align-items: flex-start;
   margin-bottom: 40px;
+  position: relative;
+}
+
+.timeline-item90{
   position: relative;
 }
 
@@ -194,26 +921,71 @@
   font-size: 14px;
   color: #555;
 }
+.timeline-icon90 {
+  background: rgba(255,255,255,0.6) !important;
+  border: 1px solid rgba(2,6,23,0.10) !important;
+  box-shadow: 0 12px 30px rgba(2,6,23,0.12) !important;
+}
+
+.timeline-item90:not(:last-child) .timeline-icon90::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 8px);          /* start below icon */
+  height: calc(100% + 32px);      /* reaches towards next row */
+  width: 4px;
+
+  background: linear-gradient(180deg, #ff4d5a, #3b82f6);
+  border-radius: 999px;
+
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 90, 0.20),
+    0 0 18px rgba(255, 77, 90, 0.16),
+    0 0 18px rgba(59, 130, 246, 0.12);
+
+  opacity: 0.95;
+  z-index: 1;
+}
+
+/* Add small dots at icon center (start/end feel) */
+.timeline-icon90::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform: translate(-50%,-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, rgba(96,165,250,0.95));
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.18);
+  opacity: 0.9;
+  z-index: 4;
+}
+
+/* Darkmode: stronger glow */
+.app.dark-mode .timeline-item90:not(:last-child) .timeline-icon90::after{
+  box-shadow:
+    0 0 0 1px rgba(96,165,250,0.22),
+    0 0 20px rgba(96,165,250,0.16),
+    0 0 22px rgba(255,77,90,0.10);
+}
 
 .timeline-icon90 {
-  flex: 0 0 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  color: #e63946;
-  background-color: #f1f3f5;
-  border-radius: 50%;
-  height: 50px;
-  width: 50px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
 .timeline-icon90:hover {
   background-color: #e63946;
   color: #fff;
   transform: scale(1.1);
+}
+.app.dark-mode .flight-timeline90{
+  background: rgba(2,6,23,0.45);
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
 }
 
 .timeline-content90 {
@@ -243,37 +1015,80 @@
 
 
 /* Line connecting icons */
+/* Modern line: uses top+bottom instead of fixed % height */
 .timeline-line-container90 {
-  position: absolute;
-  left: 170px; /* Align to center of icons */
-  top: 90px;
-  width: 5px;
-  height: 28%; /* Full height to span all items */
-  background: linear-gradient(180deg, #e63946, #1d3557);
-  z-index: 1;
-  border-radius: 5px; /* Smooth edges */
+  position: absolute !important;
+  left: var(--line-x) !important;
+  top: 108px !important;     /* start a bit below header */
+  bottom: 130px !important;  /* end before baggage/close */
+  width: 4px !important;
+  height: auto !important;
+
+  background: linear-gradient(180deg, var(--line-a), var(--line-b)) !important;
+  border-radius: 999px !important;
+  opacity: 0.95 !important;
+
+  /* futuristic glow */
+  box-shadow: 0 0 0 1px rgba(255, 77, 90, 0.22),
+              0 0 18px rgba(255, 77, 90, 0.18),
+              0 0 22px rgba(59, 130, 246, 0.12) !important;
+
+  z-index: 1 !important;
 }
 
-.timeline-line-container90:before {
+
+
+/* Endpoints (dots) */
+.timeline-line-container90::before,
+.timeline-line-container90::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%; /* Full height between icons */
-  background: linear-gradient(180deg, #e63946, #1d3557); /* Match container line */
-  z-index: 1; /* Behind all other elements */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+
+  background: radial-gradient(circle at 30% 30%, #ffffff, var(--line-a));
+  box-shadow: 0 0 0 3px rgba(255, 77, 90, 0.18),
+              0 0 18px rgba(255, 77, 90, 0.22);
+}
+.timeline-line-container90::before { top: -6px; }
+.timeline-line-container90::after  {
+  bottom: -6px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, var(--line-b));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18),
+              0 0 18px rgba(59, 130, 246, 0.22);
 }
 
 .airline-logo {
-  display: block; /* Makes the image a block-level element */
-  margin: 0 auto; /* Centers the image horizontally */
-  width: 300px;
-  border-radius: 12px;
-  margin-bottom: 5px;
+  width: 190px !important;
+  max-width: 90%;
+  margin-bottom: 10px !important;
+  border-radius: 0 !important; /* no rounded white image effect */
+  background: transparent !important;
+}
+
+/* If the image has white background baked in, we can reduce the “white block” feel */
+.timeline-content90 img.airline-logo {
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,0.20);
+  background: rgba(255,255,255,0.40);
 }
 
 
+.app.dark-mode .timeline-content90 img.airline-logo {
+  background: rgba(2,6,23,0.20);
+  border: 1px solid rgba(148,163,184,0.18);
+
+  /* outline-ish effect in dark mode */
+  filter: brightness(1.1) contrast(1.15) drop-shadow(0 10px 24px rgba(0,0,0,0.45));
+}
+
+.app.dark-mode .timeline-content90 img.airline-logo {
+  mix-blend-mode: screen;
+}
 
 
 
@@ -369,8 +1184,34 @@
 
 
 
+/* Close button */
+.close-details{
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border: 0;
+}
 
-.close-details {
+.app.dark-mode .timeline-icon90 {
+  background: rgba(2,6,23,0.50) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45) !important;
+  color: #ff4d5a !important;
+}
+
+.timeline-icon90::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 77, 90, 0.25);
+  opacity: 0.8;
+}
+
+.app.dark-mode .timeline-icon90::after {
+  border-color: rgba(96, 165, 250, 0.20);
+}
+
+/* .close-details {
   background-color: #dc3545;
   color: white;
   padding: 10px 15px;
@@ -380,7 +1221,7 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out;
-}
+} */
 
 .close-details:hover {
   background-color: #c82333;
@@ -416,31 +1257,40 @@
   margin-top: 20px;
 }
 
-.form-inline {
-  display: flex;
-  flex-wrap: wrap; /* Allow wrapping if there's not enough space */
-  gap: 10px; /* Adds space between the input elements */
-  width: 100%; /* Full width of the parent container */
-  max-width: 1800px; /* Set a maximum width for the entire container */
-  padding: 5px; /* Adjusted padding value */
+/* Form row becomes a “chip bar” */
+.form-inline{
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(2,6,23,0.08);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+}
+.app.dark-mode .form-inline{
+  background: rgba(2,6,23,0.30);
+  border: 1px solid var(--border);
 }
 
-.form-inline label {
-  flex: 1; /* Allow labels to grow equally */
-  min-width: 120px; /* Minimum width for the label */
+.form-inline label{
+  color: var(--muted);
+  font-weight: 700;
 }
 
-.form-input {
-  width: 100%;
-  max-width: 600px;
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  margin-left: 10px; /* Add spacing between icon and input */
+.form-input{
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(2,6,23,0.12);
+  color: var(--text);
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(2,6,23,0.06);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.app.dark-mode .form-input{
+  background: rgba(2,6,23,0.45);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+.form-input:focus{
+  border-color: rgba(59,130,246,0.6);
+  box-shadow: 0 14px 30px rgba(59,130,246,0.18);
+  transform: translateY(-1px);
 }
 
 label i {
@@ -449,7 +1299,45 @@ label i {
   margin-right: 10px; /* Space between the icon and the label text */
 }
 
+.flight-detailsSheet .fd-body,
+.flight-detailsSheet .fd-stop,
+.flight-detailsSheet .fd-expand,
+.flight-detailsSheet .fd-expandInner{
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
 
+/* Make the expandable card never exceed container */
+.fd-expandInner{
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Each info row must be allowed to wrap */
+.fd-infoRow{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex-wrap: wrap !important;
+  overflow: hidden !important;
+}
+
+/* The text inside the row should wrap nicely */
+.fd-infoRow span{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+/* Show info button should never push outside */
+.fd-meta{
+  min-width: 0 !important;
+}
+.fd-infoBtn{
+  max-width: 100% !important;
+  white-space: nowrap !important;
+}
 
 
 .form-input:focus {
@@ -498,36 +1386,57 @@ label {
   background-color: #0056b3; /* Darker shade on hover */
 }
 
-.flight-results-title {
-  font-family: 'Lato','Poppins '; /* Stylish font for the title */
-  font-size: 3rem; /* Larger font size for prominence */
-  font-weight: 700; /* Bold weight */
-  margin-bottom: 10px; /* Space below the title */
-  color: #333; /* Dark color for better readability */
- 
- 
-
+.flight-results-title{
+  color: var(--text);
+  font-size: clamp(1.6rem, 1.6rem + 1vw, 2.6rem);
+  margin: 8px 0 8px;
 }
 
-.pricefont h4 {
-  margin-top: 15px;
-  font-family: 'Roboto', sans-serif; /* Using Montserrat for stylish yet professional look */
-  font-size: 02rem; /* Larger size to make it stand out */
-  font-weight: 700; /* Bold to emphasize price */
-  color: #d65e2f; /* Darker color for a more serious and professional tone */
-  text-align: right; /* Aligns price to the right for a clean layout */
-  letter-spacing: 0.5px; /* Adds subtle spacing for better readability */
+.flight-detailsSheet .fd-body,
+.flight-detailsSheet .fd-stop,
+.flight-detailsSheet .fd-expand,
+.flight-detailsSheet .fd-expandInner {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Price */
+.pricefont h4{
+  color: #f97316;
+  font-size: 1.6rem;
+  letter-spacing: 0.2px;
+}
+
+/* Times row */
+.flight-times .time{
+  color: var(--text);
+}
+.flight-times .airport{
+  color: var(--muted);
+}
+
+.flight-header h5{
+  color: var(--muted);
+  margin: 0;
+  font-weight: 700;
+}
+
+
+.flight-header h3{
+  color: var(--text);
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 
 
-
-.filter-text {
-  font-family: 'Lato','Poppins '; /* Stylish font for filter text */
-  font-size: 1.2rem; /* Font size for filter text */
-  font-weight: 500; /* Medium weight for emphasis */
-  color: #666; /* Lighter color for less emphasis than the title */
-  margin-bottom: 20px; /* Space below the filter text */
+/* Sidebar header */
+.filter-text{
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  font-size: 1.05rem;
+  margin-bottom: 14px;
 }
 
 
@@ -553,53 +1462,395 @@ label {
   background-color: #e01e1e; /* Darker shade on hover */
 }
 
+/* 1) Never allow layout to exceed viewport width */
+.flight-results-container,
+.flight-results-content,
+.flight-item,
+.flight-header,
+.flight-details,
+.flight-times {
+  max-width: 100% !important;
+}
+
+/* 2) Critical: allow grid/flex children to shrink */
+.flight-header,
+.flight-times,
+.departure,
+.arrival,
+.duration,
+.flight-price {
+  min-width: 0 !important;
+}
+
+/* 3) Prevent horizontal scroll everywhere */
+body {
+  overflow-x: hidden;
+}
+
+/* 4) Airport names: always truncate nicely */
+.departure .airport,
+.arrival .airport {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+@media (max-width: 900px){
+  .flight-results-container{
+    grid-template-columns: 1fr;
+    margin-top: 90px;
+  }
+
+  /* Turn sidebar into top card */
+  .filters{
+    position: relative;
+    top: 0;
+    height: auto;
+  }
+}
+
+
 /* 📱 Mobile two-column fix — only affects screens below 740px */
 /* 📱 Make flight list 2-column layout on mobile */
 @media (max-width: 740px) {
-  .flight-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two flight items side-by-side */
-    gap: 15px;
+  .flight-list{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
-  .flight-item {
-    margin-bottom: 0;
-    padding: 10px;
-    box-sizing: border-box;
+  .fd-head{
+    flex-direction: column;
+    align-items: flex-start;
   }
-
-  .flight-header img {
+  .fd-infoBtn{
     width: 100%;
-    height: auto;
-    border-radius: 8px;
+    text-align: center;
   }
+
+  .flight-item{
+    padding: 12px;
+  }
+
+  .flight-header{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .flight-header img{
+    width: 100%;
+    height: 70px;
+  }
+
+  .button-container{
+    flex-direction: column;
+  }
+
+ 
 
   .flight-details {
     font-size: 0.9rem;
   }
 
-  .button-container {
-    flex-direction: column;
-    gap: 8px;
+    .flight-detailsSheet{
+    grid-template-columns: 44px 1fr;
+    padding: 12px;
   }
+  .fd-row{
+    grid-template-columns: 78px 64px 1fr;
+  }
+
+ 
 
   .flight-details-button,
   .flight-select-button {
     width: 100%;
     text-align: center;
   }
+  
 }
 
-/* 📱 Even smaller screens (like iPhone SE) */
-@media (max-width: 480px) {
-  .flight-list {
-    grid-template-columns: 1fr; /* Stack one per row on very small screens */
+/* ======================================
+   MOBILE FIX: Flight list cards (2026)
+   Paste at BOTTOM of flightresults.css
+====================================== */
+
+@media (max-width: 740px) {
+
+  /* 1) Make page single column (filters + results stack) */
+  .flight-results-container{
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    margin-top: 90px !important;
+  }
+
+    .filters{
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .filter-section{
+    padding: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .filter-text{
+    font-size: 1rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  .filter-button{
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .flight-detailsSheet{
+    padding: 12px !important;
+  }
+
+  .fd-leftRail{
+    padding-bottom: 60px !important;
+  }
+
+  .fd-chip{
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .fd-expandInner{
+    padding: 12px !important;
+  }
+
+  .filters{
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* 2) IMPORTANT: stop the tall “2 column giant card” layout */
+  .flight-list{
+    display: grid !important;
+    grid-template-columns: 1fr !important; /* ✅ one per row */
+    gap: 12px !important;
+  }
+
+  .flight-item{
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 14px !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+  }
+
+  /* 3) Compact header: logo left, airline + flight number right */
+  .flight-header{
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .flight-header img{
+    width: 64px !important;
+    height: 40px !important;
+    object-fit: contain !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+    background: rgba(255,255,255,0.10) !important; /* stops huge white slab */
+  }
+
+  /* 4) Times area: stack nicely */
+.flight-times{
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    flex-direction: unset !important;
+    text-align: initial !important;
+  }
+
+    .departure{
+    text-align: left !important;
+  }
+
+    
+  .arrival{
+    text-align: right !important;
+  }
+
+  .departure .time,
+  .arrival .time{
+    font-size: 1.1rem !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+  }
+
+  .departure .airport,
+  .arrival .airport{
+    font-size: 0.75rem !important;
+    opacity: 0.85 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+
+    /* prevent huge wrapping */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .route-line {
+  width: 28px;          /* small line */
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.2),
+    rgba(56, 189, 248, 0.9)
+  );
+  border-radius: 2px;
+}
+
+
+.route-line.right {
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.9),
+    rgba(56, 189, 248, 0.2)
+  );
+}
+
+
+.route-plane {
+  font-size: 0.9rem;
+  color: #38bdf8;
+  position: relative;
+  top: -1px;
+  animation: planePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes planePulse {
+  0%   { opacity: 0.6; transform: translateX(0); }
+  50%  { opacity: 1;   transform: translateX(4px); }
+  100% { opacity: 0.6; transform: translateX(0); }
+}
+
+   /* Center route line + plane */
+  .duration{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+.route-line{
+    width: 22px !important;
+    height: 2px !important;
+  }
+
+  .route-plane{
+    font-size: 0.9rem !important;
+  }
+
+  /* If you still have the old dashed text line, hide it */
+  .duration p:first-child{
+    display: none !important;
+  }
+
+
+  /* 5) Price + buttons: clean 2 buttons row */
+  .flight-price{
+    margin-top: 10px !important;
+  }
+
+  .pricefont h4{
+    text-align: left !important;
+    font-size: 1.35rem !important;
+    margin: 8px 0 10px !important;
+  }
+
+  .button-container{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .flight-details-button,
+  .flight-select-button{
+    width: 100% !important;
+    padding: 12px 10px !important;
+    border-radius: 16px !important;
+    font-weight: 900 !important;
+  }
+
+  .flight-detailsSheet .fd-body,
+.flight-detailsSheet .fd-stop,
+.flight-detailsSheet .fd-expand,
+.flight-detailsSheet .fd-expandInner {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+}
+
+/* Optional: allow 2 columns only on wider phones */
+@media (min-width: 741px) and (max-width: 900px){
+  .flight-list{
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
   }
 }
 
+@media (max-width: 768px) {
+  .flight-times {
+    grid-template-columns: 1fr auto 1fr !important;
+  }
+}
 
+/* 📱 Even smaller screens (like iPhone SE) */
+@media (max-width: 430px) {
+  .flight-results-container { padding: 10px !important; }
+  .flight-item { padding: 12px !important; }
 
+  /* Keep side-by-side times BUT reduce font sizes */
+  .departure .time,
+  .arrival .time {
+    font-size: 1.02rem !important;
+    white-space: nowrap !important;
+  }
 
+  .departure .airport,
+  .arrival .airport {
+    font-size: 0.72rem !important;
+  }
 
+    .fd-expandInner{
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
 
+  .fd-infoRow{
+    font-size: 0.92rem !important;
+    gap: 8px !important;
+  }
 
+  /* route line shorter on very small screens */
+  .route-line { width: 18px !important; }
+  .route-plane { font-size: 0.85rem !important; }
+
+  /* make buttons stack if space too tight */
+  .button-container {
+    grid-template-columns: 1fr !important;
+  }
+}
