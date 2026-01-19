@@ -11,11 +11,10 @@ import jcb from '../img/assets/paymentmethod/images (6).png';
 import applePay from '../img/assets/paymentmethod/png-transparent-apple-pay-mobile-payment-apple-wallet-apple-text-service-rectangle-thumbnail.png';
 import klarna from '../img/assets/paymentmethod/images (7).png';
 import googlePay from '../img/assets/seat/images (1).png';
-import alipay from '../img/assets/seat/alipay-icon-2048x1313-ayy5gifr.png';
+
 import affirm from '../img/assets/paymentmethod/Affirm-Emblem.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard, faMessage } from '@fortawesome/free-solid-svg-icons';
-import { faPaypal } from '@fortawesome/free-brands-svg-icons';
+import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import { faHotel, faMapMarkerAlt, faCalendarAlt, faUser, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
@@ -229,5 +228,6 @@ const HotelPaymentMethod = () => {
     </div>
   );
 };
+
 
 export default HotelPaymentMethod;
