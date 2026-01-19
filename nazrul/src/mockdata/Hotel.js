@@ -63,8 +63,6 @@ import botree3 from '../img/assets/selectedimage/Botree/505773500.jpg'
 import botree4 from '../img/assets/selectedimage/Botree/505774094.jpg'
 import botree5 from '../img/assets/selectedimage/Botree/505774444.jpg'
 
-import intercontinentalImage2 from '../img/assets/Hotel List/the-kensington.jpg';
-import intercontinentalImage3 from '../img/assets/Hotel List/westbury-hotel-kensington-1024x683.jpg';
 
 export const generateMockHotels = (checkInDate, checkOutDate, location) => {
   const pricePerNight = {
@@ -443,4 +441,5 @@ export const generateMockHotels = (checkInDate, checkOutDate, location) => {
   ];
  
 };
+
 
