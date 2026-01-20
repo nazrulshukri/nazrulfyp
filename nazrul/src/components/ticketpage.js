@@ -2,10 +2,8 @@ import React, { useEffect ,useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { generatePDF1 } from './pdfgenerator1';
-<<<<<<< HEAD
-=======
+
 // import generatePDF from './pdfgenerator'; 
->>>>>>> d8f1e94 (Fix ESLint warnings and improve accessibility)
 import bookingflex from '../img/assets/Booking1.png';
 import './ticketpage.css';
 import ConfirmationDialog from './confirmationdialog';
@@ -225,3 +223,4 @@ const TicketPage = () => {
 
 
 export default TicketPage;
+
