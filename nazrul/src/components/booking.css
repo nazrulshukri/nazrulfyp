@@ -110,6 +110,1031 @@ body.dark-mode .flatpickr-weekday {
   100% {
     transform: translateY(0); /* Return to original position */
     opacity: 1; /* Fade back in */
+
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+
+/* Form Row */
+.form-row {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Form Group */
+.form-group {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Label with Icon */
+.form-group label {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #fd0000;
+  font-weight: 600;
+}
+
+.form-group label .icon {
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-right: 8px;
+}
+
+.custom-date-input:hover,
+.custom-date-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  outline: none;
+}
+
+/* For larger screens, give consistent height to inputs */
+.custom-date-input::-webkit-calendar-picker-indicator {
+  margin-right: 10px;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.custom-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Input Field */
+.form-group input {
+  width: 200%;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* Suggestions List */
+.suggestions-list1 {
+  position: absolute;
+  background: #e0dede;
+  width: calc(100% - 2px);
+  max-height: 700px;
+  overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 0.5rem;
+  z-index: 10;
+  border: 1px solid #ddd;
+}
+
+/* Flatpickr base */
+.modern-calendar {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  font-size: 1rem;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+/* Dark mode input */
+.app.dark-mode .modern-calendar {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #3b82f6;
+}
+
+/* Calendar popup */
+.flatpickr-calendar {
+  width: fit-content !important;
+  max-width: none !important;
+}
+
+
+/* Dark calendar */
+.app.dark-mode .flatpickr-calendar {
+  background: #0b1220 !important;
+  border: 1px solid #1f2a44 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.7) !important;
+
+  /* make it bigger */
+  width: 420px !important;
+  font-size: 16px !important;
+}
+.app.dark-mode {
+  --cal-accent: #22c55e; /* green */
+  /* try: #a855f7 (purple) or #f97316 (orange) or #14b8a6 (teal) */
+}
+
+.flatpickr-days {
+  width: 100% !important;
+}
+
+.flatpickr-calendar {
+  width: 520px !important;     /* increase to 600 if you want */
+  max-width: 95vw !important;
+}
+
+.flatpickr-innerContainer,
+.flatpickr-rContainer,
+.flatpickr-days,
+.flatpickr-weekdays,
+.flatpickr-weekdaycontainer,
+.dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+
+.dayContainer {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 10px !important;
+  padding: 12px !important;
+}
+.flatpickr-innerContainer,
+.flatpickr-rContainer,
+.flatpickr-days,
+.dayContainer {
+  width: fit-content !important;
+}
+
+.flatpickr-calendar .dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important; /* 7 days */
+  gap: 10px !important; /* space between cells */
+  padding: 12px !important;
+  box-sizing: border-box !important;
+}
+
+
+
+.app.dark-mode .flatpickr-innerContainer,
+.app.dark-mode .flatpickr-rContainer,
+.app.dark-mode .flatpickr-days {
+  background: #0b1220 !important;
+  width: 420px !important;
+}
+
+.app.dark-mode .flatpickr-months,
+.app.dark-mode .flatpickr-month,
+.app.dark-mode .flatpickr-current-month,
+.app.dark-mode .flatpickr-weekdays {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+}
+
+.flatpickr-weekday {
+  text-align: center !important;
+}
+
+.flatpickr-weekdays {
+  width: 100% !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.flatpickr-weekdaycontainer {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  padding: 0 12px !important;
+}
+
+.app.dark-mode .flatpickr-weekdays {
+  background: #0f172a !important;
+  border-bottom: 1px solid #1f2a44 !important;
+}
+
+.app.dark-mode .flatpickr-weekday {
+  color: #22c55e !important;   /* green */
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  text-transform: uppercase;
+}
+
+.flatpickr-weekday {
+  text-align: center !important;
+}
+
+.app.dark-mode .flatpickr-weekday:nth-child(1),
+.app.dark-mode .flatpickr-weekday:nth-child(7) {
+  color: #f97316 !important;  /* orange */
+}
+
+.app.dark-mode .flatpickr-weekday:nth-child(2),
+.app.dark-mode .flatpickr-weekday:nth-child(3),
+.app.dark-mode .flatpickr-weekday:nth-child(4),
+.app.dark-mode .flatpickr-weekday:nth-child(5),
+.app.dark-mode .flatpickr-weekday:nth-child(6) {
+  color: #005eff !important;   /* grey */
+  font-weight: 600;
+}
+
+.app.dark-mode .flatpickr-current-month .flatpickr-monthDropdown-months,
+.app.dark-mode .flatpickr-current-month input.cur-year {
+  color: #e5e7eb !important;
+  font-weight: 600;
+}
+.app.dark-mode .flatpickr-months,
+.app.dark-mode .flatpickr-month,
+.app.dark-mode .flatpickr-current-month {
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+  border-bottom: 1px solid #1f2a44 !important;
+}
+
+
+.app.dark-mode .flatpickr-weekday {
+  color: #93c5fd !important;
+}
+
+.app.dark-mode .flatpickr-prev-month,
+.app.dark-mode .flatpickr-next-month {
+  color: #e5e7eb !important;
+  fill: #e5e7eb !important;
+}
+
+.app.dark-mode .flatpickr-prev-month:hover,
+.app.dark-mode .flatpickr-next-month:hover {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+/* days text */
+.app.dark-mode .flatpickr-day {
+  color: #e5e7eb !important;
+  background: transparent !important;
+
+  width: 52px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  margin: 2px !important;
+
+  border-radius: 12px !important;
+}
+
+/* disabled days */
+.app.dark-mode .flatpickr-day.flatpickr-disabled,
+.app.dark-mode .flatpickr-day.prevMonthDay.flatpickr-disabled,
+.app.dark-mode .flatpickr-day.nextMonthDay.flatpickr-disabled {
+  color: #475569 !important;
+}
+
+/* today ring */
+.app.dark-mode .flatpickr-day.today {
+  border-color: #38bdf8 !important;
+}
+
+.app.dark-mode .flatpickr-day,
+.app.dark-mode .flatpickr-day:hover,
+.app.dark-mode .flatpickr-day.selected {
+  border-color: transparent !important;
+}
+
+/* selected */
+.app.dark-mode .flatpickr-day.selected,
+.app.dark-mode .flatpickr-day.startRange,
+.app.dark-mode .flatpickr-day.endRange {
+  background: var(--cal-accent) !important;
+  color: #041014 !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
+}
+
+
+/* in-range (if range plugin ever used) */
+.app.dark-mode .flatpickr-day.inRange {
+  background: rgba(59, 130, 246, 0.25) !important;
+  color: #e5e7eb !important;
+}
+
+.app:not(.dark-mode) .flatpickr-day:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.calendar-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.calendar-wrapper:hover .calendar-icon {
+  transform: translateY(-50%) scale(1.2) rotate(-8deg);
+  opacity: 1;
+}
+
+/* Focus animation */
+.modern-calendar:focus + .calendar-icon {
+  transform: translateY(-50%) scale(1.3) rotate(12deg);
+  opacity: 1;
+}
+
+.flatpickr-calendar {
+  animation: calendarFadeUp 0.25s ease;
+  transform-origin: top;
+}
+
+@keyframes calendarFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  opacity: 0.6;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+/* Selected day */
+.flatpickr-day.selected {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  border: none;
+}
+
+.flatpickr-day {
+  transition: all 0.2s ease;
+}
+
+
+.flatpickr-day.selected {
+  animation: pulseSelect 0.25s ease;
+}
+
+.flatpickr-day {
+  width: 100% !important;
+  margin: 0 !important;
+
+  height: 52px !important;
+  line-height: 52px !important;
+  border-radius: 14px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.app.dark-mode .form-group input[type="number"]{
+  background-color: #020617;
+  color: #e5e7eb;
+  border: 1px solid #3b82f6;
+}
+
+.app.dark-mode .form-group input[type="number"]::-webkit-inner-spin-button,
+.app.dark-mode .form-group input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;          /* keep visible */
+  filter: invert(1);   /* turns black arrows to white */
+  cursor: pointer;
+}
+
+@keyframes pulseSelect {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+
+.app.dark-mode .flatpickr-day.today {
+  border: 2px solid var(--cal-accent) !important;
+}
+
+.app.dark-mode .flatpickr-months {
+  background: #1e293b;
+  color: #e5e7eb;
+}
+
+.app.dark-mode .flatpickr-prev-month,
+.app.dark-mode .flatpickr-next-month {
+  color: var(--cal-accent) !important;
+  fill: var(--cal-accent) !important;
+}
+
+.app.dark-mode .flatpickr-weekday {
+  color: #94a3b8 !important;
+  font-weight: 600;
+}
+
+
+
+
+
+
+/* Dark mode selected days */
+.app.dark-mode .flatpickr-day.selected,
+.app.dark-mode .flatpickr-day.startRange,
+.app.dark-mode .flatpickr-day.endRange {
+  background: #3b82f6; /* Blue accent */
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+
+
+.app.dark-mode .flatpickr-day.selected {
+  box-shadow: 0 0 12px rgba(56,189,248,0.6);
+    animation: pulseSelect 0.25s ease;
+  border-radius: 50%;
+}
+/* Dark hover */
+.app.dark-mode .flatpickr-day:hover {
+  background: rgba(34, 197, 94, 0.18) !important;
+  color: #ffffff !important;
+}
+
+.app.dark-mode .flatpickr-day {
+  color: #e5e7eb;
+}
+
+.suggestions-list1 li {
+  padding: 12px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.suggestions-list1 li:hover {
+  background-color: #f5f5f5;
+}
+
+.suggestions-list1 li .icon {
+  font-size: 1.2rem;
+  color: #007bff;
+  margin-right: 8px;
+}
+
+.suggestions-list1 li .suggestion-main {
+  font-weight: 600;
+  color: #333;
+}
+
+.submit-button {
+  padding: 1rem 2rem;
+  background-image: linear-gradient(135deg, #379fb1, #2963a5);
+  color: #ffffff;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.submit-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+.error-message, .success-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.form-group input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.form-group input[type="date"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+  outline: none;
+  background-color: #ffffff;
+}
+
+/* Calendar icon */
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.8;
+  filter: invert(0.4);
+}
+
+/* Dark mode */
+.app.dark-mode .form-group input[type="date"] {
+  background-color: #020617;
+  color: #e5e7eb;
+  border: 1px solid #3b82f6;
+}
+
+.app.dark-mode
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+
+.input-with-icon .icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.input-with-icon input {
+  padding-left: 40px; /* Add space for the icon */
+}
+
+.trip-type-select select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  appearance: none; 
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.trip-type-select select:hover,
+.trip-type-select select:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+
+.trip-type-select label {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 600;
+}
+
+
+.app.dark-mode .trip-type-select select {
+  background-color: #020617; 
+  color: #0053f8;            
+  border: 1px solid #3b82f6; 
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+
+.app.dark-mode .trip-type-select select:hover,
+.app.dark-mode .trip-type-select select:focus {
+  border-color: #60a5fa; 
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); 
+  outline: none;
+}
+
+
+.app.dark-mode .trip-type-select label {
+  color: #93c5fd; 
+}
+
+.form-group select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fdfdfd; 
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.form-group select:focus,
+.form-group select:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* Dark mode select dropdown */
+.app.dark-mode .form-group select {
+  background-color: #020617; /* Dark background */
+  color: #e5e7eb;           /* Light text */
+  border: 1px solid #3b82f6; /* Subtle blue border */
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+}
+
+.app.dark-mode .form-group select:focus,
+.app.dark-mode .form-group select:hover {
+  border-color: #60a5fa; /* Bright blue on focus */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Label styling in dark mode */
+.app.dark-mode .form-group label {
+  color: #93c5fd;
+}
+
+/* Make the input and select consistent: same background, border, text */
+.app.dark-mode .form-group input,
+.app.dark-mode .form-group select {
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-size: 1.2rem;
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
+
+/* Optional: arrow color for modern style */
+.app.dark-mode .form-group select::-ms-expand {
+  display: none; /* Remove default arrow in IE */
+}
+
+.app.dark-mode .form-group select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Dark mode for form group labels and inputs */
+.app.dark-mode .form-group label {
+  color: #93c5fd; /* Light blue text for labels */
+}
+
+.app.dark-mode .form-group input {
+  background-color: #020617; /* Dark input background */
+  color: #e5e7eb;           /* Light text for typing */
+  border: 1px solid #3b82f6; /* Subtle blue border */
+}
+
+.app.dark-mode .form-group input:focus {
+  border-color: #60a5fa; /* Brighter blue on focus */
+  box-shadow: 0 4px 12px rgba(221, 226, 234, 0.4); /* Blue glow */
+}
+
+
+.app.dark-mode .form-group input {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
+
+.suggestions-list.modern {
+  position: absolute;
+  width: 100%;
+  max-height: 420px;
+  overflow-y: auto;
+  margin-top: 0.6rem;
+  padding: 0;
+  list-style: none;
+  z-index: 999;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* ITEM */
+.suggestions-list.modern li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0f172a;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+/* HOVER – FULL WIDTH */
+.suggestions-list.modern li:hover {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  color: #ffffff;
+}
+
+/* Icon */
+.suggestion-icon {
+  font-size: 1.1rem;
+  color: #2563eb;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.suggestions-list.modern li:hover .suggestion-icon {
+  color: #ffffff;
+  transform: rotate(-10deg) scale(1.2);
+}
+
+/* Text */
+.suggestion-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.suggestions-list.modern::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-list.modern::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.suggestions-list.modern::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #2563eb, #38bdf8);
+  border-radius: 10px;
+}
+
+
+
+.app.dark-mode .suggestions-list.modern {
+  background: linear-gradient(180deg, #020617, #0f172a);
+  box-shadow: 0 30px 60px rgba(59, 130, 246, 0.35);
+}
+
+.app.dark-mode .suggestions-list.modern li {
+  color: #e5e7eb;
+}
+
+.app.dark-mode .suggestions-list.modern li:hover {
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+  color: #020617;
+}
+
+.app.dark-mode .suggestion-icon {
+  color: #38bdf8;
+}
+
+.app.dark-mode .suggestions-list.modern::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #2dd4bf, #38bdf8);
+}
+
+/* ===============================
+   ANIMATION
+   =============================== */
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+@media (max-width: 1024px) {
+  .booking-wrapper {
+    padding: 2rem;
+    max-width: 95%;
+  }
+
+  .option-button {
+    flex: 1 1 45%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .button-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    min-width: 100%;
+  }
+
+  .form-group input,
+.form-group select {
+  width: 100%;
+}
+
+  .input-with-icon .icon {
+    left: auto;
+    right: 1rem;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+   .form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+  }
+  .booking-wrapper {
+    padding: 1rem;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .booking-form {
+    gap: 1.2rem;
+  }
+
+  .form-group {
+    background: var(--card-bg, #ffffff);
+    padding: 1rem;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  .app.dark-mode .form-group {
+    background: #020617;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.25);
+  }
+
+   .button-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .option-button {
+    padding: 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 14px;
+    transform: none;
+  }
+
+  .option-button.active {
+    transform: none;
+  }
+  .suggestions-list.modern {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 60vh;
+    border-radius: 20px 20px 0 0;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ===== Number input arrows visible in DARK MODE (People) ===== */
+.app.dark-mode input[type="number"] {
+  color: #e5e7eb;
+  background: #020617;
+}
+
+/* Chrome / Edge / Safari */
+.app.dark-mode input[type="number"]::-webkit-inner-spin-button,
+.app.dark-mode input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;                 /* make it visible */
+  filter: invert(1);          /* makes arrows white */
+  cursor: pointer;
+}
+
+/* Firefox */
+.app.dark-mode input[type="number"] {
+  -moz-appearance: textfield; /* optional: removes spinner in Firefox */
+}
+
+.submit-button {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    border-radius: 16px;
+    padding: 1rem;
+    font-size: 1.05rem;
+    z-index: 10;
+  }
+
+}
+
+
+
+.flatpickr-calendar.open {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+@media (max-width: 600px) {
+  .booking-wrapper {
+    padding: 1.5rem;
+    border-radius: 10px;
+  }
+
+  .option-button {
+    flex: 1 1 100%;
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+
+  .form-group label {
+    font-size: 1rem;
+  }
+
+  .form-group input {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+
+  .submit-button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.8rem;
+
   }
 }
 
