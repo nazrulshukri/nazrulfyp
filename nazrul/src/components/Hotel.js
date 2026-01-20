@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-
-=======
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generateMockHotels } from '../mockdata/Hotel'; // Assuming this function generates hotel data
@@ -461,4 +457,5 @@ const markerIcon = new L.Icon({
 }
 
 export default Hotel; 
->>>>>>> d8f1e94 (Fix ESLint warnings and improve accessibility)
+
+
