@@ -6,6 +6,16 @@
 }
 
 
+.map-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
+
 .filters5 {
   width: 80%; /* Makes it responsive based on the parent container's width */
   max-width: 800px; /* Limits the maximum width */

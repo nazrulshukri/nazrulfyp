@@ -1,5 +1,10 @@
 import kliaexpress from "../img/assets/train/images (10).png";
 
+// import kliaexpress1 from "../img/assets/train/2021_Rapidkl-Featured-Image-pulse_Square.jpg";
+// import kliaexpress2 from "../img/assets/train/KTMB_Official_Logo.jpg";
+// import kliaexpress3 from "../img/assets/train/images.jpg";
+
+
 export const mockTrainData = {
   route: [
     {

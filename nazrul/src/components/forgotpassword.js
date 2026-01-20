@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 import './forgtopassword.css'; // External CSS for custom styling
 import forgotPasswordImage from '../img/assets/Booking1.png'; // Importing image file
 
