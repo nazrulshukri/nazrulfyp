@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { mockTrainData } from "../mockdata/train";
 
 
-import TransportStep from "../components/transport";
+
 import Map from "../components/mapstrain";
 
 
@@ -130,4 +130,5 @@ const TrainPage = () => {
 };
 
 export default TrainPage;
+
 
