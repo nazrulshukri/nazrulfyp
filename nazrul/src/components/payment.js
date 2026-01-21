@@ -1,103 +1,85 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
 
+// ✅ Update these paths to match your project structure
+import FlightDetails from "./flightdetails";
+import Modal from "./modal";
+import Loading from "./loading";
+
+import "./payment.css";
 
 const Payment = ({ user }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  //  const {
-  //   // new keys (from FlightResults)
-  //   selectedOutboundFlight,
-  //   selectedReturnFlight,
-  //   outboundPrice: outboundPriceFromState,
-  //   returnPrice: returnPriceFromState,
-
-  //   // old keys (from your other pages)
-  //   outboundFlight: outboundFlightOld,
-  //   returnFlight: returnFlightOld,
-  //   price: priceOld,
-
-  //   // common
-  //   passengerDetails,
-  //   selectedInsurance,
-  //   selectedSeats = [],
-  //   totalPrice: totalPriceOld,
-  // } = state || {};
-
   const {
-  selectedOutboundFlight,
-  selectedReturnFlight,
-  returnPrice: returnPriceFromState,
+    selectedOutboundFlight,
+    selectedReturnFlight,
+    returnPrice: returnPriceFromState,
 
-  outboundFlight: outboundFlightOld,
-  returnFlight: returnFlightOld,
-  price: priceOld,
+    outboundFlight: outboundFlightOld,
+    returnFlight: returnFlightOld,
+    price: priceOld,
 
-  passengerDetails,
-  selectedInsurance,
-  selectedSeats = [],
-} = state || {};
+    passengerDetails,
+    selectedInsurance,
+    selectedSeats = [],
+  } = state || {};
 
   // ✅ Final variables used by this component
   const outboundFlight = outboundFlightOld || selectedOutboundFlight;
   const returnFlight = returnFlightOld || selectedReturnFlight;
+
+  // price fallback
   const price = returnPriceFromState ?? priceOld ?? 0;
-  // const totalPrice = outboundPriceFromState ?? totalPriceOld ?? 0;
 
-  // const { firstName = "Guest" } = user || {};
-
+  // ✅ State
   const [insurancePrice, setInsurancePrice] = useState(0);
-  const totalSeatPrice = selectedSeats.length * 20;
-
-  // const insuranceName = selectedInsurance ? selectedInsurance.name : 'No Insurance';
   const [showModal, setShowModal] = useState(false);
+  const [returnPrice] = useState(Number(price) || 0);
+  const [loading, setLoading] = useState(true);
 
-  const [returnPrice] = useState(price || 0);
-  const [loading, setLoading] = useState(true); // State to track loading status
+  const totalSeatPrice = (selectedSeats?.length || 0) * 20;
 
   useEffect(() => {
-    // Simulate a 3-second delay before rendering the flight details
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    // Simulate loading
+    const t = setTimeout(() => setLoading(false), 2000);
 
-    if (selectedInsurance) {
-      setInsurancePrice(selectedInsurance.price);
+    if (selectedInsurance?.price != null) {
+      setInsurancePrice(Number(selectedInsurance.price) || 0);
+    } else {
+      setInsurancePrice(0);
     }
+
+    return () => clearTimeout(t);
   }, [selectedInsurance]);
 
   if (loading) {
-    return <Loading />; // Show loading screen while processing
+    return <Loading />;
   }
 
-    if (!outboundFlight) {
+  if (!outboundFlight) {
     return <div>No outbound flight selected. Please go back and choose a flight.</div>;
   }
 
-  const getTotalCostForFlight = (price) => {
-    return price;
-  };
+  const getTotalCostForFlight = (p) => Number(p) || 0;
 
-  const outboundPrice = getTotalCostForFlight(outboundFlight.price || 0);
+  const outboundPrice = getTotalCostForFlight(outboundFlight.price);
 
   const totalAmount = {
     flightPrice: outboundPrice + returnPrice,
-    taxes: 50.00,
+    taxes: 50.0,
     serviceCharges: totalSeatPrice + insurancePrice,
-    total: (outboundPrice + returnPrice) + 50.00 + totalSeatPrice + insurancePrice,
+    total: outboundPrice + returnPrice + 50.0 + totalSeatPrice + insurancePrice,
   };
-
-  // const handleContinue = () => {
-   
-  // };
-
-   navigate('/paymentmethod');
 
   const handleBooking = async () => {
     if (!passengerDetails || !passengerDetails.email) {
       setShowModal(true);
       return;
     }
-    
+
     const bookingData = {
       outboundFlight,
       returnFlight,
@@ -106,25 +88,22 @@ const Payment = ({ user }) => {
       selectedInsurance,
       returnPrice,
       totalAmount: {
-        flightPrice: outboundPrice + returnPrice,
+        flightPrice: totalAmount.flightPrice,
         taxes: totalAmount.taxes,
         serviceCharges: totalAmount.serviceCharges,
         total: totalAmount.total,
       },
       userId: passengerDetails.email,
     };
-  
-    console.log('Booking Data:', bookingData);
-  
+
     try {
-      const response = await axios.post('http://localhost:5001/process-payment', bookingData);
-      console.log('API Response:', response.data);
-      
-      if (response.data.success) {
-        console.log('Booking successfully saved. Redirecting to payment method page.');
+      const response = await axios.post("http://localhost:5001/process-payment", bookingData);
+
+      if (response.data?.success) {
+        // optional reset
         setInsurancePrice(0);
-  
-        navigate('/paymentmethod', {
+
+        navigate("/paymentmethod", {
           state: {
             bookingId: response.data.bookingId,
             totalAmount: bookingData.totalAmount.total,
@@ -136,12 +115,11 @@ const Payment = ({ user }) => {
           },
         });
       } else {
-        console.error('Booking was not successful:', response.data);
-        alert('Payment failed. Please try again.');
+        alert("Payment failed. Please try again.");
       }
     } catch (error) {
-      console.error('Error saving booking:', error);
-      alert('Payment failed. Please try again.');
+      console.error("Error saving booking:", error);
+      alert("Payment failed. Please try again.");
     }
   };
 
@@ -150,15 +128,16 @@ const Payment = ({ user }) => {
       <div className="details-summary">
         <div className="flight-details-section">
           <h2>Flight Details</h2>
-          <FlightDetails 
-            outboundFlight={outboundFlight} 
-            returnFlight={returnFlight} 
+          <FlightDetails
+            outboundFlight={outboundFlight}
+            returnFlight={returnFlight}
             returnPrice={returnPrice}
           />
         </div>
 
         <div className="fare-summary-section">
           <h2 className="fare-summary-title">Fare Summary</h2>
+
           <div className="flight-summary-container">
             <div className="flight-summary-card">
               <h3 className="flight-summary-heading">Departure Flight Summary</h3>
@@ -171,10 +150,10 @@ const Payment = ({ user }) => {
             </div>
           </div>
 
-          {selectedSeats.length > 0 && (
+          {selectedSeats?.length > 0 && (
             <div className="selected-seats">
               <h3 className="selected-seats-title">Selected Seats:</h3>
-              <p className="selected-seats-list">{selectedSeats.join(', ')}</p>
+              <p className="selected-seats-list">{selectedSeats.join(", ")}</p>
             </div>
           )}
 
@@ -185,24 +164,28 @@ const Payment = ({ user }) => {
               </span>
               <span className="fare-amount">MYR {(outboundPrice + returnPrice).toFixed(2)}</span>
             </div>
+
             <div className="fare-detail">
               <span className="fare-label">
                 <i className="fas fa-percent"></i> Taxes & surcharges:
               </span>
               <span className="fare-amount">MYR {totalAmount.taxes.toFixed(2)}</span>
             </div>
+
             <div className="fare-detail">
               <span className="fare-label">
                 <i className="fas fa-plus-circle"></i> Insurance:
               </span>
               <span className="fare-amount">MYR {insurancePrice.toFixed(2)}</span>
             </div>
+
             <div className="fare-detail">
               <span className="fare-label">
                 <i className="fas fa-chair"></i> Seat Selection:
               </span>
               <span className="fare-amount">MYR {totalSeatPrice.toFixed(2)}</span>
             </div>
+
             <div className="fare-detail total">
               <span className="fare-label">
                 <i className="fas fa-receipt"></i> Total:
@@ -210,14 +193,17 @@ const Payment = ({ user }) => {
               <span className="fare-amount">MYR {totalAmount.total.toFixed(2)}</span>
             </div>
           </div>
-          
-          <button className="continue-btn" onClick={handleBooking}>Book Now</button>
+
+          <button className="continue-btn" onClick={handleBooking}>
+            Book Now
+          </button>
         </div>
       </div>
-      <Modal 
-        show={showModal} 
-        onClose={() => setShowModal(false)} 
-        title="Incomplete Information" 
+
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title="Incomplete Information"
         message="Please complete all passenger details before booking."
       />
     </div>
