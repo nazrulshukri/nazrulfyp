@@ -17,7 +17,7 @@ const Maps = ({ height = "500px", width = "100%", markerText = "Hotel Location" 
 
 
   // const [userLocation, setUserLocation] = useState(null);
-    const [setUserLocation] = useState(null);
+    // const [setUserLocation] = useState(null);
 
   // Default position for London
   const defaultPosition = [51.5074, -0.1272];
@@ -125,3 +125,4 @@ const SearchControl = () => {
 };
 
 export default Maps;
+
