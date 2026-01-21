@@ -1,7 +1,3 @@
-
-<<<<<<< HEAD
-=======
-
 const HotelSelected = () => {
   const location = useLocation();
   const { selectedHotel, totalPrice, startDate, returnDate, people } = location.state;
@@ -862,4 +858,5 @@ const HotelSelected = () => {
 };
 
 export default HotelSelected;
->>>>>>> d8f1e94 (Fix ESLint warnings and improve accessibility)
+
+
