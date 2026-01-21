@@ -3,8 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./about.css";
 import Logo from "../img/assets/Booking1.png";
-import nazrul from "../img/assets/feedbac/1665246418994.jpg";
-import nazrul1 from "../img/assets/feedbac/Nazrul23.jpg";
 
 const AboutUs = () => {
   return (
@@ -16,10 +14,9 @@ const AboutUs = () => {
         <div className="container d-flex align-items-center justify-content-center full-width-container">
           <div className="text-container text-center">
             <h1 className="display-4 fw-bold">Welcome To Booking Flex</h1>
-            <p className="lead">
-              to make it easier for everyone to experience the world
-            </p>
+            <p className="lead">to make it easier for everyone to experience the world</p>
           </div>
+
           <div className="image-container ms-4">
             <img
               src={Logo}
