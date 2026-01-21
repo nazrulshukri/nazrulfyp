@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { generateMockHotels } from '../mockdata/Hotel'; // Assuming this function generates hotel data
+
 import './Hotel.css';
 import Slider from 'react-slick'; // Import react-slick for the image slider
 // import malaysiaLogo from '../img/assets/images.png';
@@ -457,5 +457,6 @@ const markerIcon = new L.Icon({
 }
 
 export default Hotel; 
+
 
 
