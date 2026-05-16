@@ -14,7 +14,15 @@ import emiratesLogo5 from "../img/assets/flightlogo/Logo_of_Saudia.svg.png";
 import emiratesLogo6 from "../img/assets/flightlogo/Qatar_Airways-Logo.wine.png";
 import emiratesLogo7 from "../img/assets/flightlogo/Turkish_Airlines-Logo.wine.png";
 
-import { FaSuitcase } from "react-icons/fa";
+import {
+  FaBaby,
+  FaCalendarAlt,
+  FaChild,
+  FaPlaneArrival,
+  FaPlaneDeparture,
+  FaSuitcase,
+  FaUsers,
+} from "react-icons/fa";
 
 const airlineLogos = {
   "Malaysia Airlines": malaysiaLogo,
@@ -29,12 +37,22 @@ const airlineLogos = {
   "Turkish Airlines": emiratesLogo7,
 };
 
+const getStoredFlightParams = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem("flightParams"));
+    return stored?.flightParams || stored || null;
+  } catch (err) {
+    console.warn("Could not read saved flight search:", err);
+    return null;
+  }
+};
+
 function FlightResults() {
   const navigate = useNavigate();
 
   // ✅ get router state safely
   const { state } = useLocation();
-  const { flightParams } = state?.flightParams || JSON.parse(localStorage.getItem("flightParams"));;
+  const flightParams = state?.flightParams || getStoredFlightParams();
   const [infoOpenId, setInfoOpenId] = useState(null);
   // ✅ tripType: "return" | "oneway"
   const tripType = flightParams?.tripType || "return";
@@ -356,7 +374,9 @@ useEffect(() => {
         <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
           <div className="form-inline">
             <label>
-              <i className="fas fa-plane-departure"></i> From:
+              <span className="flight-search-label">
+                <FaPlaneDeparture /> From:
+              </span>
               <input
                 type="text"
                 value={locationInput}
@@ -367,7 +387,9 @@ useEffect(() => {
             </label>
 
             <label>
-              <i className="fas fa-plane-arrival"></i> To:
+              <span className="flight-search-label">
+                <FaPlaneArrival /> To:
+              </span>
               <input
                 type="text"
                 value={destinationInput}
@@ -378,7 +400,9 @@ useEffect(() => {
             </label>
 
             <label>
-              <i className="fas fa-calendar-alt"></i> Start Date:
+              <span className="flight-search-label">
+                <FaCalendarAlt /> Start Date:
+              </span>
               <input
                 type="date"
                 value={startDate}
@@ -390,7 +414,9 @@ useEffect(() => {
             {/* ✅ hide return date for oneway */}
             {tripType !== "oneway" && (
               <label>
-                <i className="fas fa-calendar-alt"></i> Return Date:
+                <span className="flight-search-label">
+                  <FaCalendarAlt /> Return Date:
+                </span>
                 <input
                   type="date"
                   value={returnDate}
@@ -401,7 +427,9 @@ useEffect(() => {
             )}
 
             <label>
-  <i className="fas fa-users"></i> Adults:
+  <span className="flight-search-label">
+    <FaUsers /> Adults:
+  </span>
   <input
     type="number"
     value={passengers.adults}
@@ -417,7 +445,9 @@ useEffect(() => {
 </label>
 
 <label>
-  Children:
+  <span className="flight-search-label">
+    <FaChild /> Children:
+  </span>
   <input
     type="number"
     value={passengers.children}
@@ -433,7 +463,9 @@ useEffect(() => {
 </label>
 
 <label>
-  Infants:
+  <span className="flight-search-label">
+    <FaBaby /> Infants:
+  </span>
   <input
     type="number"
     value={passengers.infants}

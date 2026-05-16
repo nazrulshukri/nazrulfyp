@@ -1,11 +1,7 @@
 import React, { useEffect ,useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
-import { generatePDF1 } from './pdfgenerator1';
-<<<<<<< HEAD
-=======
-// import generatePDF from './pdfgenerator'; 
->>>>>>> d8f1e94 (Fix ESLint warnings and improve accessibility)
+import generatePDF1 from './pdfgenerator1';
 import bookingflex from '../img/assets/Booking1.png';
 import './ticketpage.css';
 import ConfirmationDialog from './confirmationdialog';
@@ -147,7 +143,10 @@ const TicketPage = () => {
 
 
         <div className="ticket-details-container">
-  <h3>Ticket Details</h3>
+  <div className="ticket-details-heading">
+    <span className="ticket-kicker">Passenger record</span>
+    <h3>Ticket Details</h3>
+  </div>
   <div className="ticket-details">
     <div className="detail-item">
       <i className="fas fa-user passenger-icon"></i>

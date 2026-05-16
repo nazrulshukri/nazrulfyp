@@ -1,186 +1,580 @@
 .payment-container1 {
-  display: flex;               
-  justify-content: center;     
-  align-items: flex-start;     
-  padding: 20px;
-  width: 150%;  
-  max-width: 2000px;                
-  margin-top: 80px;  
+  --payment-ink: #101828;
+  --payment-muted: #667085;
+  --payment-line: rgba(16, 24, 40, 0.1);
+  --payment-panel: rgba(255, 255, 255, 0.88);
+  --payment-blue: #2563eb;
+  --payment-cyan: #06b6d4;
+  --payment-green: #10b981;
+  --payment-red: #ef4444;
+  --payment-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100vh;
+  padding: 116px 24px 56px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, transparent 34%),
+    linear-gradient(225deg, rgba(16, 185, 129, 0.1) 0%, transparent 30%),
+    linear-gradient(135deg, #eef6ff 0%, #f8fafc 42%, #ecfeff 100%);
+}
+
+.payment-container1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.055) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent 88%);
 }
 
 .details-summary {
-  display: flex;
-  justify-content: flex-start;
-  width: 150%;
-  max-width: 2500px;
-  gap: 20px;
-  
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(340px, 0.9fr);
+  align-items: start;
+  gap: 28px;
+  width: min(100%, 1440px);
+  margin: 0 auto;
 }
 
-.flight-details-section,
-.fare-summary-section {
-  border-radius: 8px;          
-  padding: 20px; 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
-  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition effects */
+.payment-panel {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 28px;
+  background: var(--payment-panel);
+  box-shadow: var(--payment-shadow);
+  backdrop-filter: blur(22px);
+  animation: paymentRise 0.72s ease both;
 }
 
 .flight-details-section {
-  flex: 2;                      /* Make the flight details section larger */
-  background-color: #f8f8f8;  
+  min-width: 0;
+  padding: 28px;
 }
 
 .fare-summary-section {
-  flex: 1;                      /* Fare summary section remains smaller */
-  background-color: #fff; 
-  border: 1px solid #ddd; 
-  margin-top: 40px;            /* Adjust to your preference */
+  position: sticky;
+  top: 96px;
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  animation-delay: 0.12s;
 }
 
-/* Title Styling */
+.fare-summary-section::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--payment-blue), var(--payment-cyan), var(--payment-green));
+}
+
+.payment-section-heading,
+.fare-summary-header {
+  margin-bottom: 22px;
+}
+
+.payment-eyebrow,
+.summary-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  color: #075985;
+  background: rgba(14, 165, 233, 0.12);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.payment-eyebrow {
+  padding: 7px 11px;
+  margin-bottom: 10px;
+}
+
+.payment-section-heading h2,
 .fare-summary-title {
-  font-size: 24px;
-  color: #444;
-  font-weight: bold;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #eaeaea;
-  padding-bottom: 10px;
+  margin: 0;
+  color: var(--payment-ink);
+  font-size: 42px;
+  line-height: 1.05;
+  font-weight: 900;
 }
 
-/* Fare Details Styling */
+.fare-summary-title {
+  font-size: 32px;
+}
+
+.payment-section-heading p,
+.fare-summary-subtitle {
+  margin: 10px 0 0;
+  color: var(--payment-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.flight-details-section .flight-details-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 1px solid var(--payment-line);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.76);
+  box-shadow: none;
+}
+
+.flight-details-section .flight-summary {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.flight-details-section .flight-summary:hover {
+  border-color: rgba(37, 99, 235, 0.32);
+  box-shadow: 0 20px 44px rgba(37, 99, 235, 0.14);
+  transform: translateY(-4px);
+}
+
+.flight-summary-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.flight-summary-card {
+  position: relative;
+  min-height: 142px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.78));
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.flight-summary-card:hover {
+  box-shadow: 0 22px 46px rgba(37, 99, 235, 0.16);
+  transform: translateY(-6px);
+}
+
+.summary-chip {
+  padding: 6px 9px;
+  margin-bottom: 16px;
+}
+
+.flight-summary-card h3 {
+  margin: 0;
+  color: var(--payment-ink);
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.flight-summary-card p {
+  margin: 12px 0 0;
+  color: var(--payment-blue);
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.selected-seats {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.92), rgba(240, 253, 250, 0.8));
+}
+
+.selected-seats-title {
+  margin: 0 0 12px;
+  color: #065f46;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.selected-seats-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.seat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  color: #047857;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.12);
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .fare-details {
-  margin-top: 0px;
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 .fare-detail {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--payment-line);
+  animation: fareSlide 0.55s ease both;
+}
+
+.fare-detail:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.fare-detail:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.fare-detail:nth-child(4) {
+  animation-delay: 0.15s;
 }
 
 .fare-detail:last-child {
   border-bottom: none;
 }
 
-/* Icon and Label Styling */
 .fare-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  font-weight: 600;
-  color: #555;
+  gap: 10px;
+  color: #475467;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .fare-label i {
-  color: #4b9cd3;
-  margin-right: 10px;
-  font-size: 18px;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  color: var(--payment-blue);
+  background: rgba(37, 99, 235, 0.1);
+  font-size: 14px;
 }
 
-/* Amount Styling */
 .fare-amount {
-  color: #007bff;
-  font-weight: 500;
-  font-size: 16px;
+  color: var(--payment-ink);
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 900;
 }
 
-/* Styling for Total Section */
-.total .fare-label {
-  color: #d9534f;
+.fare-detail.total {
+  align-items: flex-end;
+  margin-top: 8px;
+  padding: 20px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #111827, #1d4ed8 58%, #06b6d4);
+  box-shadow: 0 22px 42px rgba(37, 99, 235, 0.22);
 }
 
-.total .fare-amount {
-  font-size: 18px;
-  font-weight: bold;
-  color: #d9534f;
+.fare-detail.total .fare-label,
+.fare-detail.total .fare-amount {
+  color: #ffffff;
 }
 
-/* Continue Button Styling */
+.fare-detail.total .fare-label i {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.fare-detail.total .fare-amount {
+  font-size: 28px;
+  line-height: 1;
+}
+
 .continue-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 12px 20px;
-  font-size: 16px;
-  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  margin-top: 25px;
-  transition: background-color 0.3s ease;
+  min-height: 58px;
+  margin-top: 22px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 18px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #06b6d4 52%, #10b981);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.32);
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 900;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.continue-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.32) 44%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform 0.65s ease;
+}
+
+.continue-btn span,
+.continue-btn i {
+  position: relative;
+  z-index: 1;
 }
 
 .continue-btn:hover {
-  background-color: #0056b3;
+  box-shadow: 0 24px 46px rgba(37, 99, 235, 0.4);
+  filter: saturate(1.12);
+  transform: translateY(-3px);
 }
 
-.fare-summary-section {
-  border: 1px solid #ddd; 
-  border-radius: 8px;         
-  padding: 20px;              
+.continue-btn:hover::before {
+  transform: translateX(130%);
 }
 
-.fare-summary-section {
-  background-color: #fff;  /* White background for contrast */
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  margin-bottom: 50px;  /* Space between sections */
+.continue-btn:active {
+  transform: translateY(0) scale(0.99);
 }
 
-.flight-summary-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;  /* Space between the flight summary cards */
+.continue-btn:focus-visible {
+  outline: 4px solid rgba(37, 99, 235, 0.22);
+  outline-offset: 4px;
 }
 
-.flight-summary-card {
-  flex: 1;  /* Equal width for cards */
-  padding: 15px;  /* Internal padding */
-  border: 1px solid #ddd;  /* Border for card separation */
-  border-radius: 8px;  /* Rounded corners */
-  background-color: #f8f8f8;  /* Light background for cards */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Card shadow for depth */
-  transition: transform 0.2s;  /* Transition effect on hover */
-}
-
-.flight-summary-card:hover {
-  transform: translateY(-5px);  /* Lift effect on hover */
-}
-
-.selected-seats {
-  margin-top: 20px;  /* Space above selected seats */
-  padding: 10px;  /* Internal padding */
-  background-color: #f0f8ff;  /* Light background for distinction */
-  border-radius: 6px;  /* Rounded corners */
-}
-
-.selected-seats-title {
-  font-size: 20px;  /* Title size */
-  color: #333;  /* Title color */
-  margin-bottom: 10px;  /* Space below title */
-}
-
-.selected-seats-list {
-  font-size: 16px;  /* Font size for seat list */
-  color: #555;  /* Color for seat list */
-}
-
-
-@media (max-width: 1200px) {
-  .payment-container {
-    max-width: 100%; /* Limits width on medium screens */
-    padding: 10px; /* Adjust padding for smaller screens */
+@keyframes paymentRise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
-/* Mobile responsiveness */
-@media (max-width: 768px) {
+
+@keyframes fareSlide {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1180px) {
+  .payment-container1 {
+    padding-inline: 18px;
+  }
+
   .details-summary {
-    flex-direction: column;     
+    grid-template-columns: 1fr;
+    max-width: 920px;
+  }
+
+  .fare-summary-section {
+    position: relative;
+    top: auto;
+  }
+
+  .payment-section-heading h2 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 760px) {
+  .payment-container1 {
+    padding: 96px 14px 36px;
+  }
+
+  .payment-panel {
+    border-radius: 22px;
   }
 
   .flight-details-section,
   .fare-summary-section {
-    width: 100%;               
+    padding: 18px;
   }
-} 
+
+  .flight-summary-container {
+    grid-template-columns: 1fr;
+  }
+
+  .flight-summary-card {
+    min-height: 118px;
+  }
+
+  .fare-detail {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .fare-label {
+    font-size: 14px;
+  }
+
+  .fare-amount {
+    font-size: 14px;
+  }
+
+  .fare-detail.total {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-container1 {
+    padding-inline: 10px;
+  }
+
+  .payment-section-heading h2,
+  .fare-summary-title {
+    font-size: 27px;
+  }
+
+  .fare-detail.total .fare-amount {
+    font-size: 24px;
+  }
+
+  .flight-details-section .flight-details-container {
+    padding: 12px;
+  }
+
+  .fare-detail:not(.total) {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .fare-amount {
+    padding-left: 44px;
+  }
+
+  .fare-detail.total .fare-amount {
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .payment-panel,
+  .fare-detail,
+  .continue-btn,
+  .flight-summary-card,
+  .flight-details-section .flight-summary {
+    animation: none;
+    transition: none;
+  }
+}
+
+.app.dark-mode {
+  .payment-container1 {
+    --payment-ink: #f8fafc;
+    --payment-muted: #94a3b8;
+    --payment-line: rgba(148, 163, 184, 0.18);
+    --payment-panel: rgba(15, 23, 42, 0.84);
+    --payment-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    background:
+      linear-gradient(135deg, rgba(37, 99, 235, 0.24) 0%, transparent 36%),
+      linear-gradient(225deg, rgba(16, 185, 129, 0.16) 0%, transparent 32%),
+      linear-gradient(135deg, #020617 0%, #0f172a 48%, #082f49 100%);
+  }
+
+  .payment-container1::before {
+    background-image:
+      linear-gradient(rgba(125, 211, 252, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(125, 211, 252, 0.07) 1px, transparent 1px);
+  }
+
+  .payment-panel {
+    border-color: rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.86);
+    box-shadow: var(--payment-shadow);
+  }
+
+  .payment-eyebrow,
+  .summary-chip {
+    color: #bae6fd;
+    background: rgba(14, 165, 233, 0.18);
+  }
+
+  .flight-details-section .flight-details-container {
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(2, 6, 23, 0.34);
+  }
+
+  .flight-details-section .flight-summary,
+  .flight-summary-card {
+    border-color: rgba(96, 165, 250, 0.2);
+    background: linear-gradient(150deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.88));
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  }
+
+  .flight-details-section .flight-summary:hover,
+  .flight-summary-card:hover {
+    border-color: rgba(34, 211, 238, 0.42);
+    box-shadow: 0 22px 46px rgba(8, 145, 178, 0.16);
+  }
+
+  .flight-summary-card h3,
+  .flight-summary-card p,
+  .fare-amount {
+    color: #f8fafc;
+  }
+
+  .summary-heading,
+  .details23 p,
+  .location,
+  .date {
+    color: #e2e8f0;
+  }
+
+  .fare-label {
+    color: #cbd5e1;
+  }
+
+  .fare-label i {
+    color: #7dd3fc;
+    background: rgba(14, 165, 233, 0.16);
+  }
+
+  .selected-seats {
+    border-color: rgba(16, 185, 129, 0.28);
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.42), rgba(15, 23, 42, 0.72));
+  }
+
+  .selected-seats-title {
+    color: #a7f3d0;
+  }
+
+  .seat-pill {
+    color: #d1fae5;
+    background: rgba(15, 23, 42, 0.82);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  }
+
+  .fare-detail.total {
+    background: linear-gradient(135deg, #020617, #1d4ed8 58%, #0891b2);
+  }
+}

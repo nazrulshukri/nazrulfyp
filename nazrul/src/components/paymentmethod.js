@@ -19,6 +19,7 @@ const PaymentMethodPage = () => {
 
   // ✅ HOOKS FIRST (always called)
   const [paymentType, setPaymentType] = useState("paypal");
+  const [isMethodOpen, setIsMethodOpen] = useState(false);
   const [paypalDetails, setPaypalDetails] = useState({ email: "" });
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
@@ -34,6 +35,23 @@ const PaymentMethodPage = () => {
     cvv: "",
   });
 
+  const bankOptions = [
+    "Maybank",
+    "CIMB Bank",
+    "Bank Islam",
+    "RHB Bank",
+    "Public Bank",
+    "Hong Leong Bank",
+    "AmBank",
+    "HSBC Bank",
+    "OCBC Bank",
+    "Standard Chartered",
+    "UOB Bank",
+    "Affin Bank",
+    "Bank Rakyat",
+    "BSN",
+  ];
+
   // ✅ SAFE STATE READ (after hooks is fine)
   const {
     bookingId,
@@ -44,6 +62,35 @@ const PaymentMethodPage = () => {
     selectedSeats = [],
     selectedInsurance,
   } = location.state || {};
+
+  const paymentMethods = [
+    {
+      id: "paypal",
+      label: "PayPal",
+      subtitle: "Fast wallet checkout",
+      icon: paypalIcon,
+    },
+    {
+      id: "card",
+      label: "Credit/Debit Card",
+      subtitle: "Visa, Mastercard and debit cards",
+      icon: cardIcon,
+    },
+    {
+      id: "fpx",
+      label: "FPX Bank Transfer",
+      subtitle: "Malaysia online banking",
+      icon: fpxIcon,
+    },
+    {
+      id: "applePay",
+      label: "Apple Pay",
+      subtitle: "Device wallet payment",
+      icon: applePayIcon,
+    },
+  ];
+
+  const selectedMethod = paymentMethods.find((method) => method.id === paymentType) || paymentMethods[0];
 
   // ✅ GUARD AFTER HOOKS
   if (!location.state) {
@@ -116,39 +163,54 @@ const PaymentMethodPage = () => {
     <div className="payment-page1">
       <div className="payment-sidebar1">
         <div className="booking-details-container">
+          <span className="payment-kicker">Final step</span>
           <h2>Booking Details</h2>
-          <p><strong>Email:</strong> {passengerDetails?.email || "-"}</p>
-          <p><strong>Booking ID:</strong> {bookingId || "-"}</p>
-          <p><strong>Departure Flight:</strong> {outboundFlight?.flightNumber || "-"}</p>
-          <p><strong>Departure Price: MYR</strong> {outboundFlight?.price ?? 0}</p>
-          <p><strong>Return Flight:</strong> {returnFlight?.flightNumber || "-"}</p>
-          <p><strong>Return Price: MYR</strong> {returnFlight?.price ?? 0}</p>
-          <p><strong>Selected Seats:</strong> {selectedSeats.length ? selectedSeats.join(", ") : "-"}</p>
-          <p><strong>Insurance:</strong> {selectedInsurance ? `${selectedInsurance.name} (MYR ${selectedInsurance.price})` : "No Insurance"}</p>
-          <p><strong>Your amount : RM</strong> {totalAmount ?? 0}</p>
+          <div className="booking-detail-list">
+            <p><strong>Email</strong> <span>{passengerDetails?.email || "-"}</span></p>
+            <p><strong>Booking ID</strong> <span>{bookingId || "-"}</span></p>
+            <p><strong>Departure</strong> <span>{outboundFlight?.flightNumber || "-"}</span></p>
+            <p><strong>Departure Price</strong> <span>MYR {outboundFlight?.price ?? 0}</span></p>
+            <p><strong>Return</strong> <span>{returnFlight?.flightNumber || "-"}</span></p>
+            <p><strong>Return Price</strong> <span>MYR {returnFlight?.price ?? 0}</span></p>
+            <p><strong>Seats</strong> <span>{selectedSeats.length ? selectedSeats.join(", ") : "-"}</span></p>
+            <p><strong>Insurance</strong> <span>{selectedInsurance ? `${selectedInsurance.name} (MYR ${selectedInsurance.price})` : "No Insurance"}</span></p>
+          </div>
+          <div className="booking-total-pill">
+            <span>Total due</span>
+            <strong>MYR {Number(totalAmount || 0).toFixed(2)}</strong>
+          </div>
         </div>
 
-        <h2>Select Payment Method</h2>
+        <h2 className="payment-method-title">Select Payment Method</h2>
 
-        <div className={`payment-option1 ${paymentType === "paypal" ? "active" : ""}`} onClick={() => setPaymentType("paypal")}>
-          <label><img src={paypalIcon} alt="PayPal Icon" className="payment-icon" /> PayPal</label>
-        </div>
-
-        <div className={`payment-option1 ${paymentType === "card" ? "active" : ""}`} onClick={() => setPaymentType("card")}>
-          <label><img src={cardIcon} alt="Card Icon" className="payment-icon" /> Credit/Debit Card</label>
-        </div>
-
-        <div className={`payment-option1 ${paymentType === "fpx" ? "active" : ""}`} onClick={() => setPaymentType("fpx")}>
-          <label><img src={fpxIcon} alt="FPX Icon" className="payment-icon" /> FPX (Bank Transfer)</label>
-        </div>
-
-        <div className={`payment-option1 ${paymentType === "applePay" ? "active" : ""}`} onClick={() => setPaymentType("applePay")}>
-          <label><img src={applePayIcon} alt="Apple Pay Icon" className="payment-icon" /> Apple Pay</label>
+        <div className={`payment-method-dropdown ${isMethodOpen ? "open" : ""}`}>
+          <button
+            type="button"
+            className="payment-method-trigger"
+            onClick={() => setIsMethodOpen((open) => !open)}
+            aria-expanded={isMethodOpen}
+            aria-haspopup="listbox"
+          >
+            <span className="method-trigger-main">
+              <img src={selectedMethod.icon} alt="" className="payment-icon" />
+              <span>
+                <strong>{selectedMethod.label}</strong>
+                <small>{selectedMethod.subtitle}</small>
+              </span>
+            </span>
+            <span className="method-chevron">⌄</span>
+          </button>
         </div>
       </div>
 
       <div className="payment-content1">
         <form className="payment-method-form1" onSubmit={handlePaymentSubmit}>
+          <div className="payment-form-header">
+            <span className="payment-kicker">Secure payment</span>
+            <h1>{paymentType === "paypal" ? "Pay with PayPal" : paymentType === "card" ? "Pay by Card" : paymentType === "fpx" ? "Pay with FPX" : "Pay with Apple Pay"}</h1>
+            <p>Complete your booking with encrypted checkout details.</p>
+          </div>
+
           {paymentType === "paypal" && (
             <div className="form-group1">
               <label>PayPal Email</label>
@@ -209,7 +271,14 @@ const PaymentMethodPage = () => {
                 <label>Bank Name</label>
                 <div className="input-icon-wrapper78">
                   <img className="input-icon1" src={bankIcon} alt="Bank icon" />
-                  <input type="text" name="bankName" placeholder="Bank Name" value={fpxDetails.bankName} onChange={handleInputChange} required />
+                  <select className="bank-select" name="bankName" value={fpxDetails.bankName} onChange={handleInputChange} required>
+                    <option value="">Choose your bank</option>
+                    {bankOptions.map((bank) => (
+                      <option key={bank} value={bank}>
+                        {bank}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </>
@@ -254,6 +323,58 @@ const PaymentMethodPage = () => {
           <button className="payment-button" type="submit">Proceed to Pay</button>
         </form>
       </div>
+
+      {isMethodOpen && (
+        <div className="payment-method-popup" role="presentation">
+          <button
+            type="button"
+            className="payment-method-backdrop"
+            aria-label="Close payment method selector"
+            onClick={() => setIsMethodOpen(false)}
+          />
+          <div className="payment-method-menu" role="listbox" aria-label="Payment method options">
+            <button
+              type="button"
+              className="method-popup-close"
+              aria-label="Close payment method selector"
+              onClick={() => setIsMethodOpen(false)}
+            >
+              ×
+            </button>
+
+            <div className="method-popup-header">
+              <span className="payment-kicker">Payment selector</span>
+              <h3>Choose how you want to pay</h3>
+              <p>Pick a secure method. Your form will change instantly.</p>
+            </div>
+
+            <div className="method-popup-grid">
+              {paymentMethods.map((method, index) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  role="option"
+                  aria-selected={paymentType === method.id}
+                  className={`payment-method-item ${paymentType === method.id ? "active" : ""}`}
+                  onClick={() => {
+                    setPaymentType(method.id);
+                    setIsMethodOpen(false);
+                  }}
+                  style={{ animationDelay: `${index * 70}ms` }}
+                >
+                  <span className="method-card-shine" />
+                  <img src={method.icon} alt="" className="payment-icon" />
+                  <span>
+                    <strong>{method.label}</strong>
+                    <small>{method.subtitle}</small>
+                  </span>
+                  <i>{paymentType === method.id ? "Selected" : "Choose"}</i>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

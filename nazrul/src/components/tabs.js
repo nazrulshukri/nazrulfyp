@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import "./tabs.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -58,25 +58,25 @@ const FAQ = () => {
 
   const closeModal = () => setIsModalOpen(false);
 
-  const go = (delta) => {
+  const go = useCallback((delta) => {
     const next = modalIndex + delta;
     if (next < 0 || next >= items.length) return;
     setDirection(delta > 0 ? 1 : -1);
     setModalIndex(next);
-  };
+  }, [items.length, modalIndex]);
 
   // ✅ Keyboard navigation (ESC / Left / Right)
   useEffect(() => {
     if (!isModalOpen) return;
 
     const onKey = (e) => {
-      if (e.key === "Escape") closeModal();
+      if (e.key === "Escape") setIsModalOpen(false);
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isModalOpen, modalIndex]);
+  }, [go, isModalOpen]);
 
   const modalVariants = {
     enter: (dir) => ({ x: dir > 0 ? 44 : -44, opacity: 0 }),

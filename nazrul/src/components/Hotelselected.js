@@ -17,8 +17,6 @@ import {faWifi,faSwimmingPool,
   faPlane,
 } from "@fortawesome/free-solid-svg-icons";
 
-<<<<<<< HEAD
-=======
 import {
   FaMapMarkerAlt,
   FaShareAlt,
@@ -895,4 +893,3 @@ const HotelSelected = () => {
 };
 
 export default HotelSelected;
->>>>>>> 7f22f30 (update new version)

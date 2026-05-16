@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './flightdetails.css';
-import exitImage from '../img/assets/exit.jpg';
 import arrowDownIcon from '../img/assets/arrowdown2.png';
 import arrowUpIcon from '../img/assets/arrowup.png';
-import toiletimage from '../img/assets/seat/toilet.png'
-import { FaShieldAlt } from "react-icons/fa"; // Import insurance icon
+import { FaDoorOpen, FaPlaneDeparture, FaRestroom, FaShieldAlt } from "react-icons/fa";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
 
@@ -60,11 +58,11 @@ const FlightDetails = ({ outboundFlight, returnFlight,returnPrice }) => {
   );
 };
 
-const PassengerForm = ({ setPassengerDetails }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+const PassengerForm = ({ setPassengerDetails, initialPassengerDetails = {} }) => {
+  const [firstName, setFirstName] = useState(initialPassengerDetails.firstName || '');
+  const [lastName, setLastName] = useState(initialPassengerDetails.lastName || '');
+  const [email, setEmail] = useState(initialPassengerDetails.email || '');
+  const [phone, setPhone] = useState(initialPassengerDetails.phone || '');
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -201,37 +199,28 @@ const PassengerForm = ({ setPassengerDetails }) => {
 };
 
 
-const SeatSelection = ({ setTotalPrice, setSelectedSeats }) => {
-  const [selectedSeats, setSelectedSeatsState] = useState([]);
+const SeatSelection = ({ setTotalPrice, setSelectedSeats, initialSelectedSeats = [] }) => {
+  const [selectedSeats, setSelectedSeatsState] = useState(initialSelectedSeats);
   const [showSeats, setShowSeats] = useState(false);
+  const occupiedSeats = ['2B', '4E', '6A', '8F', '10C', '12D'];
 
   const toggleSeats = () => {
     setShowSeats((prev) => !prev);
   };
 
-  // Seat rows including additional seats below the toilet
-  const seatRows = [
-    { seats: [1, 2, 3, 4, 5, 'blank', 6, 7, 8, 9, 10, 'blank', 11, 12, 13, 14, 15], aisle: 'A' },
-    { seats: [16, 17, 18, 19, 20, 'blank', 21, 22, 23, 24, 25, 'blank', 26, 27, 28, 29, 30], aisle: 'B' },
-    { seats: [31, 32, 33, 34, 35, 'blank', 36, 37, 38, 39, 40, 'blank', 41, 42, 43, 44, 45], aisle: 'C' },
-    { seats: [46, 47, 48, 49, 50, 'blank', 51, 52, 53, 54, 55, 'blank', 56, 57, 58, 59, 60], aisle: 'D' },
-    // Separator row for the toilet
-    { seats: ['toilet'], aisle: null },
-    // New seats below the toilet
-    { seats: [61, 62, 63, 64, 65, 'blank', 66, 67, 68, 69, 70, 'blank', 71, 72, 73, 74, 75], aisle: 'E' },
-    { seats: [76, 77, 78, 79, 80, 'blank', 81, 82, 83, 84, 85, 'blank', 86, 87, 88, 89, 90], aisle: 'F' },
-  ];
+  const seatRows = Array.from({ length: 14 }, (_, index) => {
+    const rowNumber = index + 1;
+    return ['A', 'B', 'C', 'D', 'E', 'F'].map((letter) => `${rowNumber}${letter}`);
+  });
 
   const handleSeatClick = (seat) => {
-    if (seat === 'blank' || seat === 'toilet') return; // Ignore aisle spaces and toilet
+    if (occupiedSeats.includes(seat)) return;
 
-    const seatPrice = 20; // Define price per seat
+    const seatPrice = 20;
     if (selectedSeats.includes(seat)) {
-      // Deselect seat
       setSelectedSeatsState(selectedSeats.filter((s) => s !== seat));
       setTotalPrice((prev) => prev - seatPrice);
     } else {
-      // Select seat
       setSelectedSeatsState([...selectedSeats, seat]);
       setTotalPrice((prev) => prev + seatPrice);
     }
@@ -243,13 +232,15 @@ const SeatSelection = ({ setTotalPrice, setSelectedSeats }) => {
 
   return (
     <div className="seat-booking-container">
-      {/* Button to toggle seat selection grid */}
       <button 
         className="seat-booking-toggle" 
         onClick={toggleSeats} 
         aria-label="Toggle Seat Selection"
       >
-        Select Your Seats
+        <span>
+          <FaPlaneDeparture className="seat-toggle-icon" />
+          Select Your Seats
+        </span>
         <img
           className="toggle-arrow"
           src={showSeats ? arrowUpIcon : arrowDownIcon}
@@ -257,55 +248,109 @@ const SeatSelection = ({ setTotalPrice, setSelectedSeats }) => {
         />
       </button>
 
-      {/* Seat grid becomes visible when showSeats is true */}
       {showSeats && (
-        <div className={`seat-grid-container ${showSeats ? 'visible' : 'hidden'}`}>
-          <div className="exit-row">
-            {/* Exit indicators */}
-            <div className="exit-label">
-              <img src={exitImage} alt="Exit Left" />
+        <div className="aircraft-seat-shell">
+          <div className="seat-map-header">
+            <div>
+              <span className="seat-map-eyebrow">Cabin seat map</span>
+              <h3>Economy cabin</h3>
             </div>
-            <div className="exit-label right">
-              <img src={exitImage} alt="Exit Right" />
+            <div className="selected-seat-counter">
+              {selectedSeats.length} selected
             </div>
           </div>
 
-          {/* Render seat rows */}
-          {seatRows.map((row, rowIndex) => (
-  <div key={rowIndex} className="seat-row">
-    {row.seats.map((seat, seatIndex) => {
-      if (seat === 'toilet') {
-        // Render the toilet image instead of a button
-        return (
-          <div key={seatIndex} className="toilet-icon">
-            <img src={toiletimage} alt="Toilet" />
+          <div className="seat-legend">
+            <span><i className="legend-dot available"></i>Available</span>
+            <span><i className="legend-dot selected"></i>Selected</span>
+            <span><i className="legend-dot occupied"></i>Occupied</span>
           </div>
-        );
-      }
 
-      return (
-        <button
-          key={seatIndex}
-          className={`seat ${
-            seat === 'blank'
-              ? 'aisle'
-              : selectedSeats.includes(seat)
-              ? 'selected'
-              : ''
-          }`}
-          onClick={() => handleSeatClick(seat)}
-          disabled={seat === 'blank'}
-          aria-label={`Seat ${seat !== 'blank' ? seat : 'Aisle'}`}
-        >
-          {seat !== 'blank' ? seat : ''}
-        </button>
-      );
-    })}
-    {row.aisle && <div className="aisle-label">{row.aisle}</div>}
-  </div>
-))}
+          <div className="aircraft-cabin">
+            <div className="aircraft-nose">
+              <FaPlaneDeparture />
+              <span>Front</span>
+            </div>
 
-        
+            <div className="cabin-exit-row">
+              <span><FaDoorOpen /> Exit</span>
+              <span><FaDoorOpen /> Exit</span>
+            </div>
+
+            <div className="seat-letter-row">
+              <span>A</span>
+              <span>B</span>
+              <span>C</span>
+              <span className="aisle-word">Aisle</span>
+              <span>D</span>
+              <span>E</span>
+              <span>F</span>
+            </div>
+
+            <div className="seat-grid-container">
+              {seatRows.map((row, rowIndex) => (
+                <React.Fragment key={row[0]}>
+                  {row.slice(0, 3).map((seat) => {
+                    const isSelected = selectedSeats.includes(seat);
+                    const isOccupied = occupiedSeats.includes(seat);
+
+                    return (
+                      <button
+                        key={seat}
+                        className={`seat ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
+                        onClick={() => handleSeatClick(seat)}
+                        disabled={isOccupied}
+                        aria-label={`Seat ${seat}${isOccupied ? ' occupied' : ''}`}
+                        style={{ animationDelay: `${rowIndex * 35}ms` }}
+                      >
+                        <span className="seat-back"></span>
+                        <span className="seat-label">{seat}</span>
+                      </button>
+                    );
+                  })}
+
+                  <div className="aisle-label">{rowIndex + 1}</div>
+
+                  {row.slice(3).map((seat) => {
+                    const isSelected = selectedSeats.includes(seat);
+                    const isOccupied = occupiedSeats.includes(seat);
+
+                    return (
+                      <button
+                        key={seat}
+                        className={`seat ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
+                        onClick={() => handleSeatClick(seat)}
+                        disabled={isOccupied}
+                        aria-label={`Seat ${seat}${isOccupied ? ' occupied' : ''}`}
+                        style={{ animationDelay: `${rowIndex * 35}ms` }}
+                      >
+                        <span className="seat-back"></span>
+                        <span className="seat-label">{seat}</span>
+                      </button>
+                    );
+                  })}
+
+                  {rowIndex === 6 && (
+                    <div className="cabin-service-row">
+                      <span><FaRestroom /> Restroom</span>
+                      <span><FaDoorOpen /> Mid exit</span>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
+          {selectedSeats.length > 0 && (
+            <div className="selected-seat-summary">
+              <span>Selected seats</span>
+              <div>
+                {selectedSeats.map((seat) => (
+                  <strong key={seat}>{seat}</strong>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -319,8 +364,8 @@ const insuranceOptions = [
   { id: 4, name: 'No insurance', description: '', price: 0 },
 ];
 
-const InsuranceSelection = ({ setTotalPrice, setSelectedInsurance }) => {
-  const [selectedInsurance, setInsurance] = useState(null);
+const InsuranceSelection = ({ setTotalPrice, setSelectedInsurance, initialSelectedInsurance = null }) => {
+  const [selectedInsurance, setInsurance] = useState(initialSelectedInsurance);
 
   const handleInsuranceChange = (insurance) => {
     setInsurance(insurance);
@@ -351,17 +396,40 @@ const InsuranceSelection = ({ setTotalPrice, setSelectedInsurance }) => {
 );
 };
 
-const FlightDetailsPage = ({ outboundFlight, returnFlight, returnPrice }) => {
-  const [passengerDetails, setPassengerDetails] = useState({});
+const FlightDetailsPage = ({
+  outboundFlight,
+  returnFlight,
+  returnPrice,
+  initialPassengerDetails = {},
+  initialSelectedSeats = [],
+  initialSelectedInsurance = null,
+  onPassengerDetailsChange,
+  onSelectedSeatsChange,
+  onSelectedInsuranceChange,
+  showBookingButton = true,
+}) => {
+  const [passengerDetails, setPassengerDetails] = useState(initialPassengerDetails);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedSeats, setSelectedSeats] = useState([]);
-  const [selectedInsurance, setSelectedInsurance] = useState(null);
+  const [selectedSeats, setSelectedSeats] = useState(initialSelectedSeats);
+  const [selectedInsurance, setSelectedInsurance] = useState(initialSelectedInsurance);
 
   
 
   console.log("Received returnPrice in FlightDetailsPage:", returnPrice); // Debugging
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    onPassengerDetailsChange?.(passengerDetails);
+  }, [passengerDetails, onPassengerDetailsChange]);
+
+  useEffect(() => {
+    onSelectedSeatsChange?.(selectedSeats);
+  }, [selectedSeats, onSelectedSeatsChange]);
+
+  useEffect(() => {
+    onSelectedInsuranceChange?.(selectedInsurance);
+  }, [selectedInsurance, onSelectedInsuranceChange]);
 
   const handleBooking = () => {
     const bookingData = {
@@ -385,11 +453,26 @@ const FlightDetailsPage = ({ outboundFlight, returnFlight, returnPrice }) => {
         returnFlight={returnFlight} 
         returnPrice={returnPrice} // Pass returnPrice to FlightDetails
       />
-      <PassengerForm setPassengerDetails={setPassengerDetails} />
-      <SeatSelection setTotalPrice={setTotalPrice} setSelectedSeats={setSelectedSeats} />
-      <InsuranceSelection setTotalPrice={setTotalPrice} setSelectedInsurance={setSelectedInsurance} />
-      <button className="booking-button" onClick={handleBooking}>Book Flight</button>
-      <div className="total-price">Total Price: MYR {totalPrice.toFixed(2)}</div>
+      <PassengerForm
+        setPassengerDetails={setPassengerDetails}
+        initialPassengerDetails={initialPassengerDetails}
+      />
+      <SeatSelection
+        setTotalPrice={setTotalPrice}
+        setSelectedSeats={setSelectedSeats}
+        initialSelectedSeats={initialSelectedSeats}
+      />
+      <InsuranceSelection
+        setTotalPrice={setTotalPrice}
+        setSelectedInsurance={setSelectedInsurance}
+        initialSelectedInsurance={initialSelectedInsurance}
+      />
+      {showBookingButton && (
+        <>
+          <button className="booking-button" onClick={handleBooking}>Book Flight</button>
+          <div className="total-price">Total Price: MYR {totalPrice.toFixed(2)}</div>
+        </>
+      )}
     </div>
   );
 };

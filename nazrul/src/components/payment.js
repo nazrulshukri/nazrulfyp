@@ -291,9 +291,9 @@ const Payment = ({ user }) => {
     returnFlight: returnFlightOld,
     price: priceOld,
 
-    passengerDetails,
-    selectedInsurance,
-    selectedSeats = [],
+    passengerDetails: passengerDetailsFromState,
+    selectedInsurance: selectedInsuranceFromState,
+    selectedSeats: selectedSeatsFromState = [],
   } = state || {};
 
   const outboundFlight = outboundFlightOld || selectedOutboundFlight;
@@ -301,24 +301,21 @@ const Payment = ({ user }) => {
 
   const price = returnPriceFromState ?? priceOld ?? 0;
 
-  const [insurancePrice, setInsurancePrice] = useState(0);
+  const [passengerDetails, setPassengerDetails] = useState(passengerDetailsFromState || {});
+  const [selectedInsurance, setSelectedInsurance] = useState(selectedInsuranceFromState || null);
+  const [selectedSeats, setSelectedSeats] = useState(selectedSeatsFromState || []);
   const [showModal, setShowModal] = useState(false);
   const [returnPrice] = useState(Number(price) || 0);
   const [loading, setLoading] = useState(true);
 
+  const insurancePrice = Number(selectedInsurance?.price) || 0;
   const totalSeatPrice = (selectedSeats?.length || 0) * 20;
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 2000);
 
-    if (selectedInsurance?.price != null) {
-      setInsurancePrice(Number(selectedInsurance.price) || 0);
-    } else {
-      setInsurancePrice(0);
-    }
-
     return () => clearTimeout(t);
-  }, [selectedInsurance]);
+  }, []);
 
   if (loading) return <Loading />;
 
@@ -394,50 +391,100 @@ const Payment = ({ user }) => {
   return (
     <div className="payment-container1">
       <div className="details-summary">
-        <div className="flight-details-section">
-          <h2>Flight Details</h2>
+        <section className="flight-details-section payment-panel">
+          <div className="payment-section-heading">
+            <span className="payment-eyebrow">Secure checkout</span>
+            <h2>Flight Details</h2>
+          </div>
           <FlightDetails
             outboundFlight={outboundFlight}
             returnFlight={returnFlight}
             returnPrice={returnPrice}
+            initialPassengerDetails={passengerDetails}
+            initialSelectedSeats={selectedSeats}
+            initialSelectedInsurance={selectedInsurance}
+            onPassengerDetailsChange={setPassengerDetails}
+            onSelectedSeatsChange={setSelectedSeats}
+            onSelectedInsuranceChange={setSelectedInsurance}
+            showBookingButton={false}
           />
-        </div>
+        </section>
 
-        <div className="fare-summary-section">
-          <h2 className="fare-summary-title">Fare Summary</h2>
+        <aside className="fare-summary-section payment-panel">
+          <div className="fare-summary-header">
+            <span className="payment-eyebrow">Booking total</span>
+            <h2 className="fare-summary-title">Fare Summary</h2>
+          </div>
 
           <div className="flight-summary-container">
             <div className="flight-summary-card">
-              <h3>Departure Flight Summary</h3>
-              <p>Price: MYR {outboundPrice.toFixed(2)}</p>
+              <span className="summary-chip">Outbound</span>
+              <h3>Departure Flight</h3>
+              <p>MYR {outboundPrice.toFixed(2)}</p>
             </div>
 
             <div className="flight-summary-card">
-              <h3>Return Flight Summary</h3>
-              <p>Price: MYR {returnPrice.toFixed(2)}</p>
+              <span className="summary-chip">Return</span>
+              <h3>Return Flight</h3>
+              <p>MYR {returnPrice.toFixed(2)}</p>
             </div>
           </div>
 
           {selectedSeats?.length > 0 && (
-            <div>
-              <h3>Selected Seats:</h3>
-              <p>{selectedSeats.join(", ")}</p>
+            <div className="selected-seats">
+              <h3 className="selected-seats-title">Selected Seats</h3>
+              <div className="selected-seats-list">
+                {selectedSeats.map((seat) => (
+                  <span className="seat-pill" key={seat}>
+                    {seat}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
           <div className="fare-details">
-            <p>Base fare: MYR {(outboundPrice + returnPrice).toFixed(2)}</p>
-            <p>Taxes: MYR {totalAmount.taxes.toFixed(2)}</p>
-            <p>Insurance: MYR {insurancePrice.toFixed(2)}</p>
-            <p>Seat: MYR {totalSeatPrice.toFixed(2)}</p>
+            <div className="fare-detail">
+              <span className="fare-label">
+                <i className="fas fa-ticket-alt"></i> Base fare
+              </span>
+              <span className="fare-amount">MYR {(outboundPrice + returnPrice).toFixed(2)}</span>
+            </div>
 
-            <h3>Total: MYR {totalAmount.total.toFixed(2)}</h3>
+            <div className="fare-detail">
+              <span className="fare-label">
+                <i className="fas fa-percent"></i> Taxes
+              </span>
+              <span className="fare-amount">MYR {totalAmount.taxes.toFixed(2)}</span>
+            </div>
+
+            <div className="fare-detail">
+              <span className="fare-label">
+                <i className="fas fa-shield-alt"></i> Insurance
+              </span>
+              <span className="fare-amount">MYR {insurancePrice.toFixed(2)}</span>
+            </div>
+
+            <div className="fare-detail">
+              <span className="fare-label">
+                <i className="fas fa-chair"></i> Seat selection
+              </span>
+              <span className="fare-amount">MYR {totalSeatPrice.toFixed(2)}</span>
+            </div>
+
+            <div className="fare-detail total">
+              <span className="fare-label">
+                <i className="fas fa-receipt"></i> Total
+              </span>
+              <span className="fare-amount">MYR {totalAmount.total.toFixed(2)}</span>
+            </div>
           </div>
 
           <button className="continue-btn" onClick={handleBooking}>
-            Book Now
+            <span>Book Now</span>
+            <i className="fas fa-arrow-right"></i>
           </button>
-        </div>
+        </aside>
       </div>
 
       <Modal

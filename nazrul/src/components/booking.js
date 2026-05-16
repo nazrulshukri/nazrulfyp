@@ -1674,22 +1674,22 @@ if (infants > adults) {
 
     try {
       if (selectedOption === "flight") {
-       navigate("/flight-results", {
-  state: {
-    flightParams: {
-      departureDate: startDate,
-      returnDate: tripType === "oneway" ? "" : returnDate,
-      origin: location,
-      destination: location1,
+        const flightParams = {
+          departureDate: startDate,
+          returnDate: tripType === "oneway" ? "" : returnDate,
+          origin: location,
+          destination: location1,
+          adults,
+          children,
+          infants,
+          tripType,
+        };
 
-      adults,
-      children,
-      infants,
+        localStorage.setItem("flightParams", JSON.stringify(flightParams));
 
-      tripType,
-    },
-  },
-});
+        navigate("/flight-results", {
+          state: { flightParams },
+        });
       }
 
       if (selectedOption === "hotel") {
@@ -1716,12 +1716,12 @@ if (infants > adults) {
       }
 
      await axios.post("http://localhost:5001/bookings", {
-  selectedOption,
+  bookingType: selectedOption,
   tripType,
   location,
   location1,
   startDate,
-  returnDate,
+  returnDate: returnDate || startDate,
   people,
   adults,
   children,
