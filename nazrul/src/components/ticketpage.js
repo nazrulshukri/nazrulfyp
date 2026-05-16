@@ -2,8 +2,10 @@ import React, { useEffect ,useState} from 'react';
 import { useLocation } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { generatePDF1 } from './pdfgenerator1';
-
+<<<<<<< HEAD
+=======
 // import generatePDF from './pdfgenerator'; 
+>>>>>>> d8f1e94 (Fix ESLint warnings and improve accessibility)
 import bookingflex from '../img/assets/Booking1.png';
 import './ticketpage.css';
 import ConfirmationDialog from './confirmationdialog';
@@ -90,7 +92,7 @@ const TicketPage = () => {
       </div>
       <div className="airline-details-modern">
         <h4 className="airline-name-modern">{outboundFlight.airline}</h4>
-        <p className="flight-number-modern">{outboundFlight.flightNumber}</p>
+        <p className="flight-number-modern">{outboundFlight?.flightNumber || "-"}</p>
       </div>
     </div>
     <div className="flight-details">
@@ -153,7 +155,7 @@ const TicketPage = () => {
     </div>
     <div className="detail-item">
       <i className="fas fa-envelope email-icon"></i>
-      <p><strong>Email:</strong> {passengerDetails.email}</p>
+      <p><strong>Email:</strong> {passengerDetails?.email || "-"}</p>
     </div>
     <div className="detail-item">
       <i className="fas fa-id-card booking-icon"></i>

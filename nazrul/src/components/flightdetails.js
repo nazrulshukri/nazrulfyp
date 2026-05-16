@@ -13,11 +13,6 @@ const FlightDetails = ({ outboundFlight, returnFlight,returnPrice }) => {
   if (!outboundFlight || !returnFlight) {
     return <div>No flight details available.</div>;
   }
-
-  
-
-  
-
   return (
     <div className="flight-details-container">
       <div className="flight-summary">
@@ -36,7 +31,7 @@ const FlightDetails = ({ outboundFlight, returnFlight,returnPrice }) => {
           </div>
           <div className="details23">
             <p><strong>Airline:</strong> {outboundFlight.airline}</p>
-            <p><strong>Flight Number:</strong> {outboundFlight.flightNumber}</p>
+            <p><strong>Flight Number:</strong> {outboundFlight?.flightNumber || "-"}</p>
           </div>
         </div>
       </div>

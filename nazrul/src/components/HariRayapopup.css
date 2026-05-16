@@ -1,0 +1,200 @@
+/* Overlay */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); /* semi-transparent dark overlay */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeInOverlay 0.4s ease forwards;
+}
+
+/* Popup container */
+.popup-container {
+  position: relative;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(100px) saturate(180%);
+  -webkit-backdrop-filter: blur(100px) saturate(180%);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  font-family: 'Poppins', sans-serif;
+  animation: popupSlide 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 10000;
+}
+
+/* Ketupat image - floating */
+.popup-ketupat {
+  width: 80px;
+  height: auto;
+  margin-bottom: 1rem;
+  animation: ketupatFloat 3s ease-in-out infinite alternate;
+}
+
+/* Headings with rainbow gradient */
+.popup-container h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #ff1fbf, #af7dfb, #6affdc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowText 4s ease-in-out infinite;
+}
+
+/* Paragraph text */
+.popup-container p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.popup-container strong {
+  color: #ffd166;
+}
+
+/* Close button */
+.popup-close {
+  background: linear-gradient(135deg, #ffd166, #fca311);
+  color: #1b1b1b;
+  border: none;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.popup-close:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.5);
+}
+
+/* Sparkles */
+.sparkles span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  animation: sparkle 3s infinite ease-in-out;
+}
+
+.sparkles span:nth-child(1) { top: 20%; left: 25%; animation-delay: 0s; }
+.sparkles span:nth-child(2) { top: 30%; left: 70%; animation-delay: 1s; }
+.sparkles span:nth-child(3) { top: 60%; left: 20%; animation-delay: 2s; }
+.sparkles span:nth-child(4) { top: 70%; left: 80%; animation-delay: 0.5s; }
+.sparkles span:nth-child(5) { top: 40%; left: 50%; animation-delay: 1.5s; }
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+/* Floating ketupat confetti */
+.ketupat-confetti span {
+  position: absolute;
+  font-size: 20px;
+  animation: confettiFloat 6s linear infinite;
+}
+
+.ketupat-confetti span:nth-child(1) { left: 10%; animation-delay: 0s; }
+.ketupat-confetti span:nth-child(2) { left: 30%; animation-delay: 2s; }
+.ketupat-confetti span:nth-child(3) { left: 50%; animation-delay: 1s; }
+.ketupat-confetti span:nth-child(4) { left: 70%; animation-delay: 3s; }
+.ketupat-confetti span:nth-child(5) { left: 90%; animation-delay: 4s; }
+
+@keyframes confettiFloat {
+  0% { top: -10%; transform: rotate(0deg); opacity: 0; }
+  30% { opacity: 1; }
+  100% { top: 110%; transform: rotate(360deg); opacity: 0; }
+}
+
+/* Lanterns */
+.lanterns span {
+  position: absolute;
+  font-size: 40px;
+  top: 0;
+  animation: lanternSwing 3s ease-in-out infinite;
+}
+.lanterns span:nth-child(1) { left: 20%; }
+.lanterns span:nth-child(2) { right: 20%; animation-delay: 1.5s; }
+
+@keyframes lanternSwing {
+  0% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+  100% { transform: rotate(-10deg); }
+}
+
+/* Fireworks */
+.fireworks span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: gold;
+  border-radius: 50%;
+  animation: firework 2s infinite ease-out;
+}
+.fireworks span:nth-child(1) { top: 20%; left: 30%; }
+.fireworks span:nth-child(2) { top: 25%; right: 30%; animation-delay: 1s; }
+.fireworks span:nth-child(3) { top: 15%; left: 50%; animation-delay: 0.5s; }
+
+@keyframes firework {
+  0% {
+    box-shadow: 0 0 gold, 0 0 gold, 0 0 gold, 0 0 gold;
+  }
+  100% {
+    box-shadow: 0 -40px red, 40px 0 yellow, -40px 0 green, 0 40px blue;
+    opacity: 0;
+  }
+}
+
+/* Animations */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popupSlide {
+  0% { transform: translateY(-30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes ketupatFloat {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(-10deg); }
+  50% { transform: translateY(-30px) rotate(5deg); }
+  75% { transform: translateY(-15px) rotate(-5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes rainbowText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Glow border behind popup */
+.popup-container::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 24px;
+  background: linear-gradient(45deg, #139b40, #9c3838);
+  z-index: -1;
+  filter: blur(20px);
+  opacity: 0.6;
+  animation: glowRotate 6s linear infinite;
+}
+
+@keyframes glowRotate {
+  0% { filter: blur(20px) hue-rotate(0deg); }
+  100% { filter: blur(20px) hue-rotate(360deg); }
+}

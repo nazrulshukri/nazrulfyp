@@ -1,3 +1,5 @@
+.form-group input { width: 100% !important; }
+
 .booking-wrapper {
   background-color: #ffffff;
   padding: 3rem;
@@ -10,6 +12,46 @@
 .app.dark-mode .booking-wrapper {
   background-color: #1e1e1e;
   color: #ffffff;
+}
+
+.route-grid{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 64px 1fr;
+  gap: 14px;
+  align-items: end;
+}
+
+.swap-col{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding-bottom: 6px;
+}
+
+.swap-btn{
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  display:grid;
+  place-items:center;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.swap-btn:hover{
+  transform: translateY(-2px) rotate(8deg);
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 18px 40px rgba(2,6,23,0.12);
+}
+
+.app.dark-mode .swap-btn{
+  background: rgba(2,6,23,0.6);
+  border-color: rgba(148,163,184,0.18);
+  color: rgba(226,232,240,0.92);
 }
 
 body.dark-mode .flatpickr-calendar {
@@ -86,6 +128,8 @@ body.dark-mode .flatpickr-weekday {
   opacity: 1; /* Fade out */
 }
 
+
+
 .option-button:hover {
   box-shadow: 0 6px 15px rgba(110, 57, 101, 0.363);
   transform: scale(1.05);
@@ -153,6 +197,17 @@ body.dark-mode .flatpickr-weekday {
   font-weight: 600;
 }
 
+.field{
+  width: 100%;
+  position: relative;
+}
+
+.form-group {
+  position: relative;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
 .form-group label .icon {
   font-size: 1.5rem;
   color: #007bff;
@@ -180,7 +235,7 @@ body.dark-mode .flatpickr-weekday {
 
 /* Input Field */
 .form-group input {
-  width: 200%;
+  /* width: 200%; */
   padding: 0.8rem 1rem;
   font-size: 1.2rem;
   border: 1px solid #ddd;
@@ -231,6 +286,22 @@ body.dark-mode .flatpickr-weekday {
   max-width: none !important;
 }
 
+/* Flatpickr: never exceed screen width */
+.flatpickr-calendar{
+  max-width: calc(100vw - 24px) !important;
+  width: min(520px, calc(100vw - 24px)) !important;
+}
+
+/* Mobile: make it a bottom sheet calendar */
+@media (max-width: 768px){
+  .flatpickr-calendar{
+    left: 0 !important;
+    right: 0 !important;
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 0 auto !important;
+  }
+}
 
 /* Dark calendar */
 .app.dark-mode .flatpickr-calendar {
@@ -269,7 +340,6 @@ body.dark-mode .flatpickr-weekday {
   box-sizing: border-box !important;
 }
 
-
 .dayContainer {
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
@@ -294,8 +364,6 @@ body.dark-mode .flatpickr-weekday {
   padding: 12px !important;
   box-sizing: border-box !important;
 }
-
-
 
 .app.dark-mode .flatpickr-innerContainer,
 .app.dark-mode .flatpickr-rContainer,
@@ -377,7 +445,6 @@ body.dark-mode .flatpickr-weekday {
   border-bottom: 1px solid #1f2a44 !important;
 }
 
-
 .app.dark-mode .flatpickr-weekday {
   color: #93c5fd !important;
 }
@@ -432,7 +499,6 @@ body.dark-mode .flatpickr-weekday {
   color: #041014 !important;
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
 }
-
 
 /* in-range (if range plugin ever used) */
 .app.dark-mode .flatpickr-day.inRange {
@@ -498,7 +564,6 @@ body.dark-mode .flatpickr-weekday {
   transition: all 0.2s ease;
 }
 
-
 .flatpickr-day.selected {
   animation: pulseSelect 0.25s ease;
 }
@@ -534,7 +599,6 @@ body.dark-mode .flatpickr-weekday {
   100% { transform: scale(1); }
 }
 
-
 .app.dark-mode .flatpickr-day.today {
   border: 2px solid var(--cal-accent) !important;
 }
@@ -555,11 +619,6 @@ body.dark-mode .flatpickr-weekday {
   font-weight: 600;
 }
 
-
-
-
-
-
 /* Dark mode selected days */
 .app.dark-mode .flatpickr-day.selected,
 .app.dark-mode .flatpickr-day.startRange,
@@ -568,8 +627,6 @@ body.dark-mode .flatpickr-weekday {
   color: #ffffff;
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
-
-
 
 .app.dark-mode .flatpickr-day.selected {
   box-shadow: 0 0 12px rgba(56,189,248,0.6);
@@ -626,7 +683,6 @@ body.dark-mode .flatpickr-weekday {
   transform: scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
-
 
 .error-message, .success-message {
   display: flex;
@@ -697,7 +753,6 @@ body.dark-mode .flatpickr-weekday {
   filter: invert(1);
 }
 
-
 .input-with-icon .icon {
   position: absolute;
   right: 1rem;
@@ -733,7 +788,6 @@ body.dark-mode .flatpickr-weekday {
   outline: none;
 }
 
-
 .trip-type-select label {
   display: flex;
   align-items: center;
@@ -742,7 +796,6 @@ body.dark-mode .flatpickr-weekday {
   color: #555;
   font-weight: 600;
 }
-
 
 .app.dark-mode .trip-type-select select {
   background-color: #020617; 
@@ -753,14 +806,12 @@ body.dark-mode .flatpickr-weekday {
   background-size: 12px;
 }
 
-
 .app.dark-mode .trip-type-select select:hover,
 .app.dark-mode .trip-type-select select:focus {
   border-color: #60a5fa; 
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); 
   outline: none;
 }
-
 
 .app.dark-mode .trip-type-select label {
   color: #93c5fd; 
@@ -848,7 +899,6 @@ body.dark-mode .flatpickr-weekday {
   box-shadow: 0 4px 12px rgba(221, 226, 234, 0.4); /* Blue glow */
 }
 
-
 .app.dark-mode .form-group input {
   border: 2px solid transparent;
   border-radius: 12px;
@@ -856,58 +906,166 @@ body.dark-mode .flatpickr-weekday {
   background-origin: border-box;
 }
 
-.suggestions-list.modern {
+/* ---------- Modern Suggestions Dropdown ---------- */
+.suggestions-list.modern{
   position: absolute;
-  width: 100%;
-  max-height: 420px;
-  overflow-y: auto;
-  margin-top: 0.6rem;
-  padding: 0;
-  list-style: none;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+
   z-index: 999;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,.10);
+
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(14px);
+
+  max-height: 360px;
+  overflow: auto;
+
+  box-shadow: 0 30px 90px rgba(2,6,23,.20);
+  animation: dropdownIn 180ms ease;
 }
+
+@keyframes dropdownIn{
+  from { opacity: 0; transform: translateY(-8px) scale(.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 
 /* ITEM */
-.suggestions-list.modern li {
+
+.suggestions-list.modern li{
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 14px 16px;
+  gap: 12px;
+
+  padding: 12px 12px;
+  border-radius: 14px;
+
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #0f172a;
-  transition: background 0.25s ease, transform 0.25s ease;
+  user-select: none;
+
+  transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
-/* HOVER – FULL WIDTH */
-.suggestions-list.modern li:hover {
-  background: linear-gradient(135deg, #2563eb, #38bdf8);
-  color: #ffffff;
+
+.suggestions-list.modern li:hover{
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(37,99,235,.95), rgba(56,189,248,.95));
+  box-shadow: 0 18px 50px rgba(37,99,235,.25);
+}
+
+.suggestions-list.modern .suggestion-icon{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(37,99,235,.10);
+  color: rgba(37,99,235,.95);
+  flex: 0 0 auto;
 }
 
 /* Icon */
-.suggestion-icon {
-  font-size: 1.1rem;
-  color: #2563eb;
-  transition: transform 0.3s ease, color 0.3s ease;
+
+.suggestion-icon{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+
+  background: rgba(37,99,235,.10);
+  color: rgba(37,99,235,.95);
+
+  transition: background 140ms ease, transform 140ms ease, color 140ms ease;
 }
 
-.suggestions-list.modern li:hover .suggestion-icon {
-  color: #ffffff;
-  transform: rotate(-10deg) scale(1.2);
+.suggestions-list.modern li:hover .suggestion-icon{
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  transform: rotate(-10deg) scale(1.06);
 }
 
-/* Text */
-.suggestion-text {
+.suggestions-list.modern .suggestion-text{
+  flex: 1;
+  text-align: center;  
+  font-weight: 650;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.suggestions-list.modern li:hover .suggestion-text{
+  color: #fff;
+}
+
+.suggestions-list.modern::-webkit-scrollbar{ width: 6px; }
+.suggestions-list.modern::-webkit-scrollbar-track{ background: transparent; }
+.suggestions-list.modern::-webkit-scrollbar-thumb{
+  background: linear-gradient(180deg, #2563eb, #38bdf8);
+  border-radius: 10px;
+}
+
+.field-shell select.field-select{
+  width: 100%;
+  height: 100%;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: .2px;
+  color: var(--text);
+
+  padding: 16px 10px 0 10px !important;
+  text-align: center;
+
+  appearance: none;
+  cursor: pointer;
+}
+
+.field-shell .field-flatpickr{
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  font-size: 1.05rem !important;
+  font-weight: 650 !important;
+  color: var(--text) !important;
+
+  padding: 16px 10px 0 10px !important;
+  text-align: center;
+  cursor: pointer;
+}
+
+
+
+.app.dark-mode .field-shell select.field-select{
+  color: rgba(226,232,240,.96);
+}
+
+/* Text */
+.suggestion-text{
+  flex: 1;
+  font-weight: 700;
+  color: #0f172a;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .suggestions-list.modern::-webkit-scrollbar {
   width: 6px;
@@ -922,26 +1080,124 @@ body.dark-mode .flatpickr-weekday {
   border-radius: 10px;
 }
 
-
-
-.app.dark-mode .suggestions-list.modern {
-  background: linear-gradient(180deg, #020617, #0f172a);
-  box-shadow: 0 30px 60px rgba(59, 130, 246, 0.35);
+.app.dark-mode .suggestions-list.modern{
+  border: 1px solid rgba(148,163,184,.14);
+  background: rgba(2,6,23,.86);
+  box-shadow: 0 40px 140px rgba(0,0,0,.70);
 }
 
 .app.dark-mode .suggestions-list.modern li {
   color: #e5e7eb;
 }
 
-.app.dark-mode .suggestions-list.modern li:hover {
-  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
-  color: #020617;
+/* make the select behave like your input inside field-shell */
+.field-shell .field-select{
+  width: 100%;
+  height: 100%;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text);
+
+  padding: 16px 40px 0 10px !important; /* top space for floating label + right for caret */
+  text-align: center;
+
+  appearance: none;      /* hide default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  cursor: pointer;
+}
+
+/* fake caret to match your design */
+.field-select-caret{
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-35%);
+  font-size: 14px;
+  opacity: .7;
+  pointer-events: none;
+}
+
+.field-select-btn{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px 40px 0 10px; /* keep space for floating label */
+  cursor: pointer;
+  user-select: none;
+
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+
+.field-select-btn:focus,
+.field-select-btn:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+.field-select-arrow{
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-35%);
+  opacity: .75;
+  pointer-events: none;
+}
+
+.people-row{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 720px){
+  .people-row{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* dark mode text */
+.app.dark-mode .field-shell .field-select{
+  color: rgba(226,232,240,.96);
+}
+
+.app.dark-mode .suggestions-list.modern li:hover{
+  background: linear-gradient(135deg, rgba(45,212,191,.95), rgba(56,189,248,.95));
+  box-shadow: 0 24px 80px rgba(56,189,248,.18);
 }
 
 .app.dark-mode .suggestion-icon {
   color: #38bdf8;
 }
 
+.app.dark-mode .suggestions-list.modern li:hover .suggestion-text{
+  color: #020617;
+}
+
+
+.app.dark-mode .suggestions-list.modern li:hover .suggestion-icon{
+  background: rgba(2,6,23,.20);
+  color: #020617;
+}
 .app.dark-mode .suggestions-list.modern::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #2dd4bf, #38bdf8);
 }
@@ -961,11 +1217,10 @@ body.dark-mode .flatpickr-weekday {
   }
 }
 
-
 @media (max-width: 1024px) {
-  .booking-wrapper {
-    padding: 2rem;
-    max-width: 95%;
+ .booking-wrapper{
+    padding: 1.6rem;
+    max-width: 100%;
   }
 
   .option-button {
@@ -977,6 +1232,30 @@ body.dark-mode .flatpickr-weekday {
   .button-container {
     flex-wrap: wrap;
     gap: 1rem;
+  }
+
+  .floating-label{
+    left: 66px; /* slightly tighter (icon smaller on tablet) */
+  }
+
+
+  .field-shell{
+    height: 60px;              /* a bit taller */
+    border-radius: 18px;
+    padding: 0 14px;
+  }
+
+  .field-shell input,
+  .field-shell .field-flatpickr,
+  .field-shell .field-number{
+    font-size: 1.02rem !important;
+    padding: 18px 10px 0 10px !important; /* give label room */
+  }
+
+   .field-icon{
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
   }
 
   .form-row {
@@ -1007,6 +1286,70 @@ body.dark-mode .flatpickr-weekday {
     font-size: 0.9rem;
     margin-bottom: 0.3rem;
   }
+
+  .booking-wrapper{
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .booking-form{
+    gap: 1rem;
+  }
+
+
+  .field-shell{
+    height: 64px;                /* IMPORTANT: more space */
+    border-radius: 20px;
+    padding: 0 14px;
+  }
+
+  .field-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  /* Make input text not collide with label */
+  .field-shell input,
+  .field-shell .field-flatpickr,
+  .field-shell .field-number{
+    font-size: 1.05rem !important;
+    padding: 22px 8px 0 8px !important; /* taller + smaller right padding */
+    text-align: left;                   /* mobile better UX */
+  }
+
+  /* Floating label placement */
+  .floating-label{
+    left: 68px;
+    font-size: .9rem;
+  }
+
+  .field-shell.is-filled .floating-label,
+  .field-shell:focus-within .floating-label{
+    top: 12px;
+    font-size: .75rem;
+  }
+
+  /* People row responsive */
+  .people-row{
+    grid-template-columns: 1fr; /* stack on phone */
+    gap: 12px;
+  }
+
+  .submit-button{
+    position: sticky;
+    bottom: 12px;
+    width: 100%;
+    border-radius: 18px;
+    padding: 1rem;
+    z-index: 50;
+  }
+
+
+/* small phones */
+
 
   .form-group input,
   .form-group select {
@@ -1053,15 +1396,23 @@ body.dark-mode .flatpickr-weekday {
   .option-button.active {
     transform: none;
   }
-  .suggestions-list.modern {
+  .suggestions-list.modern{
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
+    top: auto;
     max-height: 60vh;
     border-radius: 20px 20px 0 0;
-    animation: slideUp 0.3s ease;
+    padding: 12px;
+    animation: slideUp 220ms ease;
   }
+
+    @keyframes slideUp{
+    from { transform: translateY(100%); opacity: .7; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
 
   @keyframes slideUp {
   from {
@@ -1103,8 +1454,6 @@ body.dark-mode .flatpickr-weekday {
 
 }
 
-
-
 .flatpickr-calendar.open {
   left: 50% !important;
   transform: translateX(-50%) !important;
@@ -1138,6 +1487,79 @@ body.dark-mode .flatpickr-weekday {
   }
 }
 
+.input-shell{
+  position: relative;
+  width: 100%;
+}
+
+.input-shell input{
+  position: relative;
+  z-index: 2;
+  width: 100% !important;
+  background: transparent;
+}
+
+.hint-overlay{
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.88;
+}
+
+.hint-text{
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* animated gradient text */
+.hint-text.gradient{
+  background: linear-gradient(90deg, #2563eb, #38bdf8, #a855f7);
+  background-size: 200% 200%;
+  animation: gradientShift 2.6s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes gradientShift{
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* glowing caret */
+.hint-caret{
+  width: 2px;
+  height: 18px;
+  border-radius: 2px;
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56,189,248,0.7);
+  animation: caretBlink 0.9s infinite;
+}
+
+@keyframes caretBlink{
+  0%, 45% { opacity: 1; }
+  46%, 100% { opacity: 0; }
+}
+
+/* dark mode tuning */
+.app.dark-mode .hint-overlay{ opacity: 0.92; }
+.app.dark-mode .hint-caret{
+  background: #2dd4bf;
+  box-shadow: 0 0 12px rgba(45,212,191,0.75);
+}
+
 .button-container {
   display: flex;
   justify-content: center;
@@ -1162,10 +1584,10 @@ body.dark-mode .flatpickr-weekday {
 }
 
 /* Form Group */
-.form-group {
+/* .form-group {
   flex: 1;
   min-width: 300px;
-}
+} */
 
 /* Label with Icon */
 .form-group label {
@@ -1204,8 +1626,8 @@ body.dark-mode .flatpickr-weekday {
 
 /* Input Field */
 .form-group input {
-  width: 200%;
-  padding: 0.8rem 1rem;
+  /* width: 200%; */
+  /* padding: 0.8rem 1rem; */
   font-size: 1.2rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -1250,11 +1672,15 @@ body.dark-mode .flatpickr-weekday {
 }
 
 /* Calendar popup */
-.flatpickr-calendar {
+/* .flatpickr-calendar {
   width: fit-content !important;
   max-width: none !important;
-}
+} */
 
+.form-group input,
+.form-group select {
+  width: 100% !important;
+}
 
 /* Dark calendar */
 .app.dark-mode .flatpickr-calendar {
@@ -1293,7 +1719,6 @@ body.dark-mode .flatpickr-weekday {
   box-sizing: border-box !important;
 }
 
-
 .dayContainer {
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
@@ -1318,8 +1743,6 @@ body.dark-mode .flatpickr-weekday {
   padding: 12px !important;
   box-sizing: border-box !important;
 }
-
-
 
 .app.dark-mode .flatpickr-innerContainer,
 .app.dark-mode .flatpickr-rContainer,
@@ -1401,7 +1824,6 @@ body.dark-mode .flatpickr-weekday {
   border-bottom: 1px solid #1f2a44 !important;
 }
 
-
 .app.dark-mode .flatpickr-weekday {
   color: #93c5fd !important;
 }
@@ -1456,7 +1878,6 @@ body.dark-mode .flatpickr-weekday {
   color: #041014 !important;
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
 }
-
 
 /* in-range (if range plugin ever used) */
 .app.dark-mode .flatpickr-day.inRange {
@@ -1522,7 +1943,6 @@ body.dark-mode .flatpickr-weekday {
   transition: all 0.2s ease;
 }
 
-
 .flatpickr-day.selected {
   animation: pulseSelect 0.25s ease;
 }
@@ -1558,7 +1978,6 @@ body.dark-mode .flatpickr-weekday {
   100% { transform: scale(1); }
 }
 
-
 .app.dark-mode .flatpickr-day.today {
   border: 2px solid var(--cal-accent) !important;
 }
@@ -1579,11 +1998,6 @@ body.dark-mode .flatpickr-weekday {
   font-weight: 600;
 }
 
-
-
-
-
-
 /* Dark mode selected days */
 .app.dark-mode .flatpickr-day.selected,
 .app.dark-mode .flatpickr-day.startRange,
@@ -1592,8 +2006,6 @@ body.dark-mode .flatpickr-weekday {
   color: #ffffff;
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
-
-
 
 .app.dark-mode .flatpickr-day.selected {
   box-shadow: 0 0 12px rgba(56,189,248,0.6);
@@ -1650,7 +2062,6 @@ body.dark-mode .flatpickr-weekday {
   transform: scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
-
 
 .error-message, .success-message {
   display: flex;
@@ -1721,7 +2132,6 @@ body.dark-mode .flatpickr-weekday {
   filter: invert(1);
 }
 
-
 .input-with-icon .icon {
   position: absolute;
   right: 1rem;
@@ -1757,7 +2167,6 @@ body.dark-mode .flatpickr-weekday {
   outline: none;
 }
 
-
 .trip-type-select label {
   display: flex;
   align-items: center;
@@ -1766,7 +2175,6 @@ body.dark-mode .flatpickr-weekday {
   color: #555;
   font-weight: 600;
 }
-
 
 .app.dark-mode .trip-type-select select {
   background-color: #020617; 
@@ -1777,14 +2185,12 @@ body.dark-mode .flatpickr-weekday {
   background-size: 12px;
 }
 
-
 .app.dark-mode .trip-type-select select:hover,
 .app.dark-mode .trip-type-select select:focus {
   border-color: #60a5fa; 
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); 
   outline: none;
 }
-
 
 .app.dark-mode .trip-type-select label {
   color: #93c5fd; 
@@ -1872,7 +2278,6 @@ body.dark-mode .flatpickr-weekday {
   box-shadow: 0 4px 12px rgba(221, 226, 234, 0.4); /* Blue glow */
 }
 
-
 .app.dark-mode .form-group input {
   border: 2px solid transparent;
   border-radius: 12px;
@@ -1926,12 +2331,49 @@ body.dark-mode .flatpickr-weekday {
 }
 
 /* Text */
-.suggestion-text {
+/* .suggestion-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+} */
+
+.app.dark-mode .field-shell{
+  --ring: rgba(45,212,191,.22);        /* teal neon ring */
+  --border: rgba(148,163,184,.16);
+  --bg: rgba(2,6,23,.72);
+  --text: rgba(226,232,240,.96);
+  --muted: rgba(226,232,240,.60);
+
+  border-color: rgba(148,163,184,.14);
+  box-shadow: 0 22px 80px rgba(0,0,0,.45);
 }
 
+.app.dark-mode .field-shell:hover{
+  box-shadow: 0 30px 110px rgba(0,0,0,.52);
+}
+
+.app.dark-mode .field-shell:focus-within{
+  border-color: rgba(45,212,191,.38);
+  box-shadow:
+    0 0 0 7px rgba(45,212,191,.18),
+    0 34px 130px rgba(0,0,0,.62);
+}
+
+.app.dark-mode .field-icon,
+.app.dark-mode .suggestion-icon{
+  background: rgba(56,189,248,.12);
+  color: rgba(56,189,248,.95);
+}
+
+.app.dark-mode .suggestions-list.modern{
+  background: rgba(2,6,23,.78);
+  border: 1px solid rgba(148,163,184,.16);
+  box-shadow: 0 40px 90px rgba(0,0,0,.55);
+}
+
+.app.dark-mode .suggestion-text{
+  color: rgba(226,232,240,.92);
+}
 
 .suggestions-list.modern::-webkit-scrollbar {
   width: 6px;
@@ -1946,8 +2388,6 @@ body.dark-mode .flatpickr-weekday {
   border-radius: 10px;
 }
 
-
-
 .app.dark-mode .suggestions-list.modern {
   background: linear-gradient(180deg, #020617, #0f172a);
   box-shadow: 0 30px 60px rgba(59, 130, 246, 0.35);
@@ -1961,9 +2401,9 @@ body.dark-mode .flatpickr-weekday {
   background: linear-gradient(135deg, #2dd4bf, #38bdf8);
   color: #020617;
 }
-
-.app.dark-mode .suggestion-icon {
-  color: #38bdf8;
+.app.dark-mode .suggestion-icon{
+  background: rgba(56,189,248,.12);
+  color: rgba(56,189,248,.95);
 }
 
 .app.dark-mode .suggestions-list.modern::-webkit-scrollbar-thumb {
@@ -1984,7 +2424,6 @@ body.dark-mode .flatpickr-weekday {
     transform: translateY(0) scale(1);
   }
 }
-
 
 @media (max-width: 1024px) {
   .booking-wrapper {
@@ -2127,12 +2566,16 @@ body.dark-mode .flatpickr-weekday {
 
 }
 
-
-
 .flatpickr-calendar.open {
   left: 50% !important;
   transform: translateX(-50%) !important;
 }
+
+@media (max-width: 860px){
+  .route-grid{ grid-template-columns: 1fr; }
+  .swap-col{ justify-content: flex-end; padding: 0; }
+}
+
 @media (max-width: 600px) {
   .booking-wrapper {
     padding: 1.5rem;
@@ -2159,4 +2602,401 @@ body.dark-mode .flatpickr-weekday {
     font-size: 1rem;
     padding: 0.8rem;
   }
+} 
+
+/* ========== 2026 Modern Field System ========== */
+
+/* STOP old width issues */
+.form-group input { width: 100% !important; } /* keep */
+.form-group input { max-width: 100% !important; } /* ensure */
+
+/* New wrapper */
+.field {
+  width: 100%;
+  position: relative;
 }
+
+/* Input shell */
+.field-shell{
+  --ring: rgba(56,189,248,.30);
+  --border: rgba(148,163,184,.16);
+  --bg: rgba(255,255,255,.86);
+  --text: #0f172a;
+  --muted: rgba(15,23,42,.55);
+    padding-right: 12px;      
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  height: 58px;
+  padding: 0 16px 0 14px;
+  border-radius: 18px;
+
+  border: 1px solid var(--border);
+  background: var(--bg);
+  backdrop-filter: blur(14px);
+
+  box-shadow: 0 14px 40px rgba(2,6,23,.10);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+
+.field-select.no-native-arrow{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 36px; /* space for custom arrow */
+}
+
+/* Custom arrow (always visible in light + dark) */
+.field-shell.has-arrow .field-select-caret{
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 14px;
+  font-weight: 700;
+
+  /* ✅ visible for both modes */
+  color: currentColor;
+  opacity: 0.85;
+}
+
+/* If your dark mode changes text color, this will follow automatically.
+   But if your .field-shell text color stays dark in dark mode, force it: */
+.app.dark-mode .field-shell.has-arrow .field-select-caret,
+body.dark-mode .field-shell.has-arrow .field-select-caret{
+  color: #fff;
+  opacity: 0.9;
+}
+
+/* ===== Number input inside field-shell (People) ===== */
+.field-shell .field-number{
+  width: 100%;
+  height: 100%;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text);
+
+  padding: 16px 6px 0 10px !important; /* 🔥 spinner closer right */
+  text-align: center;
+}
+
+/* spinner */
+.field-number::-webkit-inner-spin-button,
+.field-number::-webkit-outer-spin-button{
+  opacity: 1;
+  cursor: pointer;
+}
+/* 
+.field-number{
+  flex: 1;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+
+  
+  padding: 16px 8px 0 10px;
+  text-align: center;
+} */
+
+.field-number::-webkit-inner-spin-button,
+.field-number::-webkit-outer-spin-button{
+  opacity: 1;
+}
+
+
+/* Chrome / Edge / Safari spinner */
+.field-shell .field-number::-webkit-inner-spin-button,
+.field-shell .field-number::-webkit-outer-spin-button{
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Dark mode: make spinner arrows visible (white) */
+.app.dark-mode .field-shell .field-number::-webkit-inner-spin-button,
+.app.dark-mode .field-shell .field-number::-webkit-outer-spin-button{
+  filter: invert(1);
+}
+
+/* Firefox: KEEP spinner (so don't set -moz-appearance:textfield anywhere) */
+
+.field-shell:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 22px 60px rgba(2,6,23,.14);
+}
+
+.field-shell:focus-within{
+  border-color: rgba(56,189,248,.45);
+  box-shadow:
+    0 0 0 6px var(--ring),
+    0 26px 80px rgba(2,6,23,.18);
+}
+
+
+/* Input */
+.field-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 48px 0 48px; /* space for icon + label center */
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  outline: none;
+  letter-spacing: 0.1px;
+}
+
+/* Modern focus */
+.field-input:focus {
+  border-color: rgba(59,130,246,0.55);
+  box-shadow: 0 18px 55px rgba(59,130,246,0.18);
+  transform: translateY(-1px);
+}
+
+/* Icon inside input (left) */
+.field-icon{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(37,99,235,.10);
+  color: rgba(37,99,235,.95);
+  flex: 0 0 auto;
+
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.field-shell:focus-within .field-icon{
+  transform: rotate(-8deg) scale(1.06);
+  background: rgba(56,189,248,.14);
+  color: rgba(56,189,248,.95);
+}
+
+.field-shell input{
+  width: 100% !important;
+  height: 100%;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: .2px;
+  color: var(--text);
+
+  padding: 16px 10px 0 10px !important; /* keeps floating label space */
+  text-align: center;
+
+  transition: transform 180ms ease, letter-spacing 180ms ease, opacity 180ms ease;
+}
+
+.field-shell input:not([type="number"]){
+  padding: 16px 10px 0 10px !important;
+  text-align: center;
+}
+
+.field-shell.flash{
+  animation: shellGlow 460ms ease;
+}
+.field-shell.flash input{
+  animation: valuePop 460ms cubic-bezier(.2,.9,.2,1);
+}
+
+@keyframes valuePop{
+  0%   { opacity:.35; transform: translateY(8px) scale(.985); letter-spacing:.6px; }
+  55%  { opacity:1;   transform: translateY(-1px) scale(1.01); letter-spacing:.2px; }
+  100% { opacity:1;   transform: translateY(0) scale(1); }
+}
+
+@keyframes shellGlow{
+  0%   { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+  60%  { box-shadow: 0 0 0 7px rgba(56,189,248,.22), 0 26px 90px rgba(2,6,23,.18); }
+  100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+}
+
+
+.app.dark-mode .field-shell.flash{
+  animation: shellGlowDark 420ms ease;
+}
+@keyframes shellGlowDark{
+  0%   { box-shadow: 0 0 0 0 rgba(45,212,191,0); }
+  60%  { box-shadow: 0 0 0 7px rgba(45,212,191,.18), 0 34px 130px rgba(0,0,0,.60); }
+  100% { box-shadow: 0 0 0 0 rgba(45,212,191,0); }
+}
+
+.floating-label{
+  position: absolute;
+  left: 74px;               /* after icon */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--muted);
+
+  transition: all 160ms ease;
+}
+
+.field-shell.is-filled .floating-label,
+.field-shell:focus-within .floating-label{
+  top: 10px;
+  transform: translateY(0);
+  font-size: .78rem;
+  opacity: .92;
+}
+
+/* Floating centered label */
+.field-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  font-size: 0.98rem;
+  letter-spacing: 0.3px;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: all 160ms ease;
+  white-space: nowrap;
+}
+
+/* When input has value or focus: label floats up */
+.field-input:focus + .field-label,
+.field-input:not(:placeholder-shown) + .field-label {
+  top: 10px;
+  transform: translate(-50%, 0);
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.field {
+  width: 100%;
+  position: relative;
+}
+
+
+/* ========== Modern Dropdown (Suggestions) ========== */
+.dropdown.modern {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,23,42,0.10);
+  box-shadow: 0 25px 70px rgba(2,6,23,0.20);
+  backdrop-filter: blur(14px);
+  max-height: 360px;
+  overflow-y: auto;
+  animation: dropdownIn 180ms ease;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-weight: 650;
+  color: #0f172a;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(37,99,235,0.95), rgba(56,189,248,0.95));
+  color: white;
+}
+
+.dropdown-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(37,99,235,0.10);
+}
+
+.dropdown-item:hover .dropdown-icon {
+  background: rgba(255,255,255,0.18);
+}
+
+.dropdown-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== Dark Mode ========== */
+.app.dark-mode .field-input {
+  background: rgba(2,6,23,0.75);
+  color: #e5e7eb;
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow: 0 14px 45px rgba(0,0,0,0.35);
+}
+
+.app.dark-mode .field-input:focus {
+  border-color: rgba(34,197,94,0.60);
+  box-shadow: 0 20px 70px rgba(34,197,94,0.18);
+}
+
+.app.dark-mode .field-label { color: rgba(226,232,240,0.85); }
+.app.dark-mode .field-icon{
+  background: rgba(45,212,191,.12);
+  color: rgba(45,212,191,.95);
+}
+
+.app.dark-mode .field-shell:focus-within .field-icon{
+  background: rgba(56,189,248,.14);
+  color: rgba(56,189,248,.95);
+}
+
+.app.dark-mode .dropdown.modern {
+  background: rgba(2,6,23,0.92);
+  border: 1px solid rgba(148,163,184,0.18);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+}
+
+.app.dark-mode .dropdown-item {
+  color: rgba(226,232,240,0.92);
+}
+
+.app.dark-mode .dropdown-item:hover {
+  color: #020617;
+  background: linear-gradient(135deg, rgba(45,212,191,0.95), rgba(56,189,248,0.95));
+}
+
+@media (max-width: 420px){
+  .field-shell{
+    height: 66px;
+    padding: 0 12px;
+  }
+  .floating-label{ left: 64px; }
+}
+

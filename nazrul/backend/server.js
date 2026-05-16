@@ -9,8 +9,16 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
-const { generatePDF } = require('../src/components/pdfgenerator');
-console.log(typeof generatePDF); // Should print 'function'
+//  const { generatePDF } = require('../src/components/pdfgenerator');
+// // const { generatePDF } = require("./pdfgenerator");
+// console.log("generatePDF type:", typeof generatePDF); // should be 'function'
+// console.log(typeof generatePDF); // Should print 'function'
+const pdfMod = require("../src/components/pdfgenerator");
+console.log("pdfMod keys:", Object.keys(pdfMod));
+console.log("pdfMod:", pdfMod);
+const admin = require("firebase-admin");
+const generatePDF = pdfMod.generatePDF || pdfMod.default || pdfMod;
+console.log("generatePDF type:", typeof generatePDF);
 const getStream = require('get-stream');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
@@ -143,9 +151,6 @@ const hotelSchema = new mongoose.Schema({
 
 // Create a model from the schema
 const Hotel = mongoose.model('Hotel', hotelSchema);
-
-
-
 
 
 
@@ -446,7 +451,7 @@ app.post('/submit-payment', async (req, res) => {
 </h2>
 <p><strong>🛫 From:</strong> ${outboundFlight.origin}</p>
 <p><strong>🛬 To:</strong> ${outboundFlight.destination}</p>
-<p><strong>🎫 Departure Flight:</strong> ${outboundFlight.flightNumber} (${outboundFlight.departure} to ${outboundFlight.arrival})</p>
+<p><strong>🎫 Departure Flight:</strong> ${outboundFlight?.flightNumber || "-"}(${outboundFlight.departure} to ${outboundFlight.arrival})</p>
 <p><strong>🔁 Return Flight:</strong> ${returnFlight.flightNumber} (${returnFlight.departure} to ${returnFlight.arrival})</p>
 <p><strong>💺 Selected Seats:</strong> ${selectedSeats.join(', ')}</p>
 <p><strong>🛡️ Insurance:</strong> ${selectedInsurance.name}</p>
@@ -952,7 +957,51 @@ app.post('/trainsubmit-payment', async (req, res) => {
   }
 });
 
+// Initialize once (use service account JSON)
+admin.initializeApp({
+  credential: admin.credential.cert(require("./serviceAccountKey.json")),
+});
 
+app.post("/auth/firebase", async (req, res) => {
+  console.log("🔥 /auth/firebase endpoint called");
+
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      console.log("❌ No ID token received");
+      return res.status(400).json({ message: "Missing ID token" });
+    }
+
+    console.log("🔍 Verifying Firebase token...");
+
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    console.log("✅ Firebase token verified:", decoded.email);
+
+    const email = decoded.email;
+
+    // find or create user in Mongo
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      console.log("🆕 Creating new Mongo user for:", email);
+      user = await User.create({ email, password: "FIREBASE" });
+    } else {
+      console.log("👤 Existing Mongo user:", email);
+    }
+
+    // issue your JWT
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+
+    console.log("🎟️ JWT issued for:", email);
+
+    res.json({ token });
+
+  } catch (err) {
+    console.error("❌ Firebase authentication error:", err.message);
+    res.status(401).json({ message: "Invalid Firebase token" });
+  }
+});
 
 app.get('/generate-barcode', async (req, res) => {
   try {
@@ -1001,6 +1050,7 @@ app.get('/api/suggest', (req, res) => {
   ];
   res.json({ suggestions });
 });
-
-
+// Start the server
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

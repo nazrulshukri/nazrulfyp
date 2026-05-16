@@ -20,8 +20,14 @@ const TransportStep = ({
   startDate,
   returnDate,
 }) => {
-  const [showTimeline, setShowTimeline] = useState(false);
-  const navigate = useNavigate();
+
+
+  const [showTimeline, setShowTimeline] = useState(false); // State to toggle timeline visibility
+
+  const [setSelectedTrain] = useState(null);
+
+  const navigate = useNavigate(); // Use navigate hook for navigation
+
 
   const toggleTimeline = () => setShowTimeline((prev) => !prev);
 

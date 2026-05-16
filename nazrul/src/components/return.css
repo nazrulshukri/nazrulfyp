@@ -76,12 +76,24 @@ body {
 
 .flight-header {
   display: flex;
-  align-items: center; /* Vertically align all elements */
-  justify-content: flex-start; /* Align items starting from the left */
-  padding: 15px;
-  background-color: #f0f8ff;
-  position: relative; /* Allows further control if needed */
-  gap: 550px; /* Adds spacing between child elements */
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, #f7fbff, #eef6ff);
+  border-bottom: 1px solid #e4ecf5;
+}
+
+
+
+.airline-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.flight-number {
+  font-weight: 600;
+  color: #777;
 }
 
 .airline-logo {
@@ -370,7 +382,7 @@ body {
   font-size: 16px; /* Sets a clean, modern font size */
   font-weight: 500; /* Slightly bold text */
 }
-.form-icon {
+.form-icon1 {
   font-size: 20px; /* Icon size */
   margin-right: 200px; /* Spacing between icon and text */
   color: #8db6e2; /* Modern color for the icon */
@@ -408,5 +420,4 @@ body {
   border-color: #007bff; /* Change border color on focus */
   outline: none; /* Remove outline */
 }
-
 

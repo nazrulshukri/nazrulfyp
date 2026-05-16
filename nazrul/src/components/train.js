@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { mockTrainData } from "../mockdata/train";
 // import RouteSummary from "../components/routesummary";
-import TransportStep from "../components/transport";
-import Map from "../components/mapstrain";
 // import InteractiveButtons from "../components/interactivebuttons";
 
 import "./train.css";

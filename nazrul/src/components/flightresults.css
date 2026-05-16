@@ -50,16 +50,15 @@
   flex-direction: column;
   align-items: center;
 
-  /* makes it always match right column height */
+ 
   align-self: stretch;
 
-  /* control where the rail starts/ends */
   padding-top: 18px;
-  padding-bottom: 90px; /* stops before baggage/close */
+  padding-bottom: 90px;
 }
 
 .fd-rail{
-  flex: 1 !important;              /* key: takes remaining height */
+  flex: 1 !important;       
   min-height: 120px !important;
 }
 
@@ -647,21 +646,25 @@
   transform: translateY(-4px);
   border-color: rgba(59,130,246,0.35);
 }
+
 .flight-header {
-  background: transparent !important;     /* remove fill */
+   display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  background: transparent !important;    
   border-radius: 18px !important;
   padding: 14px 16px !important;
 
-  /* premium outline */
   border: 1px solid rgba(59,130,246,0.28) !important;
-
-  /* neon edge glow */
+ 
   box-shadow:
     inset 0 0 0 1px rgba(34,197,94,0.12),
     0 20px 60px rgba(2,6,23,0.12) !important;
-
   position: relative !important;
   overflow: hidden !important;
+  /* display:flex; */
+  align-items:center;
+  gap:14px;
+
 }
 
 .flight-header::before {
@@ -699,6 +702,13 @@
 .flight-header h5 {
   color: var(--text) !important;
 }
+
+.airplane-logo-text{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
 
 .app.dark-mode .flight-header h3 {
   color: rgba(226,232,240,0.95) !important;
@@ -738,45 +748,45 @@
   mix-blend-mode: screen;
 }
 
-.flight-details {
+.flight-details1 {
   margin-top: 15px;
 }
 
-.flight-times{
+.flight-times1{
   display: grid;
   grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   align-items: center;
   gap: 14px;
 }
 
-.departure{ text-align: left; }
+.departure1{ text-align: left; }
 .arrival{ text-align: right; }
 
-.time {
+.time1 {
   font-size: 18px;
   font-weight: bold;
 }
 
-.airport {
+.airport1 {
   font-size: 14px;
   color: #888;
 }
 
-.duration{
+.duration1{
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.route-line{
+.route-line1{
   width: clamp(26px, 80vw, 200px); /* min, responsive, max */
   height: 2px;
   border-radius: 999px;
   background: linear-gradient(90deg, rgba(56,189,248,0.20), rgba(56,189,248,0.95));
 }
 
-.route-line.right{
+.route-line1.right1{
   background: linear-gradient(90deg, rgba(56,189,248,0.95), rgba(56,189,248,0.20));
 }
 
@@ -1401,31 +1411,33 @@ label {
 }
 
 /* Price */
-.pricefont h4{
+.pricefont1 h4{
   color: #f97316;
   font-size: 1.6rem;
   letter-spacing: 0.2px;
+  text-align: right;
 }
 
 /* Times row */
-.flight-times .time{
+.flight-times1 .time1{
   color: var(--text);
 }
-.flight-times .airport{
+.flight-times1 .airport1{
   color: var(--muted);
-}
-
-.flight-header h5{
-  color: var(--muted);
-  margin: 0;
-  font-weight: 700;
 }
 
 
 .flight-header h3{
-  color: var(--text);
   margin: 0;
-  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+
+
+.flight-header h5{
+  text-align: right;
+  margin: 0;
+  font-weight: 900;
 }
 
 
@@ -1467,18 +1479,18 @@ label {
 .flight-results-content,
 .flight-item,
 .flight-header,
-.flight-details,
-.flight-times {
+.flight-details1,  
+.flight-times1 {
   max-width: 100% !important;
 }
 
 /* 2) Critical: allow grid/flex children to shrink */
 .flight-header,
-.flight-times,
-.departure,
+.flight-times1 ,
+.departure1,
 .arrival,
-.duration,
-.flight-price {
+.duration1,
+.flight-price1 {
   min-width: 0 !important;
 }
 
@@ -1488,7 +1500,7 @@ body {
 }
 
 /* 4) Airport names: always truncate nicely */
-.departure .airport,
+.departure1 .airport1,
 .arrival .airport {
   display: block;
   max-width: 100%;
@@ -1496,6 +1508,86 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.nf-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  padding: 18px;
+}
+
+.nf-modal{
+  width: min(520px, 100%);
+  border-radius: 22px;
+  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(255,255,255,0.78);
+  box-shadow: 0 30px 90px rgba(2,6,23,0.22);
+  padding: 18px 18px 16px;
+}
+
+.app.dark-mode .nf-modal{
+  background: rgba(2,6,23,0.62);
+  border-color: rgba(148,163,184,0.14);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.65);
+}
+
+.nf-title{
+  font-weight: 1000;
+  font-size: 1.2rem;
+  color: rgba(15,23,42,0.92);
+}
+
+.app.dark-mode .nf-title{
+  color: rgba(226,232,240,0.92);
+}
+
+.nf-text{
+  margin-top: 8px;
+  color: rgba(15,23,42,0.70);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.app.dark-mode .nf-text{
+  color: rgba(226,232,240,0.72);
+}
+
+.nf-actions{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.nf-btn{
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nf-btn.secondary{
+  background: rgba(148,163,184,0.22);
+  color: rgba(15,23,42,0.85);
+}
+
+.app.dark-mode .nf-btn.secondary{
+  background: rgba(148,163,184,0.14);
+  color: rgba(226,232,240,0.86);
+}
+
+.nf-btn.primary{
+  background: linear-gradient(135deg, var(--accent2), #38bdf8);
+  color: #031018;
+  box-shadow: 0 18px 40px rgba(45,212,191,0.22);
+}
+
 
 
 @media (max-width: 900px){
@@ -1551,7 +1643,7 @@ body {
 
  
 
-  .flight-details {
+  .flight-details1 {
     font-size: 0.9rem;
   }
 
@@ -1649,15 +1741,15 @@ body {
   }
 
   /* 3) Compact header: logo left, airline + flight number right */
-  .flight-header{
-    display: flex !important;
-    flex-direction: row !important;
+  /* .flight-header{
+    display: grid !important;
+    grid-template-columns: auto 1fr;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 12px !important;
-    padding: 12px !important;
+    gap: 14px !important;
+    padding: 14px 16px !important;
     border-radius: 18px !important;
-  }
+  } */
 
   .flight-header img{
     width: 64px !important;
@@ -1669,7 +1761,7 @@ body {
   }
 
   /* 4) Times area: stack nicely */
-.flight-times{
+.flight-times1{
     display: grid !important;
     grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important;
     align-items: center !important;
@@ -1679,7 +1771,7 @@ body {
     text-align: initial !important;
   }
 
-    .departure{
+    .departure1{
     text-align: left !important;
   }
 
@@ -1688,16 +1780,16 @@ body {
     text-align: right !important;
   }
 
-  .departure .time,
-  .arrival .time{
+  .departure1 .time1,
+  .arrival .time1{
     font-size: 1.1rem !important;
     font-weight: 900 !important;
     white-space: nowrap !important;
     margin: 0 !important;
   }
 
-  .departure .airport,
-  .arrival .airport{
+  .departure1 .airport1,
+  .arrival .airport1{
     font-size: 0.75rem !important;
     opacity: 0.85 !important;
     line-height: 1.25 !important;
@@ -1709,7 +1801,7 @@ body {
     text-overflow: ellipsis !important;
   }
 
-  .route-line {
+  .route-line1 {
   width: 28px;          /* small line */
   height: 2px;
   background: linear-gradient(
@@ -1721,7 +1813,7 @@ body {
 }
 
 
-.route-line.right {
+.route-line1.right1 {
   background: linear-gradient(
     90deg,
     rgba(56, 189, 248, 0.9),
@@ -1745,7 +1837,7 @@ body {
 }
 
    /* Center route line + plane */
-  .duration{
+  .duration1{
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1754,7 +1846,7 @@ body {
     margin: 0 !important;
   }
 
-.route-line{
+.route-line1{
     width: 22px !important;
     height: 2px !important;
   }
@@ -1764,18 +1856,18 @@ body {
   }
 
   /* If you still have the old dashed text line, hide it */
-  .duration p:first-child{
+  .duration1 p:first-child{
     display: none !important;
   }
 
 
   /* 5) Price + buttons: clean 2 buttons row */
-  .flight-price{
+  .flight-price1{
     margin-top: 10px !important;
   }
 
-  .pricefont h4{
-    text-align: left !important;
+  .pricefont1 h4{
+    text-align: right !important;
     font-size: 1.35rem !important;
     margin: 8px 0 10px !important;
   }
@@ -1813,7 +1905,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .flight-times {
+  .flight-times1 {
     grid-template-columns: 1fr auto 1fr !important;
   }
 }
@@ -1824,14 +1916,14 @@ body {
   .flight-item { padding: 12px !important; }
 
   /* Keep side-by-side times BUT reduce font sizes */
-  .departure .time,
-  .arrival .time {
+  .departure1 .time1,
+  .arrival .time1 {
     font-size: 1.02rem !important;
     white-space: nowrap !important;
   }
 
-  .departure .airport,
-  .arrival .airport {
+  .departure1 .airport1,
+  .arrival .airport1 {
     font-size: 0.72rem !important;
   }
 
@@ -1845,8 +1937,8 @@ body {
     gap: 8px !important;
   }
 
-  /* route line shorter on very small screens */
-  .route-line { width: 18px !important; }
+  /* route line shorter on very small screens */x
+  .route-line1 { width: 18px !important; }
   .route-plane { font-size: 0.85rem !important; }
 
   /* make buttons stack if space too tight */

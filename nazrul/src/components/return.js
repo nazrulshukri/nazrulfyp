@@ -224,7 +224,7 @@ const Return = () => {
         <div className="form-inline">
           
           <label className="form-label">
-            <FaPlaneDeparture  style={{ color: '#8db6e2' }} className="form-icon" /> From:
+            <FaPlaneDeparture  style={{ color: '#8db6e2' }} className="form-icon1" /> From:
             <input
               type="text"
               value={formLocationInput}
@@ -234,7 +234,7 @@ const Return = () => {
           </label>
           
           <label className="form-label">
-            <FaPlaneArrival  style={{ color: '#8db6e2' }}  className="form-icon" /> To:
+            <FaPlaneArrival  style={{ color: '#8db6e2' }}  className="form-icon1" /> To:
             <input
               type="text"
               value={formDestinationInput}
@@ -244,7 +244,7 @@ const Return = () => {
           </label>
 
           <label className="form-label">
-            <FaCalendarAlt  style={{ color: '#8db6e2' }}  className="form-icon" /> Start Date:
+            <FaCalendarAlt  style={{ color: '#8db6e2' }}  className="form-icon1" /> Start Date:
             <input
               type="date"
               value={formStartDate}
@@ -254,7 +254,7 @@ const Return = () => {
           </label>
 
           <label className="form-label">
-            <FaCalendarAlt style={{ color: '#8db6e2' }}   className="form-icon" /> Return Date:
+            <FaCalendarAlt style={{ color: '#8db6e2' }}   className="form-icon1" /> Return Date:
             <input
               type="date"
               value={formReturnDate}
@@ -264,7 +264,7 @@ const Return = () => {
           </label>
 
           <label className="form-label">
-            <FaUsers style={{ color: '#8db6e2' }}  className="form-icon" /> Number of People:
+            <FaUsers style={{ color: '#8db6e2' }}  className="form-icon1" /> Number of People:
             <input
               type="number"
               value={formPeople}

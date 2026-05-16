@@ -35,6 +35,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "file-saver": "^2.0.5",
+    "firebase": "^12.9.0",
     "flatpickr": "^4.6.13",
     "font-awesome": "^4.7.0",
     "framer-motion": "^11.18.2",
@@ -94,12 +95,12 @@
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
   },
-"scripts": {
-  "start": "craco start",
-  "build": "tailwindcss -i ./src/input.css -o ./src/output.css --minify && craco build",
-  "test": "craco test",
-  "eject": "react-scripts eject"
-},
+  "scripts": {
+    "start": "craco start",
+    "build": "tailwindcss -i ./src/input.css -o ./src/output.css --minify && craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",

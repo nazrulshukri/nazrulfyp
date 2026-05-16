@@ -34,16 +34,24 @@ function FlightResults() {
 
   // ✅ get router state safely
   const { state } = useLocation();
-  const { flightParams } = state || {};
+  const { flightParams } = state?.flightParams || JSON.parse(localStorage.getItem("flightParams"));;
   const [infoOpenId, setInfoOpenId] = useState(null);
   // ✅ tripType: "return" | "oneway"
   const tripType = flightParams?.tripType || "return";
-
+  const [noFlightsOpen, setNoFlightsOpen] = useState(false);
+const [hasSearched, setHasSearched] = useState(false);
   const [flights, setFlights] = useState([]);
   const [filteredFlights, setFilteredFlights] = useState([]);
   const [selectedFlightId, setSelectedFlightId] = useState(null);
 
-  const [people, setPeople] = useState(Number(flightParams?.people || 1));
+  // const [people, setPeople] = useState(Number(flightParams?.people || 1));
+  const [passengers, setPassengers] = useState({
+  adults: Math.max(1, Number(flightParams?.adults ?? 1)),
+  children: Number(flightParams?.children ?? 0),
+  infants: Number(flightParams?.infants ?? 0),
+});
+
+const totalPeople = passengers.adults + passengers.children + passengers.infants;
   const [error, setError] = useState("");
 
   const [startDate, setStartDate] = useState(flightParams?.departureDate || "");
@@ -76,34 +84,38 @@ function FlightResults() {
 };
 
   // ✅ guard when user refreshes / no navigation state
-  useEffect(() => {
-    if (!flightParams) {
-      setError("No flight search data. Please search again.");
-    }
-  }, [flightParams]);
+useEffect(() => {
+  if (!flightParams) {
+    setError("No flight search data. Please search again.");
+    return;
+  }
+
+  localStorage.setItem("flightParams", JSON.stringify(flightParams));
+}, [flightParams]);
 
   // ✅ generate flights
   useEffect(() => {
-    if (!flightParams) return;
+  if (!flightParams) return;
 
-    try {
-      const generatedFlights = generateMockFlights(
-        startDate,
-        returnDate,
-        locationInput,
-        destinationInput,
-        people
-      );
+  try {
+    const generatedFlights = generateMockFlights(
+      startDate,
+      returnDate,
+      locationInput,
+      destinationInput,
+      totalPeople
+    );
 
-      setFlights(generatedFlights);
-      setFilteredFlights(generatedFlights);
-      setError("");
-    } catch (err) {
-      setError("Error fetching flight data.");
-      console.error("Error:", err);
-    }
-  }, [flightParams, startDate, returnDate, locationInput, destinationInput, people]);
-
+    setFlights(generatedFlights);
+    setFilteredFlights(generatedFlights);
+    setError("");
+    setHasSearched(true);
+  } catch (err) {
+    setError("Error fetching flight data.");
+    console.error("Error:", err);
+    setHasSearched(true);
+  }
+}, [flightParams, startDate, returnDate, locationInput, destinationInput, totalPeople]);
   // ✅ apply filters
   useEffect(() => {
     let filtered = flights;
@@ -123,9 +135,23 @@ function FlightResults() {
     setFilteredFlights(filtered);
   }, [flights, filters]);
 
-  const getTotalCostForFlight = (pricePerPerson) => {
-    return (pricePerPerson * people).toFixed(2);
-  };
+  // const getTotalCostForFlight = (pricePerPerson) => {
+  //   return (pricePerPerson * people).toFixed(2);
+  // };
+
+ const getTotalCostForFlight = (pricePerPerson) => {
+  const totalPeople = passengers.adults + passengers.children + passengers.infants;
+  return (pricePerPerson * totalPeople).toFixed(2);
+};
+
+useEffect(() => {
+  if (!hasSearched) return;
+  if (!error && flights.length === 0) {
+    setNoFlightsOpen(true);
+  } else {
+    setNoFlightsOpen(false);
+  }
+}, [hasSearched, flights, error]);
 
   const handleFilterChange = (e) => {
     const { name, value, type } = e.target;
@@ -154,31 +180,33 @@ function FlightResults() {
           destinationInput,
           startDate,
           returnDate,
-          people,
+          passengers,   // ✅ send object
           tripType: "return",
         },
       });
     } else {
       // ✅ ONEWAY => skip return page
-      navigate("/payment", {
-        state: {
-          // pass both keys (your Payment page uses both styles)
-          selectedOutboundFlight: selectedFlight,
-          outboundFlight: selectedFlight,
+     navigate("/payment", {
+  state: {
+    selectedOutboundFlight: selectedFlight,
+    outboundFlight: selectedFlight,
 
-          selectedReturnFlight: null,
-          returnFlight: null,
+    selectedReturnFlight: null,
+    returnFlight: null,
 
-          outboundPrice: totalPrice,
-          price: totalPrice,
+    outboundPrice: totalPrice,
+    price: totalPrice,
 
-          locationInput,
-          destinationInput,
-          startDate,
-          people,
-          tripType: "oneway",
-        },
-      });
+    locationInput,
+    destinationInput,
+    startDate,
+
+    passengers,
+    totalPeople,
+
+    tripType: "oneway",
+  },
+});
     }
 
     // ✅ still save outbound to backend (doesn't block navigation)
@@ -207,7 +235,6 @@ function FlightResults() {
     <div className="flight-results-container">
       <div className="filters">
         <p className="filter-text">Filter Your Flight:</p>
-
         <div className="filter-section">
           <h6>Number of layovers:</h6>
           <div className="filterlayovers">
@@ -374,15 +401,52 @@ function FlightResults() {
             )}
 
             <label>
-              <i className="fas fa-users"></i> Number of People:
-              <input
-                type="number"
-                value={people}
-                onChange={(e) => setPeople(Number(e.target.value))}
-                min="1"
-                className="form-input"
-              />
-            </label>
+  <i className="fas fa-users"></i> Adults:
+  <input
+    type="number"
+    value={passengers.adults}
+    onChange={(e) =>
+      setPassengers((p) => ({
+        ...p,
+        adults: Number(e.target.value),
+      }))
+    }
+    min="0"
+    className="form-input"
+  />
+</label>
+
+<label>
+  Children:
+  <input
+    type="number"
+    value={passengers.children}
+    onChange={(e) =>
+      setPassengers((p) => ({
+        ...p,
+        children: Number(e.target.value),
+      }))
+    }
+    min="0"
+    className="form-input"
+  />
+</label>
+
+<label>
+  Infants:
+  <input
+    type="number"
+    value={passengers.infants}
+    onChange={(e) =>
+      setPassengers((p) => ({
+        ...p,
+        infants: Number(e.target.value),
+      }))
+    }
+    min="0"
+    className="form-input"
+  />
+</label>
           </div>
         </form>
 
@@ -396,30 +460,32 @@ function FlightResults() {
                     alt={`${flight.airline} logo`}
                     className="airline-logo"
                   />
+               
                   <h3>{flight.airline}</h3>
                   <h5>{flight.flightNumber}</h5>
+          
                 </div>
 
-                <div className="flight-details">
-                  <div className="flight-times">
-                    <div className="departure">
-                      <p className="time">{fmtTime(flight.departure)}</p>
-                      <p className="airport">{flight.origin}</p>
+                <div className="flight-details1">
+                  <div className="flight-times1">
+                    <div className="departure1">
+                      <p className="time1">{fmtTime(flight.departure)}</p>
+                      <p className="airport1">{flight.origin}</p>
                     </div>
-                   <div className="duration">
-  <span className="route-line left"></span>
-  <span className="route-plane">✈</span>
-  <span className="route-line right"></span>
-</div>
+                   <div className="duration1">
+                    <span className="route-line1 left"></span>
+                    <span className="route-plane">✈</span>
+                    <span className="route-line1 right1"></span>
+                    </div>
                     <div className="arrival">
-                      <p className="time">{fmtTime(flight.arrival)}</p>
-                      <p className="airport">{flight.destination}</p>
+                      <p className="time1">{fmtTime(flight.arrival)}</p>
+                      <p className="airport1">{flight.destination}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flight-price">
-                  <div className="pricefont">
+                <div className="flight-price1">
+                  <div className="pricefont1">
                     <h4>{getTotalCostForFlight(flight.price)} MYR</h4>
                   </div>
 
@@ -538,8 +604,44 @@ function FlightResults() {
           <p>No flights available for your search criteria.</p>
         )}
       </div>
+       {/* ✅ MODAL MUST BE HERE (inside return) */}
+      {noFlightsOpen && (
+        <div className="nf-overlay" role="dialog" aria-modal="true">
+          <div className="nf-modal">
+            <div className="nf-title">No flights found</div>
+            <div className="nf-text">
+              Try changing dates, origin/destination, or passengers.
+            </div>
+
+            <div className="nf-actions">
+              <button
+                type="button"
+                className="nf-btn secondary"
+                onClick={() => setNoFlightsOpen(false)}
+              >
+                Close
+              </button>
+
+              <button
+                type="button"
+                className="nf-btn primary"
+                onClick={() => {
+                  setNoFlightsOpen(false);
+                  setPassengers((p) => ({ ...p, adults: Math.max(1, p.adults) }));
+                }}
+              >
+                Set 1 Adult
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+//     </div>
+//   );
+// }
+
 
 export default FlightResults;

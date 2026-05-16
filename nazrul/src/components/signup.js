@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./signup.css";
 import axios from "axios";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider, facebookProvider } from "./firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaGoogle, FaFacebookF, FaEnvelope, FaLock } from "react-icons/fa";
@@ -12,8 +14,49 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
+  
   const navigate = useNavigate();
+   const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+ const handleGoogle = async () => {
+    setError(""); setSuccess(""); setLoading(true);
+    try {
+      const res = await signInWithPopup(auth, googleProvider);
+
+      // ✅ get Firebase token here
+      const idToken = await res.user.getIdToken();
+
+      // ✅ send token to backend for verification + JWT
+      const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
+
+      localStorage.setItem("token", r.data.token);
+
+      setSuccess("Signed in with Google!");
+      navigate("/");
+    } catch (e) {
+      setError(e?.message || "Google sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebook = async () => {
+    setError(""); setSuccess(""); setLoading(true);
+    try {
+      const res = await signInWithPopup(auth, facebookProvider);
+
+      const idToken = await res.user.getIdToken();
+      const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
+
+      localStorage.setItem("token", r.data.token);
+
+      setSuccess("Signed in with Facebook!");
+      navigate("/");
+    } catch (e) {
+      setError(e?.message || "Facebook sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,12 +116,13 @@ const Signup = () => {
         </div>
 
         <div className="su-social">
-          <button type="button" className="su-socialBtn fb" disabled>
-            <FaFacebookF /> Continue with Facebook
-          </button>
-          <button type="button" className="su-socialBtn gg" disabled>
-            <FaGoogle /> Continue with Google
-          </button>
+        <button type="button" className="su-socialBtn fb" onClick={handleFacebook} disabled={loading}>
+  <FaFacebookF /> Continue with Facebook
+</button>
+
+<button type="button" className="su-socialBtn gg" onClick={handleGoogle} disabled={loading}>
+  <FaGoogle /> Continue with Google
+</button>
           <div className="su-divider">
             <span>OR</span>
           </div>
