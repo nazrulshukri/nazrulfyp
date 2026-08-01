@@ -6,6 +6,7 @@ import { auth, googleProvider, facebookProvider } from "./firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaGoogle, FaFacebookF, FaEnvelope, FaLock } from "react-icons/fa";
+import { setCurrentUserSession } from "../lib/bookingStorage";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -29,9 +30,10 @@ const Signup = () => {
       const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
 
       localStorage.setItem("token", r.data.token);
+      setCurrentUserSession(res.user.email || "", r.data.role);
 
       setSuccess("Signed in with Google!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (e) {
       setError(e?.message || "Google sign-in failed");
     } finally {
@@ -48,9 +50,10 @@ const Signup = () => {
       const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
 
       localStorage.setItem("token", r.data.token);
+      setCurrentUserSession(res.user.email || "", r.data.role);
 
       setSuccess("Signed in with Facebook!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (e) {
       setError(e?.message || "Facebook sign-in failed");
     } finally {

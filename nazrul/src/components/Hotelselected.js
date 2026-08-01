@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faWifi,faSwimmingPool,
@@ -21,6 +21,9 @@ import {
   FaMapMarkerAlt,
   FaShareAlt,
   FaHeart,
+  FaArrowRight,
+  FaChevronDown,
+  FaChevronUp,
   FaClock,
   FaUserLock,
   FaChild,
@@ -28,22 +31,78 @@ import {
   FaPaw,
   FaUsers,
   FaCreditCard,
+  FaGift,
   FaLanguage,
+  FaPercent,
+  FaTimes,
+  FaImages,
+  FaChevronLeft,
+  FaChevronRight,
+  FaShieldAlt,
+  FaCheck,
 } from "react-icons/fa";
 
 import genius from "../img/assets/10.jpg";
 
+const SIDE_GALLERY_PAGE_SIZE = 3;
+const DEFAULT_GUEST_COUNT = 3;
+
+const formatMYR = (value) => `MYR ${Number(value || 0).toLocaleString("en-MY")}`;
+
+const toNumber = (value) => {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  return Number(String(value || "").replace(/[^\d.]/g, "")) || 0;
+};
+
 const HotelSelected = () => {
   const location = useLocation();
-  const { selectedHotel, totalPrice, startDate, returnDate, people } = location.state;
-  const { images } = selectedHotel;
-  const [selectedImage, setSelectedImage] = useState(images[0]);
+  const savedHotelState = useMemo(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('hotelSelectedDraft') || 'null');
+    } catch (error) {
+      return null;
+    }
+  }, []);
+  const { selectedHotel, totalPrice, startDate, returnDate, people } = location.state || savedHotelState || {};
+  const images = useMemo(() => selectedHotel?.images || [], [selectedHotel]);
+  const [selectedImage, setSelectedImage] = useState(images[0] || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [galleryPage, setGalleryPage] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false); // State to manage expanded/collapsed text
+  const [isSavingsPopupOpen, setIsSavingsPopupOpen] = useState(false);
 
   const navigate = useNavigate();
 
+  const selectedImageIndex = images.findIndex((image) => image === selectedImage);
+  const activeImageIndex = selectedImageIndex >= 0 ? selectedImageIndex : 0;
+  const galleryPageCount = Math.max(1, Math.ceil(images.length / SIDE_GALLERY_PAGE_SIZE));
+  const sideGalleryStart = galleryPage * SIDE_GALLERY_PAGE_SIZE;
+  const sideGalleryImages = images.slice(sideGalleryStart, sideGalleryStart + SIDE_GALLERY_PAGE_SIZE);
+  const guestCount = Math.max(1, Number(people) || DEFAULT_GUEST_COUNT);
+
+  useEffect(() => {
+    if (images.length === 0) {
+      setSelectedImage("");
+      setGalleryPage(0);
+      return;
+    }
+
+    if (images.length > 0 && !images.includes(selectedImage)) {
+      setSelectedImage(images[0]);
+    }
+
+    setGalleryPage((page) => Math.min(page, Math.max(0, Math.ceil(images.length / SIDE_GALLERY_PAGE_SIZE) - 1)));
+  }, [images, selectedImage]);
+
   const handleNavigateToForm = () => {
+    sessionStorage.setItem(
+      'hotelBookingDraft',
+      JSON.stringify({ selectedHotel, totalPrice, startDate, returnDate, people })
+    );
+
     navigate('/hotelform', {
       state: {selectedHotel, totalPrice, startDate, returnDate, people }
     });
@@ -51,7 +110,23 @@ const HotelSelected = () => {
 
 
   const handleNavigateToMap = () => {
-    navigate('/maps'); // Redirects to the Maps route
+    const hasCoordinates = Number.isFinite(selectedHotel?.latitude) && Number.isFinite(selectedHotel?.longitude);
+
+    navigate('/Maps', {
+      state: {
+        location: {
+          coordinates: hasCoordinates ? [selectedHotel.latitude, selectedHotel.longitude] : undefined,
+          name: selectedHotel?.hotelName,
+          brand: selectedHotel?.brand,
+          rating: selectedHotel?.rating,
+          reviews: selectedHotel?.reviews,
+          pricePerNight: selectedHotel?.pricePerNight || selectedHotel?.price,
+          roomsAvailable: selectedHotel?.roomsAvailable,
+          distanceFromCenter: selectedHotel?.distanceFromCenter,
+        },
+        from: "/Hotelselected",
+      },
+    });
   };
 
 
@@ -59,26 +134,35 @@ const HotelSelected = () => {
     setIsExpanded(!isExpanded); // Toggle the state when the button is clicked
   };
 
-  const handleMainImageClick = () => {
-    console.log("modal"); // Add a message to indicate what happened
-    setIsModalOpen(true); // Open modal when main image is clicked
+  const openGalleryModal = (image = selectedImage, imageIndex = activeImageIndex) => {
+    if (image) {
+      setSelectedImage(image);
+    }
+
+    if (imageIndex >= 0) {
+      setGalleryPage(Math.floor(imageIndex / SIDE_GALLERY_PAGE_SIZE));
+    }
+
+    setIsModalOpen(true);
   };
 
-   // Close modal
-   const handleCloseModal = (e) => {
-    console.log("Modal background clicked:", e.target);
-    // Ensure clicking on modal background closes it
-    if (e.target === e.currentTarget) {
-      setIsModalOpen(false);
-      console.log("Modal closed"); // Log that the modal is closed
+  const closeGalleryModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleGalleryBackdropClick = (event) => {
+    if (event.target === event.currentTarget) {
+      closeGalleryModal();
     }
   };
 
-  // Handle thumbnail click
-  const handleThumbnailClick = (image) => {
-    console.log("Thumbnail clicked:", image);
+  const selectGalleryImage = (image, index) => {
     setSelectedImage(image);
-    setIsModalOpen(true); // Open modal
+    setGalleryPage(Math.floor(index / SIDE_GALLERY_PAGE_SIZE));
+  };
+
+  const handleGalleryPageChange = (direction) => {
+    setGalleryPage((page) => (page + direction + galleryPageCount) % galleryPageCount);
   };
 
   const isThumbnailSelected = (image) => image === selectedImage;
@@ -129,6 +213,9 @@ const HotelSelected = () => {
       roomType: "Superior Double Room",
       maxPersons: 2,
       price: "MYR 2,642",
+      priceValue: 2642,
+      badge: "Best value",
+      description: "Bright comfort room with smart essentials for a smooth city stay.",
       choices: [
         "Free toiletries",
         "Private bathroom with walk-in shower",
@@ -140,6 +227,9 @@ const HotelSelected = () => {
       roomType: "Deluxe Double Room",
       maxPersons: 2,
       price: "MYR 2,744",
+      priceValue: 2744,
+      badge: "Guest favourite",
+      description: "A calmer room upgrade with extra convenience and a refined city feel.",
       choices: [
         "Free cot available on request",
         "Tea and coffee maker",
@@ -150,6 +240,9 @@ const HotelSelected = () => {
       roomType: "Executive King",
       maxPersons: 2,
       price: "MYR 3,150",
+      priceValue: 3150,
+      badge: "Premium pick",
+      description: "More space, stronger benefits, and breakfast value included.",
       choices: [
         "Non-refundable",
         "Very good breakfast"
@@ -157,6 +250,13 @@ const HotelSelected = () => {
     },
     // Add more room objects as needed
   ];
+
+  const getRoomsNeeded = (room) => Math.max(1, Math.ceil(guestCount / room.maxPersons));
+  const getRoomTotal = (room) => (room.priceValue || toNumber(room.price)) * getRoomsNeeded(room);
+  const selectedRoomData = roomsData.find((room) => room.roomType === selectedRoom);
+  const displayTotalPrice = selectedRoomData
+    ? getRoomTotal(selectedRoomData)
+    : toNumber(totalPrice) || getRoomTotal(roomsData[0]);
 
   const getIconForAmenity = (amenity) => {
     switch (amenity.toLowerCase()) {
@@ -199,9 +299,48 @@ const HotelSelected = () => {
     }
   };
 
+  if (!selectedHotel) {
+    return (
+      <div className="hotel-selected">
+        <div className="container1">
+          <h2>No hotel selected</h2>
+          <p>Please choose a hotel from the results page to continue your booking.</p>
+          <button className="book-now-btn" onClick={() => navigate('/Hotel')}>Back to Hotels</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="hotel-selected">
       <div className="container1">
+        <section className="selected-hotel-hero" aria-label="Selected hotel overview">
+          <div className="selected-hotel-hero-media">
+            {selectedImage && <img src={selectedImage} alt={selectedHotel.hotelName} />}
+          </div>
+          <div className="selected-hotel-hero-copy">
+            <span className="selected-hero-kicker">{selectedHotel.brand || "Premium stay"} collection</span>
+            <h1>{selectedHotel.hotelName}</h1>
+            <p>
+              A refined booking experience with clear dates, room details, guest confidence,
+              and a faster path to reserve your stay.
+            </p>
+            <div className="selected-hero-chips">
+              <span>{selectedHotel.rating || "9.2"} guest rating</span>
+              <span>{people || 1} guest{Number(people) > 1 ? "s" : ""}</span>
+              <span>{startDate || "Check-in"} to {returnDate || "Check-out"}</span>
+            </div>
+          </div>
+          <div className="selected-hero-action">
+            <span>Total stay</span>
+            <strong>MYR {totalPrice || selectedHotel.totalPrice || selectedHotel.pricePerNight}</strong>
+            <button className="reserve-btn hero-reserve-btn" onClick={handleNavigateToForm}>
+              <span>Reserve now</span>
+              <FaArrowRight />
+            </button>
+          </div>
+        </section>
+
         {/* Tab Navigation Section */}
         <div className="tab-header">
           {["Overview", "Info & prices", "Facilities", "House rules", "The fine print", "Guest reviews"].map((tab) => (
@@ -266,46 +405,122 @@ const HotelSelected = () => {
     <button className="icon-btn" aria-label="Add to Favorites">
       <FaHeart className="icon heart-icon" />
     </button>
-    <button className="reserve-btn">Reserve</button>
+    <button className="reserve-btn" onClick={handleNavigateToForm}>Reserve</button>
   </div>
 </div>
           </div>
         </div>
 
         {/* Image Gallery */}
-        <div className="image-gallery">
-        <div className="main-image-container">
-          <img
-            src={selectedImage}
-            alt="Main Hotel"
-            className="main-image"
-            onClick={handleMainImageClick} // Open modal on main image click
-          />
-        </div>
+        <div className="image-gallery" aria-label="Hotel photo gallery">
+          <div className="main-image-container">
+            {selectedImage ? (
+              <img
+                src={selectedImage}
+                alt={`${selectedHotel.hotelName} main view`}
+                className="main-image"
+                onClick={() => openGalleryModal(selectedImage, activeImageIndex)}
+              />
+            ) : (
+              <div className="gallery-empty-state">No photos available</div>
+            )}
 
-        <div className="thumbnail-gallery">
-          {images.slice(0).map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Thumbnail ${index + 1}`}
-              className={`thumbnail-image ${isThumbnailSelected(image) ? 'selected' : ''}`}
-              onClick={() => handleThumbnailClick(image)} // Set selected image
-            />
-          ))}
+            <button
+              type="button"
+              className="view-gallery-btn"
+              onClick={() => openGalleryModal(selectedImage, activeImageIndex)}
+              disabled={images.length === 0}
+            >
+              <FaImages />
+              <span>View gallery</span>
+              <strong>{images.length}</strong>
+            </button>
+          </div>
+
+          <aside className="gallery-side-panel" aria-label="Hotel gallery thumbnails">
+            <div className="side-gallery-header">
+              <span>Photos</span>
+              <strong>{galleryPage + 1}/{galleryPageCount}</strong>
+            </div>
+            <div className="thumbnail-gallery">
+              {sideGalleryImages.map((image, offset) => {
+                const imageIndex = sideGalleryStart + offset;
+
+                return (
+                  <button
+                    type="button"
+                    key={`${image}-${imageIndex}`}
+                    className={`thumbnail-image ${isThumbnailSelected(image) ? 'selected' : ''}`}
+                    onClick={() => selectGalleryImage(image, imageIndex)}
+                    aria-label={`Show photo ${imageIndex + 1}`}
+                  >
+                    <img src={image} alt={`${selectedHotel.hotelName} thumbnail ${imageIndex + 1}`} />
+                    <span>{imageIndex + 1}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {images.length > SIDE_GALLERY_PAGE_SIZE && (
+              <div className="side-gallery-controls">
+                <button
+                  type="button"
+                  onClick={() => handleGalleryPageChange(-1)}
+                  aria-label="Previous gallery page"
+                >
+                  <FaChevronLeft />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleGalleryPageChange(1)}
+                  aria-label="Next gallery page"
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
+            )}
+          </aside>
         </div>
-      </div>
 
       {/* Modal for Image */}
       {isModalOpen && (
-        <div className="modal" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}> {/* Prevent modal close when clicking inside content */}
-            <img src={selectedImage} alt="Selected Hotel" className="modal-image" />
-            <span className="close-btn" onClick={handleCloseModal}>X</span>
+        <div className="gallery-popup-backdrop" onClick={handleGalleryBackdropClick}>
+          <div className="gallery-popup" role="dialog" aria-modal="true" aria-label={`${selectedHotel.hotelName} full gallery`}>
+            <div className="gallery-popup-header">
+              <div>
+                <span>Gallery</span>
+                <h2>{selectedHotel.hotelName}</h2>
+                <p>{images.length} photo{images.length === 1 ? '' : 's'} available</p>
+              </div>
+              <button type="button" className="gallery-popup-close" onClick={closeGalleryModal} aria-label="Close gallery popup">
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="gallery-popup-body">
+              <div className="gallery-popup-main">
+                {selectedImage && (
+                  <img src={selectedImage} alt={`${selectedHotel.hotelName} selected view`} />
+                )}
+              </div>
+              <div className="gallery-popup-list" aria-label="All hotel gallery images">
+                {images.map((image, index) => (
+                  <button
+                    type="button"
+                    key={`${image}-popup-${index}`}
+                    className={`gallery-popup-thumb ${isThumbnailSelected(image) ? 'selected' : ''}`}
+                    onClick={() => selectGalleryImage(image, index)}
+                  >
+                    <img src={image} alt={`${selectedHotel.hotelName} gallery view ${index + 1}`} />
+                    <span>Photo {index + 1}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
+        <div className="selected-overview-layout">
         {/* Overview Section */}
         <div ref={overviewRef} className={`description-section ${activeTab === 'overview' ? 'active' : ''}`}>
       <div className="overview-container">
@@ -336,11 +551,78 @@ const HotelSelected = () => {
           )}
         </p>
          {/* Show More Button */}
-        <button className="show-more" onClick={handleToggleText}>
-          {isExpanded ? 'Show Less' : 'Show More'}
+        <button
+          className={`show-more ${isExpanded ? 'expanded' : ''}`}
+          onClick={handleToggleText}
+          aria-expanded={isExpanded}
+        >
+          <span>{isExpanded ? 'Show Less' : 'Show More'}</span>
+          {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
         </button>
       </div>
     </div>
+
+        {/* Sign-in Section */}
+      <div className="sign-in-banner selected-savings-card">
+        <div className="savings-card-orb">
+          <FaGift />
+        </div>
+        <div className="sign-in-content">
+          <span className="savings-kicker"><FaPercent /> Member deal</span>
+          <h2>Sign in, save money</h2>
+          <p>To see if you can save 10% or more at this property, sign in.</p>
+          <div className="button-group">
+            <button className="sign-in-button" onClick={() => setIsSavingsPopupOpen(true)}>
+              View savings
+            </button>
+            <button className="create-account-button" onClick={() => navigate('/signup')}>
+              Create an account
+            </button>
+          </div>
+        </div>
+        <div className="savings-visual">
+          <img
+            src={genius}
+            alt="Genius Gift"
+            className="genius-image"
+          />
+          <span>10%+</span>
+        </div>
+      </div>
+      </div>
+
+      {isSavingsPopupOpen && (
+        <div className="savings-popup-overlay" onClick={() => setIsSavingsPopupOpen(false)}>
+          <div className="savings-popup" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="savings-popup-close"
+              onClick={() => setIsSavingsPopupOpen(false)}
+              aria-label="Close savings popup"
+            >
+              <FaTimes />
+            </button>
+            <span className="savings-kicker"><FaPercent /> Genius member price</span>
+            <h2>Unlock a private hotel saving</h2>
+            <p>
+              Sign in to check whether this stay has an extra member discount, faster checkout,
+              and saved booking details for your trip.
+            </p>
+            <div className="savings-popup-stat">
+              <strong>10%+</strong>
+              <span>possible saving on selected stays</span>
+            </div>
+            <div className="button-group">
+              <button className="sign-in-button" onClick={() => navigate('/signin')}>
+                Sign in
+              </button>
+              <button className="create-account-button" onClick={() => navigate('/signup')}>
+                Create an account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
        {/* Facilities Section */}
 <div ref={facilitiesRef} className={`facilities-container ${activeTab === 'facilities' ? 'active' : ''}`}>
@@ -358,24 +640,6 @@ const HotelSelected = () => {
     )}
   </div>
 </div>
-
-
-        {/* Sign-in Section */}
-      <div className="sign-in-banner">
-        <div className="sign-in-content">
-          <h2>Sign in, save money</h2>
-          <p>To see if you can save 10% or more at this property, sign in.</p>
-          <div className="button-group">
-            <button className="sign-in-button">Sign in</button>
-            <button className="create-account-button">Create an account</button>
-          </div>
-        </div>
-        <img
-          src={genius}
-          alt="Genius Gift"
-          className="genius-image"
-        />
-      </div>
 
 
       <div className="review-categories">
@@ -521,16 +785,16 @@ const HotelSelected = () => {
         </table>
         </div>
 
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="hotel-surroundings">
       <h2>Hotel surroundings</h2>
-      <p style={{ color: '#666' }}>
-        Guests loved walking around the neighbourhood! <span style={{ color: '#0071c2' }}>Excellent location - show map</span>
+      <p>
+        Guests loved walking around the neighbourhood! <span onClick={handleNavigateToMap}>Excellent location - show map</span>
       </p>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+      <div className="surroundings-grid">
         
         {/* What's Nearby Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faWalking} /> What's nearby</h3>
           <ul>
             <li>Hyde Park - 550 m</li>
@@ -541,7 +805,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Top Attractions Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faLandmark} /> Top attractions</h3>
           <ul>
             <li>Buckingham Palace - 1.9 km</li>
@@ -552,7 +816,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Ski Lifts Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faSkiing} /> Ski lifts</h3>
           <ul>
             <li>Sandown Ski Centre Lift - 30 km</li>
@@ -562,7 +826,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Restaurants & Cafes Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faUtensils} /> Restaurants & cafes</h3>
           <ul>
             <li>Restaurant · Meat Liqour - 100 m</li>
@@ -571,7 +835,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Natural Beauty Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faTree} /> Natural beauty</h3>
           <ul>
             <li>Lake · The Serpentine - 1.9 km</li>
@@ -580,7 +844,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Public Transport Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faTrain} /> Public transport</h3>
           <ul>
             <li>Metro · Bond Street - 150 m</li>
@@ -589,7 +853,7 @@ const HotelSelected = () => {
         </div>
         
         {/* Closest Airports Section */}
-        <div style={{ flex: '1 1 200px', margin: '10px' }}>
+        <div className="surroundings-card">
           <h3><FontAwesomeIcon icon={faPlane} /> Closest airports</h3>
           <ul>
             <li>London City Airport - 15 km</li>
@@ -599,68 +863,104 @@ const HotelSelected = () => {
         </div>
     </div>
 
-        <div className="fine-print-container">
-        <div className="fine-print-header">
-        <h2 class="fine-print-title">The Fine Print</h2>
-        <button class="availability-button">See Availability</button>
-        </div>
-          <p className="fine-print-subtitle">Need-to-know information for guests at this property</p>
-      <hr className="divider" />
-
-      <ul className="fine-print-list">
-        <li>
-          Rates are subject to a discretionary 5% Accommodation service charge.
-        </li>
-        <li>
-          Guests are required to show a photo identification and credit card upon check-in. Please note that all Special Requests are subject to availability and additional charges may apply.
-        </li>
-        <li>
-          Please inform The BoTree - Preferred Hotels and Resorts in advance of your expected arrival time. You can use the Special Requests box when booking, or contact the property directly with the contact details provided in your confirmation.
-        </li>
-        <li>
-          Guests under the age of 18 can only check in with a parent or official guardian.
-        </li>
-        <li>
-          In response to Coronavirus (COVID-19), additional safety and sanitation measures are in effect at this property.
-        </li>
-      </ul>
-    </div>
-
-    <table className="room-table">
-      <thead>
-        <tr>
-          <th>Room Type</th>
-          <th>Number of Guests</th>
-          <th>Today's Price</th>
-          <th>Your Choices</th>
-          <th>Select Rooms</th>
-        </tr>
-      </thead>
-      <tbody>
-        {roomsData.map((room, index) => (
-          <tr key={index}>
-            <td>{room.roomType}</td>
-            <td>Max persons: {room.maxPersons}</td>
-            <td>{room.price}</td>
-            <td>
-              <ul>
-                {room.choices.map((choice, idx) => (
-                  <li key={idx}>{choice}</li>
-                ))}
-              </ul>
-            </td>
-            <td>
+        <section ref={finePrintRef} className="fine-print-container">
+          <div className="fine-print-header">
+            <div>
+              <span className="fine-print-kicker"><FaShieldAlt /> Stay terms</span>
+              <h2 className="fine-print-title">The Fine Print</h2>
+              <p className="fine-print-subtitle">Need-to-know information for guests at this property</p>
+            </div>
             <button
-  className="select-button"
-  onClick={() => handleSelectRoom('executive')}
->
-  <span>{selectedRoom === 'executive' ? 'Selected' : 'Select rooms'}</span>
-</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+              type="button"
+              className="availability-button"
+              onClick={() => document.querySelector(".room-selection-section")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              See Availability
+            </button>
+          </div>
+
+          <div className="fine-print-grid">
+            {[
+              ["Service charge", "Rates are subject to a discretionary 5% accommodation service charge."],
+              ["Check-in documents", "Guests are required to show photo identification and a credit card upon check-in."],
+              ["Arrival time", "Please inform the property in advance of your expected arrival time."],
+              ["Age policy", "Guests under the age of 18 can only check in with a parent or official guardian."],
+              ["Safety measures", "Additional safety and sanitation measures may be in effect at this property."],
+            ].map(([title, copy], index) => (
+              <article className="fine-print-card" key={title} style={{ "--delay": `${index * 70}ms` }}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="room-selection-section" aria-label="Select room">
+          <div className="room-selection-header">
+            <div>
+              <span className="room-kicker"><FaUsers /> {guestCount} guests</span>
+              <h2>Choose your room</h2>
+              <p>Prices update for {guestCount} guest{guestCount === 1 ? "" : "s"} and include the room count needed for capacity.</p>
+            </div>
+            <div className="room-total-preview">
+              <span>{selectedRoomData ? "Selected total" : "Estimated total"}</span>
+              <strong>{formatMYR(displayTotalPrice)}</strong>
+            </div>
+          </div>
+
+          <div className="room-card-grid">
+            {roomsData.map((room, index) => {
+              const isSelected = selectedRoom === room.roomType;
+              const roomsNeeded = getRoomsNeeded(room);
+              const roomTotal = getRoomTotal(room);
+
+              return (
+                <article
+                  className={`room-choice-card ${isSelected ? "selected" : ""}`}
+                  key={room.roomType}
+                  style={{ "--delay": `${index * 90}ms` }}
+                >
+                  <div className="room-choice-top">
+                    <span className="room-badge">{room.badge}</span>
+                    <strong>{room.roomType}</strong>
+                    <p>{room.description}</p>
+                  </div>
+
+                  <div className="room-choice-meta">
+                    <span><FaUsers /> Max {room.maxPersons} per room</span>
+                    <span>{roomsNeeded} room{roomsNeeded === 1 ? "" : "s"} for {guestCount} guest{guestCount === 1 ? "" : "s"}</span>
+                  </div>
+
+                  <ul className="room-choice-list">
+                    {room.choices.map((choice) => (
+                      <li key={choice}>
+                        <FaCheck />
+                        <span>{choice}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="room-choice-footer">
+                    <div className="room-price-block">
+                      <span>Today's total</span>
+                      <strong>{formatMYR(roomTotal)}</strong>
+                      <small>{room.price} per room</small>
+                    </div>
+                    <button
+                      type="button"
+                      className="select-button"
+                      onClick={() => handleSelectRoom(room.roomType)}
+                    >
+                      <span>{isSelected ? "Selected" : "Select room"}</span>
+                      <FaArrowRight />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
     <div className="facilities-container">
   <h2>Facilities of The BoTree - Preferred Hotels and Resorts</h2>
@@ -881,11 +1181,14 @@ const HotelSelected = () => {
 <div className="booking-summary">
   <p className="total-price">
     <span>Total Price for </span>
-    <span className="guest-count">{people} guests</span>
+    <span className="guest-count">{guestCount} guest{guestCount === 1 ? "" : "s"}</span>
     <span className="equals"> = </span>
-    <span className="price">MYR {totalPrice}</span>
+    <span className="price">{formatMYR(displayTotalPrice)}</span>
   </p>
-  <button className="book-now-btn" onClick={handleNavigateToForm}>Book Now</button>
+  <button className="book-now-btn" onClick={handleNavigateToForm}>
+    <span>Book Now</span>
+    <FaArrowRight />
+  </button>
 </div>
       </div>
     </div>

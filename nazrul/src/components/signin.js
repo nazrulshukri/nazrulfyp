@@ -19,6 +19,7 @@ import {
 } from "mdb-react-ui-kit";
 import { useNavigate, Link } from "react-router-dom";
 
+import { setCurrentUserSession } from "../lib/bookingStorage";
 import bookingImage from "../img/assets/logo .png";
 import logoImage from "../img/assets/BOOKING (4).png";
 import "./signin.css";
@@ -55,10 +56,14 @@ const SignIn = () => {
         password,
       });
 
+      const signedInEmail = email.trim();
+      const role = response.data?.role;
+
       setShowModal(true);
+      setCurrentUserSession(signedInEmail, role);
 
       setTimeout(() => {
-        navigate("/", { state: { email: email.trim(), userData: response.data } });
+        navigate("/dashboard", { state: { email: signedInEmail, role, userData: response.data } });
       }, 900);
     } catch (err) {
       const msg =

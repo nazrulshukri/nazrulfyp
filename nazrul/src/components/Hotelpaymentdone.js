@@ -5,9 +5,20 @@ import bookingflexlogo from '../img/assets/Booking1.png'; // Import your logo im
 import { FaCheckCircle, FaUser, FaCalendarAlt, FaMoneyBillWave } from 'react-icons/fa';
 import './hotelpaymentdone.css';
 
+const HOTEL_PAYMENT_DRAFT_KEY = 'hotelPaymentDraft';
+
+const safeParse = (value, fallback) => {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
 const HotelPaymentDone = () => {
   const location = useLocation();
-  const { paymentData } = location.state || {};
+  const { paymentData: routePaymentData } = location.state || {};
+  const paymentData = routePaymentData || safeParse(sessionStorage.getItem(HOTEL_PAYMENT_DRAFT_KEY), null);
 
   // State to control ConfirmationDialog visibility
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,7 +35,7 @@ const HotelPaymentDone = () => {
 
   return (
     <div className="payment-success909">
-      {isDialogOpen && <ConfirmationDialog onClose={handleCloseDialog} />}
+      {paymentData && isDialogOpen && <ConfirmationDialog onClose={handleCloseDialog} />}
       <div className="header-container909">
         <img src={bookingflexlogo} alt="BookingFlex Logo" className="logo-circle" />
         <h2>Booking Successful!</h2>

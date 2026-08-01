@@ -107,9 +107,11 @@ const Return = () => {
   //     },
   //   });
   // };
-  
+
 
   const handleNextPage = async (flight) => {
+    const price = calculateTotalPrice(flight.price);
+
     try {
       // Send flight data to the backend for inserting into MongoDB
       const response = await fetch('http://localhost:5001/flightreturn', {
@@ -123,27 +125,31 @@ const Return = () => {
           flightNumber: flight.flightNumber,
           departure: flight.departure,
           arrival: flight.arrival,
-          price: calculateTotalPrice(flight.price),
+          price,
           origin: flight.origin,
           destination: flight.destination,
           nonStop: flight.nonStop,
         }),
       });
-  
+
       if (response.ok) {
         const result = await response.json();
-        console.log('Flight data saved successfully:', result);
-     
-        // Navigate to the payment page with flight details
-        navigate('/payment', {
-          state: { outboundFlight: selectedOutboundFlight, returnFlight: flight , price : calculateTotalPrice(flight.price)},
-        });
+        if (result.saved === false) {
+          console.warn(result.message);
+        } else {
+          console.log('Flight data saved successfully:', result);
+        }
       } else {
-        console.error('Failed to save flight data');
+        console.warn('Flight data was not saved, continuing to payment.');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.warn('Flight data save failed, continuing to payment:', error);
     }
+
+    // Navigate to the payment page with flight details even if optional backend persistence is unavailable.
+    navigate('/payment', {
+      state: { outboundFlight: selectedOutboundFlight, returnFlight: flight, price },
+    });
   };
 
   const handleShowPopup = (flight) => {
@@ -290,19 +296,19 @@ const Return = () => {
                     <h3>{flight.airline}</h3>
                     <h5>{flight.flightNumber}</h5>
                   </div>
-                  <div className="flight-details">
-                    <div className="flight-times">
-                      <div className="departure">
-                        <p className="time">{flight.departure}</p>
-                        <p className="airport">{flight.destination}</p>
+                  <div className="flight-details1">
+                    <div className="flight-times1">
+                      <div className="departure1">
+                        <p className="time1">{flight.departure}</p>
+                        <p className="airport1">{flight.destination}</p>
                       </div>
-                      <div className="duration">
+                      <div className="duration1">
                         <p>-----------------------------------------------</p>
                         <p>{flight.duration}</p>
                       </div>
-                      <div className="arrival">
-                        <p className="time">{flight.arrival}</p>
-                        <p className="airport">{flight.origin}</p>
+                      <div className="arrival1">
+                        <p className="time1">{flight.arrival}</p>
+                        <p className="airport1">{flight.origin}</p>
                       </div>
                     </div>
                   </div>

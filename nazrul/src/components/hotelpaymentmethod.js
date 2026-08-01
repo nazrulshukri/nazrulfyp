@@ -17,10 +17,29 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import { faHotel, faMapMarkerAlt, faCalendarAlt, faUser, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
+const HOTEL_PAYMENT_DRAFT_KEY = 'hotelPaymentDraft';
+
+const safeParse = (value, fallback) => {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
 const HotelPaymentMethod = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { hotelName, hotellocation, price, checkInDate, checkOutDate, people, userData } = location.state || {};
+  const bookingState = location.state || safeParse(sessionStorage.getItem(HOTEL_PAYMENT_DRAFT_KEY), {});
+  const {
+    hotelName,
+    checkInDate,
+    checkOutDate,
+    people,
+    userData,
+  } = bookingState;
+  const hotellocation = bookingState.hotellocation || bookingState.location;
+  const price = bookingState.price || bookingState.totalPrice;
   const [paymentMethod, setPaymentMethod] = useState('');
   const [formData, setFormData] = useState({
     cardNumber: '',
@@ -102,6 +121,8 @@ const HotelPaymentMethod = () => {
       status: 'Completed',
     };
 
+    sessionStorage.setItem(HOTEL_PAYMENT_DRAFT_KEY, JSON.stringify(paymentData));
+
     try {
       const response = await fetch('http://localhost:5001/hotelpaymentmethod', {
         method: 'POST',
@@ -110,15 +131,29 @@ const HotelPaymentMethod = () => {
       });
 
       if (response.ok) {
-        toast.success('Payment completed successfully!');
-        navigate('/hotelpaymentdone', { state: { paymentData } });
+        console.log('Hotel payment saved successfully');
       } else {
-        toast.error('Failed to save payment data.');
+        console.warn('Hotel payment was not saved, continuing to confirmation.');
       }
     } catch (error) {
-      toast.error('Error processing payment.');
+      console.warn('Hotel payment save failed, continuing to confirmation:', error);
     }
+
+    toast.success('Payment completed successfully!');
+    navigate('/hotelpaymentdone', { state: { paymentData } });
   };
+
+  if (!hotelName) {
+    return (
+      <div className="payment-container17">
+        <div className="payment-method-section67">
+          <h2>No hotel booking data found</h2>
+          <p>Please complete the hotel details form before payment.</p>
+          <button className="pay-button" onClick={() => navigate('/Hotel')}>Back to Hotels</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="payment-container17">

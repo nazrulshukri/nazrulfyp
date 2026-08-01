@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { generateMockHotels } from './mockdata/Hotel';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('calculates hotel total from nights and guests', () => {
+  const [hotel] = generateMockHotels('2026-07-01', '2026-07-03', 'London', 2);
+
+  expect(hotel.pricePerNight).toBe(350);
+  expect(hotel.totalPrice).toBe(1400);
 });

@@ -1,76 +1,170 @@
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import userLocationIcon from "../img/assets/maps/images.png";
 import L from "leaflet";
+import {
+  FaArrowLeft,
+  FaCrosshairs,
+  FaHotel,
+  FaMinus,
+  FaPlus,
+  FaRedoAlt,
+  FaStar,
+} from "react-icons/fa";
 import "leaflet/dist/leaflet.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder";
 import "./map.css";
 
-import markerImage from "../img/assets/maps/istockphoto-1148705812-612x612.jpg";
+const defaultPosition = [51.5074, -0.1272];
 
-const Maps = ({ height = "500px", width = "100%", markerText = "Hotel Location" }) => {
+const Maps = ({ height = "calc(100vh - 275px)", width = "100%", markerText = "Hotel Location" }) => {
   const location = useLocation();
-  const { location: hotelLocation } = location.state || {};
+  const navigate = useNavigate();
+  const { location: hotelLocation, from } = location.state || {};
 
-
-
-  // const [userLocation, setUserLocation] = useState(null);
-    // const [setUserLocation] = useState(null);
-
-  // Default position for London
-  const defaultPosition = [51.5074, -0.1272];
-  const position =
+  const coordinates =
     Array.isArray(hotelLocation?.coordinates) && hotelLocation.coordinates.length === 2
-      ? hotelLocation.coordinates
+      ? hotelLocation.coordinates.map(Number)
       : defaultPosition;
 
+  const position = coordinates.every(Number.isFinite) ? coordinates : defaultPosition;
+
+  const handleBack = () => {
+    if (location.key && location.key !== "default") {
+      navigate(-1);
+      return;
+    }
+
+    navigate(from || "/hotel");
+  };
+
   return (
-    <div className="map-container" style={{ height, width }}>
-      <h2 className="map-title">{hotelLocation?.name || "Selected Location"}</h2>
+    <section className="maps-page">
+      <div className="maps-hero-panel">
+        <button type="button" className="maps-back-btn" onClick={handleBack}>
+          <FaArrowLeft />
+          <span>Back to hotels</span>
+        </button>
+        <div className="maps-title-block">
+          <span className="maps-kicker"><FaHotel /> Hotel map view</span>
+          <h1>{hotelLocation?.name || "Selected Location"}</h1>
+          <p>
+            Explore the surrounding area, nearby streets, and live map controls in one focused view.
+          </p>
+        </div>
+        <div className="maps-meta-panel">
+          {hotelLocation?.rating && (
+            <span><FaStar /> {hotelLocation.rating} rating</span>
+          )}
+          {hotelLocation?.roomsAvailable && (
+            <span>{hotelLocation.roomsAvailable} rooms left</span>
+          )}
+          {hotelLocation?.pricePerNight && (
+            <strong>MYR {hotelLocation.pricePerNight}<small>/night</small></strong>
+          )}
+        </div>
+      </div>
 
-      <MapContainer center={position} zoom={13} style={{ height: "100%", width: "100%" }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
-        />
+      <div className="map-container modern-map-container" style={{ "--map-height": height, width }}>
+        <MapContainer center={position} zoom={13} scrollWheelZoom style={{ height: "100%", width: "100%" }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
+          />
 
-        <Marker position={position} icon={customIcon()}>
-          <Popup>{markerText}</Popup>
-        </Marker>
+          <Marker position={position} icon={hotelGlassIcon()}>
+            <Popup className="hotel-map-popup">
+              <div className="hotel-map-popup-card">
+                <span className="hotel-map-popup-kicker"><FaHotel /> Featured stay</span>
+                <h3>{hotelLocation?.name || markerText}</h3>
+                {hotelLocation?.brand && <p>{hotelLocation.brand}</p>}
+                <div className="hotel-map-popup-grid">
+                  {hotelLocation?.rating && <span>{hotelLocation.rating} rating</span>}
+                  {hotelLocation?.distanceFromCenter && <span>{hotelLocation.distanceFromCenter} km from centre</span>}
+                  {hotelLocation?.roomsAvailable && <span>{hotelLocation.roomsAvailable} rooms left</span>}
+                </div>
+                {hotelLocation?.pricePerNight && (
+                  <strong>MYR {hotelLocation.pricePerNight}<small>per night</small></strong>
+                )}
+              </div>
+            </Popup>
+          </Marker>
 
-        {/* ✅ no setUserLocation needed */}
-        <MapTools />
-        <SearchControl />
-      </MapContainer>
-    </div>
+          <MapResize />
+          <MapTools resetPosition={position} />
+          <SearchControl />
+        </MapContainer>
+      </div>
+    </section>
   );
 };
 
-// Hotel marker icon
-const customIcon = () =>
-  L.icon({
-    iconUrl: markerImage,
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
+const hotelGlassIcon = () =>
+  L.divIcon({
+    className: "glass-marker-host",
+    html: `
+      <div class="glass-map-pin" aria-hidden="true">
+        <span class="glass-map-pin-core">
+          <span class="glass-map-pin-dot"></span>
+        </span>
+        <span class="glass-map-pin-point"></span>
+        <span class="glass-map-pin-pulse"></span>
+      </div>
+    `,
+    iconSize: [58, 68],
+    iconAnchor: [29, 56],
+    popupAnchor: [0, -50],
   });
 
-const MapTools = () => {
+const userGlassIcon = () =>
+  L.divIcon({
+    className: "glass-marker-host user-marker-host",
+    html: `
+      <div class="glass-map-pin user-glass-pin" aria-hidden="true">
+        <span class="glass-map-pin-core">
+          <span class="glass-map-user-dot"></span>
+        </span>
+        <span class="glass-map-pin-pulse"></span>
+      </div>
+    `,
+    iconSize: [46, 46],
+    iconAnchor: [23, 23],
+    popupAnchor: [0, -24],
+  });
+
+const searchGlassIcon = () =>
+  L.divIcon({
+    className: "glass-marker-host search-marker-host",
+    html: `
+      <div class="glass-map-pin search-glass-pin" aria-hidden="true">
+        <span class="glass-map-pin-core">
+          <span class="glass-map-search-dot"></span>
+        </span>
+      </div>
+    `,
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+    popupAnchor: [0, -22],
+  });
+
+const MapResize = () => {
   const map = useMap();
 
-  // User icon
-  const userIcon = new L.Icon({
-    iconUrl: userLocationIcon,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => map.invalidateSize(), 150);
+    return () => window.clearTimeout(timeoutId);
+  }, [map]);
+
+  return null;
+};
+
+const MapTools = ({ resetPosition }) => {
+  const map = useMap();
 
   const handleZoomIn = () => map.zoomIn();
   const handleZoomOut = () => map.zoomOut();
-  const resetView = () => map.setView([51.5074, -0.1272], 13);
+  const resetView = () => map.setView(resetPosition || defaultPosition, 13);
 
   const locateUser = () => {
     map
@@ -79,8 +173,7 @@ const MapTools = () => {
         const userPos = [e.latlng.lat, e.latlng.lng];
         map.setView(userPos, 16);
 
-        // Add marker for user location
-        L.marker(userPos, { icon: userIcon }).addTo(map).bindPopup("You are here!").openPopup();
+        L.marker(userPos, { icon: userGlassIcon() }).addTo(map).bindPopup("You are here").openPopup();
       })
       .on("locationerror", () => {
         alert("Location access denied. Please enable location services.");
@@ -89,10 +182,10 @@ const MapTools = () => {
 
   return (
     <div className="map-tools">
-      <button type="button" onClick={handleZoomIn}>+ Zoom In</button>
-      <button type="button" onClick={handleZoomOut}>- Zoom Out</button>
-      <button type="button" onClick={resetView}>Reset to London</button>
-      <button type="button" onClick={locateUser}>Locate Me</button>
+      <button type="button" onClick={handleZoomIn}><FaPlus /><span>Zoom In</span></button>
+      <button type="button" onClick={handleZoomOut}><FaMinus /><span>Zoom Out</span></button>
+      <button type="button" onClick={resetView}><FaRedoAlt /><span>Reset View</span></button>
+      <button type="button" onClick={locateUser}><FaCrosshairs /><span>Locate Me</span></button>
     </div>
   );
 };
@@ -110,7 +203,7 @@ const SearchControl = () => {
     control.on("markgeocode", (e) => {
       const { center } = e.geocode;
       map.setView(center, 13);
-      L.marker(center).addTo(map);
+      L.marker(center, { icon: searchGlassIcon() }).addTo(map).bindPopup("Search result").openPopup();
     });
 
     return () => {

@@ -37,4 +37,15 @@ module.exports = {
       return webpackConfig;
     },
   },
+  jest: {
+    configure: (jestConfig) => {
+      jestConfig.moduleNameMapper = {
+        ...jestConfig.moduleNameMapper,
+        '^axios$': require.resolve('axios/dist/node/axios.cjs'),
+        '^lucide-react$': path.join(__dirname, 'node_modules/lucide-react/dist/cjs/lucide-react.js'),
+      };
+
+      return jestConfig;
+    },
+  },
 };

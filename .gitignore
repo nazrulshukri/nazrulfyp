@@ -1,3 +1,5 @@
 node_modules/
 .DS_Store
 nazrul/backend/serviceAccountkey.json
+nazrul/backend/serviceAccountKey.json
+nazrul/backend/serviceAccount*.json

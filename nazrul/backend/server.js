@@ -14,12 +14,10 @@ const bwipjs = require('bwip-js');
 // console.log("generatePDF type:", typeof generatePDF); // should be 'function'
 // console.log(typeof generatePDF); // Should print 'function'
 const pdfMod = require("../src/components/pdfgenerator");
-console.log("pdfMod keys:", Object.keys(pdfMod));
-console.log("pdfMod:", pdfMod);
 const admin = require("firebase-admin");
 const generatePDF = pdfMod.generatePDF || pdfMod.default || pdfMod;
-console.log("generatePDF type:", typeof generatePDF);
 const getStream = require('get-stream');
+const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymentEmail');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -54,16 +52,105 @@ transporter.verify((error, success) => {
 
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://muhdnazrul:Nazrul123@cluster0.e7c4d.mongodb.net/Bookingflight?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.log(err));
+const MONGODB_URI = process.env.MONGODB_URI
+  || process.env.MONGO_URI
+  || process.env.MONGO_URL
+  || process.env.DATABASE_URL;
+
+if (MONGODB_URI) {
+  mongoose.connect(MONGODB_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`));
+} else {
+  console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
+}
+
+const isMongoReady = () => mongoose.connection.readyState === 1;
+
+const sendPersistenceSkipped = (res, resourceName, data) => {
+  res.status(202).json({
+    saved: false,
+    message: `${resourceName} was not saved because MongoDB is not connected. Add MONGODB_URI to backend/.env to persist data.`,
+    data,
+  });
+};
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+const USER_ROLES = ['user', 'admin', 'super-admin'];
+
+const deriveDemoRoleFromEmail = (email = '') => {
+  const normalized = String(email).trim().toLowerCase();
+
+  if (
+    normalized.startsWith('superadmin') ||
+    normalized.startsWith('super-admin') ||
+    normalized.includes('+super') ||
+    normalized.includes('super.admin')
+  ) {
+    return 'super-admin';
+  }
+
+  if (
+    normalized.startsWith('admin') ||
+    normalized.includes('+admin') ||
+    normalized.includes('admin.')
+  ) {
+    return 'admin';
+  }
+
+  return 'user';
+};
+
+const getFirebaseCredential = () => {
+  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    return admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    });
+  }
+
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
+    ? path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
+    : path.join(__dirname, "serviceAccountKey.json");
+
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+    return admin.credential.cert(serviceAccount);
+  }
+
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    return admin.credential.applicationDefault();
+  }
+
+  return null;
+};
+
+const initializeFirebaseAdmin = () => {
+  const credential = getFirebaseCredential();
+
+  if (!credential) {
+    console.warn(
+      "Firebase Admin not configured. Add backend/serviceAccountKey.json or set FIREBASE_SERVICE_ACCOUNT_PATH / FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY."
+    );
+    return false;
+  }
+
+  if (!admin.apps.length) {
+    admin.initializeApp({ credential });
+  }
+
+  return true;
+};
+
+const firebaseAdminReady = initializeFirebaseAdmin();
 
 // User Schema
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, enum: USER_ROLES, default: 'user' },
   resetToken: { type: String },
   resetTokenExpiration: { type: Date },
 });
@@ -168,7 +255,7 @@ const Hotelformschema = new mongoose.Schema({
     email: { type: String, required: true },
     address: { type: String, required: true },
     city: { type: String, required: true },
-    zip: { type: String, required: true },
+    zip: { type: String, default: '' },
     country: { type: String, required: true },
     phone: { type: String, required: true },
     specialRequests: { type: String },
@@ -193,7 +280,7 @@ const hotelpaymentmethodSchema = new mongoose.Schema({
     email: { type: String, required: true },
     address: { type: String, required: true },
     city: { type: String, required: true },
-    zip: { type: String, required: true },
+    zip: { type: String, default: '' },
     country: { type: String, required: true },
     phone: { type: String, required: true },
     specialRequests: { type: String },
@@ -316,11 +403,11 @@ app.post('/signup', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword });
+    const newUser = new User({ email, password: hashedPassword, role: deriveDemoRoleFromEmail(email) });
     await newUser.save();
     await createUserFolder(newUser._id);
 
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ message: 'User created successfully', role: newUser.role });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -340,8 +427,14 @@ app.post('/signin', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ token, message: 'Sign-in successful' });
+    const role = user.role || deriveDemoRoleFromEmail(user.email);
+    if (!user.role) {
+      user.role = role;
+      await user.save();
+    }
+
+    const token = jwt.sign({ userId: user._id, role }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({ token, role, message: 'Sign-in successful' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -352,18 +445,16 @@ app.post('/save-hotel', async (req, res) => {
   console.log('Received hotel data:', req.body);  // Log the incoming request data
   try {
     const { id, hotelName, checkInDate, checkOutDate, price, location } = req.body;
+    const hotelData = { id, hotelName, checkInDate, checkOutDate, price, location };
+
+    if (!isMongoReady()) {
+      return sendPersistenceSkipped(res, 'Hotel selection', hotelData);
+    }
 
     // Remove the check for existing hotel in the database
 
     // Create a new hotel booking entry
-    const newHotelBooking = new Hotel({
-      id,
-      hotelName,
-      checkInDate,
-      checkOutDate,
-      price,
-      location,
-    });
+    const newHotelBooking = new Hotel(hotelData);
 
     // Log the data being saved
     console.log('Saving new hotel booking to MongoDB:', newHotelBooking);
@@ -399,6 +490,13 @@ app.post('/submit-payment', async (req, res) => {
   } = req.body;
 
   try {
+    if (!bookingId || !email || !paymentMethod || amount == null) {
+      return res.status(400).send({
+        success: false,
+        message: 'Missing required fields: bookingId, email, paymentMethod, amount.',
+      });
+    }
+
     // ✅ Generate PDF
     const ticketData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
     const pdfBuffer = await generatePDF(ticketData);
@@ -414,72 +512,25 @@ app.post('/submit-payment', async (req, res) => {
     }
     const imageBuffer = fs.readFileSync(imagePath);
 
-    // ✅ Configure Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    // ✅ Email content
-    const emailContent = `
-    <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-  
-  <!-- HEADER SECTION -->
-  <div style="display: flex; align-items: center; border-bottom: 2px solid #004C97; padding-bottom: 15px; margin-bottom: 15px;">
-    <img src="cid:malaysiaLogo" style="width: 120px; height:auto; margin-right: 15px;" />
-    <h1 style="color: #004C97; font-size: 22px; margin: 0;">Payment Confirmation</h1>
-  </div>
-
-  <!-- GREETING -->
-  <p style="font-size: 16px;">Dear <strong>${passengerDetails.lastName}</strong>,</p>
-  <p style="font-size: 14px;">Thank you for your payment. Your booking details are as follows:</p>
-
-  <!-- BOOKING DETAILS -->
-  <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-  <p style="margin: 5px 0;"><strong>📄 Booking ID:</strong> ${bookingId}</p>
-<p style="margin: 5px 0;"><strong>💳 Payment Method:</strong> ${paymentMethod}</p>
-<p style="margin: 5px 0;"><strong>💰 Amount Paid:</strong> MYR ${amount}</p>
-
-  </div>
-
-  <!-- FLIGHT DETAILS -->
-  <h2 style="color: #004C97; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
-  ✈️ Flight Details
-</h2>
-<p><strong>🛫 From:</strong> ${outboundFlight.origin}</p>
-<p><strong>🛬 To:</strong> ${outboundFlight.destination}</p>
-<p><strong>🎫 Departure Flight:</strong> ${outboundFlight?.flightNumber || "-"}(${outboundFlight.departure} to ${outboundFlight.arrival})</p>
-<p><strong>🔁 Return Flight:</strong> ${returnFlight.flightNumber} (${returnFlight.departure} to ${returnFlight.arrival})</p>
-<p><strong>💺 Selected Seats:</strong> ${selectedSeats.join(', ')}</p>
-<p><strong>🛡️ Insurance:</strong> ${selectedInsurance.name}</p>
-
-  <!-- CONTACT INFO -->
-  <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd;">
-    <p style="font-size: 14px;">If you have any questions, feel free to contact us:</p>
-    <p style="font-size: 14px; margin: 5px 0;"><strong>📞 Telephone:</strong> (+60)011-6100-7484 (Malaysia)</p>
-    <p style="font-size: 14px; margin: 5px 0;"><strong>📧 Email Us:</strong> Bookingflex@flex.com.my</p>
-  </div>
-
-</div>
-    `;
+    const emailData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
+    const emailContent = buildPaymentEmail(emailData);
+    const emailText = buildPaymentEmailText(emailData);
 
     // ✅ Email options with **PDF & Image attachment**
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Payment Confirmation and Ticket',
+      subject: `BookingFlex payment confirmed - ${bookingId}`,
       html: emailContent,
+      text: emailText,
       attachments: [
         {
-          filename: 'BoardingPass.pdf',
+          filename: `Bookingflex_${bookingId}.pdf`,
           content: pdfBuffer,
           contentType: "application/pdf",
         },
         {
-          filename: 'MalaysiaAirlinesLogo.png',
+          filename: 'BookingFlexLogo.png',
           content: imageBuffer,
           contentType: "image/png",
           cid: 'malaysiaLogo', // ✅ Embeds image in email
@@ -509,8 +560,13 @@ app.post('/hotelform', async (req, res) => {
   const {
     hotelName, checkInDate, checkOutDate, price, hotellocation, people, userData
   } = req.body;
+  const hotelFormData = { hotelName, checkInDate, checkOutDate, price, hotellocation, people, userData };
 
   try {
+    if (!isMongoReady()) {
+      return sendPersistenceSkipped(res, 'Hotel details', hotelFormData);
+    }
+
     // Create a new hotel booking document
     const newHotelBooking = new Hotelform({
       hotelName,
@@ -555,20 +611,25 @@ app.post('/hotelpaymentmethod', async (req, res) => {
     paymentMethod,
     status,
   } = req.body;
+  const hotelPaymentData = {
+    hotelName,
+    hotellocation: location,
+    checkInDate,
+    checkOutDate,
+    price: totalPrice,
+    people,
+    userData,
+    paymentMethod,
+    status,
+  };
 
   try {
+    if (!isMongoReady()) {
+      return sendPersistenceSkipped(res, 'Hotel payment', hotelPaymentData);
+    }
+
     // Create a new document from the HotelPayment model
-    const newPayment = new HotelPayment({
-      hotelName,
-      hotellocation: location, // Use `location` instead of `hotellocation`
-      checkInDate,
-      checkOutDate,
-      price: totalPrice,
-      people,
-      userData,
-      paymentMethod,
-      status, // This could be 'Completed' or any status you provide
-    });
+    const newPayment = new HotelPayment(hotelPaymentData);
 
     // Save the document to MongoDB
     await newPayment.save();
@@ -660,7 +721,14 @@ const TrainBooking = mongoose.model('TrainBooking', trainBookingSchema);
 // Booking route
 app.post('/bookings', async (req, res) => {
   const { startDate, returnDate, location, location1, people, bookingType } = req.body;
-  const newBooking = new Booking({ startDate, returnDate, location, location1, people, bookingType });
+  const bookingData = { startDate, returnDate, location, location1, people, bookingType };
+
+  if (!isMongoReady()) {
+    return sendPersistenceSkipped(res, 'Booking', bookingData);
+  }
+
+  const newBooking = new Booking(bookingData);
+
   try {
     const savedBooking = await newBooking.save();
     res.status(201).json(savedBooking);
@@ -686,22 +754,37 @@ app.post('/process-payment', async (req, res) => {
   const { outboundFlight, returnFlight, passengerDetails, selectedSeats, totalAmount, selectedInsurance } = req.body;
 
   try {
-    if (!outboundFlight || !returnFlight || !passengerDetails || !totalAmount) {
+    if (!outboundFlight || !passengerDetails || !totalAmount) {
       throw new Error('Missing required fields in request body');
     }
 
-    // Find the user by email to get their ObjectId
-    const user = await User.findOne({ email: passengerDetails.email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!isMongoReady()) {
+      return res.status(202).json({
+        success: true,
+        saved: false,
+        bookingId: `TEMP-${Date.now()}`,
+        message: 'Booking can continue. MongoDB is not connected, so this pre-payment record was not saved.',
+      });
     }
+
+    // Find the user by email to get their ObjectId
+    let user = await User.findOne({ email: passengerDetails.email });
+    if (!user) {
+      user = await User.create({
+        email: passengerDetails.email,
+        password: 'EXTERNAL_PAYMENT_USER',
+      });
+    }
+
+    const returnLeg = returnFlight && Object.keys(returnFlight).length ? returnFlight : null;
+    const totalValue = typeof totalAmount === 'object' ? totalAmount.total : totalAmount;
 
     // Create a new booking
     const newBooking = new Booking({
       startDate: outboundFlight.departure,
-      returnDate: returnFlight.arrival,
+      returnDate: returnLeg?.arrival || outboundFlight.arrival || outboundFlight.departure,
       location: outboundFlight.origin,
-      location1: returnFlight.destination,
+      location1: returnLeg?.destination || outboundFlight.destination,
       people: passengerDetails ? 1 : 0,
       bookingType: 'Flight',
     });
@@ -711,13 +794,13 @@ app.post('/process-payment', async (req, res) => {
     const payment = new Payment({
       userId: user._id, // Now using the ObjectId of the user
       bookingId: savedBooking._id,
-      amount: totalAmount.total,
+      amount: totalValue,
       paymentMethod: 'Pending', // Set a default method
       paymentDetails: {
         selectedSeats, // Can be an empty array if no seats are selected
         insurance: selectedInsurance || false, // Include selected insurance
         outboundFlight,
-        returnFlight,
+        returnFlight: returnLeg,
         totalAmount,
       },
       status: 'pending', // Set status to pending until payment is processed
@@ -847,8 +930,7 @@ Safe travels!
 // FlightResults route
 app.post('/flightresults', async (req, res) => {
   const { id, airline, flightNumber, departure, arrival, price, origin, destination, nonStop } = req.body;
-
-  const newFlightResult = new FlightResults({
+  const flightResultData = {
     id,
     airline,
     flightNumber,
@@ -858,7 +940,13 @@ app.post('/flightresults', async (req, res) => {
     origin,
     destination,
     nonStop,
-  });
+  };
+
+  if (!isMongoReady()) {
+    return sendPersistenceSkipped(res, 'Flight result', flightResultData);
+  }
+
+  const newFlightResult = new FlightResults(flightResultData);
 
   try {
     const savedFlightResult = await newFlightResult.save();
@@ -870,8 +958,7 @@ app.post('/flightresults', async (req, res) => {
 
 app.post('/flightreturn', async (req, res) => {
   const { id, airline, flightNumber, departure, arrival, price, origin, destination, nonStop } = req.body;
-
-  const newFlightreturn = new Flightreturn({
+  const flightReturnData = {
     id,
     airline,
     flightNumber,
@@ -881,7 +968,13 @@ app.post('/flightreturn', async (req, res) => {
     origin,
     destination,
     nonStop,
-  });
+  };
+
+  if (!isMongoReady()) {
+    return sendPersistenceSkipped(res, 'Return flight', flightReturnData);
+  }
+
+  const newFlightreturn = new Flightreturn(flightReturnData);
 
   try {
     const savedFlightResult = await newFlightreturn.save();
@@ -957,15 +1050,16 @@ app.post('/trainsubmit-payment', async (req, res) => {
   }
 });
 
-// Initialize once (use service account JSON)
-admin.initializeApp({
-  credential: admin.credential.cert(require("./serviceAccountKey.json")),
-});
-
 app.post("/auth/firebase", async (req, res) => {
   console.log("🔥 /auth/firebase endpoint called");
 
   try {
+    if (!firebaseAdminReady) {
+      return res.status(503).json({
+        message: "Firebase Admin is not configured on the server.",
+      });
+    }
+
     const { idToken } = req.body;
 
     if (!idToken) {
@@ -985,17 +1079,23 @@ app.post("/auth/firebase", async (req, res) => {
 
     if (!user) {
       console.log("🆕 Creating new Mongo user for:", email);
-      user = await User.create({ email, password: "FIREBASE" });
+      user = await User.create({ email, password: "FIREBASE", role: deriveDemoRoleFromEmail(email) });
     } else {
       console.log("👤 Existing Mongo user:", email);
     }
 
+    const role = user.role || deriveDemoRoleFromEmail(email);
+    if (!user.role) {
+      user.role = role;
+      await user.save();
+    }
+
     // issue your JWT
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user._id, role }, JWT_SECRET, { expiresIn: "1h" });
 
     console.log("🎟️ JWT issued for:", email);
 
-    res.json({ token });
+    res.json({ token, role });
 
   } catch (err) {
     console.error("❌ Firebase authentication error:", err.message);
@@ -1052,5 +1152,15 @@ app.get('/api/suggest', (req, res) => {
 });
 // Start the server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Stop the existing server or run with PORT=5010 node server.js.`);
+    process.exit(1);
+  }
+
+  console.error('Server startup error:', err);
+  process.exit(1);
+});
 

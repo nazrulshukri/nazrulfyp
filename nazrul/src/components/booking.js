@@ -1693,13 +1693,17 @@ if (infants > adults) {
       }
 
       if (selectedOption === "hotel") {
+        const hotelParams = {
+          checkInDate: startDate,
+          checkOutDate: returnDate,
+          location: location1,
+          people,
+        };
+
+        localStorage.setItem("hotelParams", JSON.stringify(hotelParams));
+
         navigate("/hotel", {
-          state: {
-            checkInDate: startDate,
-            checkOutDate: returnDate,
-            location: location1,
-            people,
-          },
+          state: { hotelParams },
         });
       }
 

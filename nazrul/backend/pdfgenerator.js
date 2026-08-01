@@ -6,7 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
 
-const { generatePDF } = require("./pdfgenerator.node");
+const generatePDF = require("../src/components/pdfgenerator");
+const { buildPaymentEmail, buildPaymentEmailText } = require("./templates/paymentEmail");
 
 const app = express();
 app.use(cors());
@@ -77,49 +78,16 @@ app.post("/submit-payment", async (req, res) => {
     }
     const imageBuffer = fs.readFileSync(emailLogoPath);
 
-    // ✅ Safe fields for email HTML
-    const safeLastName = passengerDetails?.lastName || "Customer";
-    const safeSeats = Array.isArray(selectedSeats) ? selectedSeats.join(", ") : "-";
-    const safeInsurance = selectedInsurance?.name || "No Insurance";
-
-    const emailContent = `
-      <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; box-shadow: 0px 4px 8px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; border-bottom: 2px solid #004C97; padding-bottom: 15px; margin-bottom: 15px;">
-          <img src="cid:malaysiaLogo" style="width: 120px; height:auto; margin-right: 15px;" />
-          <h1 style="color: #004C97; font-size: 22px; margin: 0;">Payment Confirmation</h1>
-        </div>
-
-        <p style="font-size: 16px;">Dear <strong>${safeLastName}</strong>,</p>
-        <p style="font-size: 14px;">Thank you for your payment. Your booking details are as follows:</p>
-
-        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-          <p style="margin: 5px 0;"><strong>📄 Booking ID:</strong> ${bookingId}</p>
-          <p style="margin: 5px 0;"><strong>💳 Payment Method:</strong> ${paymentMethod}</p>
-          <p style="margin: 5px 0;"><strong>💰 Amount Paid:</strong> MYR ${amount}</p>
-        </div>
-
-        <h2 style="color: #004C97; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">✈️ Flight Details</h2>
-
-        <p><strong>🛫 From:</strong> ${outboundFlight?.origin || "-"}</p>
-        <p><strong>🛬 To:</strong> ${outboundFlight?.destination || "-"}</p>
-        <p><strong>🎫 Departure Flight:</strong> ${outboundFlight?.flightNumber || "-"} (${outboundFlight?.departure || "-"} to ${outboundFlight?.arrival || "-"})</p>
-        <p><strong>🔁 Return Flight:</strong> ${returnFlight?.flightNumber || "-"} (${returnFlight?.departure || "-"} to ${returnFlight?.arrival || "-"})</p>
-        <p><strong>💺 Selected Seats:</strong> ${safeSeats}</p>
-        <p><strong>🛡️ Insurance:</strong> ${safeInsurance}</p>
-
-        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd;">
-          <p style="font-size: 14px;">If you have any questions, feel free to contact us:</p>
-          <p style="font-size: 14px; margin: 5px 0;"><strong>📞 Telephone:</strong> (+60)011-6100-7484 (Malaysia)</p>
-          <p style="font-size: 14px; margin: 5px 0;"><strong>📧 Email Us:</strong> Bookingflex@flex.com.my</p>
-        </div>
-      </div>
-    `;
+    const emailData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
+    const emailContent = buildPaymentEmail(emailData);
+    const emailText = buildPaymentEmailText(emailData);
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Payment Confirmation and Ticket",
+      subject: `BookingFlex payment confirmed - ${bookingId}`,
       html: emailContent,
+      text: emailText,
       attachments: [
         {
           filename: `Bookingflex_${bookingId}.pdf`,

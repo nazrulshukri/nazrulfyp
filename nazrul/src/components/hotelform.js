@@ -4,10 +4,22 @@ import HotelDetails from './hoteldetails';
 import UserDetailsForm from './userdetailsform';
 import './hotelform.css';
 
+const HOTEL_DRAFT_KEY = 'hotelBookingDraft';
+const HOTEL_PAYMENT_DRAFT_KEY = 'hotelPaymentDraft';
+
+const safeParse = (value, fallback) => {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
 const HotelForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedHotel, totalPrice, startDate, returnDate, people } = location.state;
+  const bookingState = location.state || safeParse(sessionStorage.getItem(HOTEL_DRAFT_KEY), {});
+  const { selectedHotel, totalPrice, startDate, returnDate, people } = bookingState;
 
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -36,6 +48,9 @@ const HotelForm = () => {
       },
     };
 
+    sessionStorage.setItem(HOTEL_DRAFT_KEY, JSON.stringify({ selectedHotel, totalPrice, startDate, returnDate, people }));
+    sessionStorage.setItem(HOTEL_PAYMENT_DRAFT_KEY, JSON.stringify(bookingData));
+
     try {
       const response = await fetch('http://localhost:5001/hotelform', {
         method: 'POST',
@@ -47,14 +62,14 @@ const HotelForm = () => {
 
       if (response.ok) {
         console.log('Booking data saved successfully');
-        // Pass the entire bookingData including selectedHotel to the /hotelpaymentmethod route
-        navigate('/hotelpaymentmethod', { state: bookingData });
       } else {
-        console.error('Failed to save booking data', bookingData);
+        console.warn('Hotel booking was not saved, continuing to payment.', bookingData);
       }
     } catch (error) {
-      console.error('Error saving booking data:', error);
+      console.warn('Hotel booking save failed, continuing to payment:', error);
     }
+
+    navigate('/hotelpaymentmethod', { state: bookingData });
 };
 
   
@@ -77,6 +92,20 @@ const HotelForm = () => {
       }
     });
   }, [currentStep]);
+
+  if (!selectedHotel) {
+    return (
+      <div className="hotel-form">
+        <div className="container34">
+          <div className="hotel-details-wrapper">
+            <h2>No hotel booking data found</h2>
+            <p>Please choose a hotel again to continue your booking.</p>
+            <button className="submit-btn" onClick={() => navigate('/Hotel')}>Back to Hotels</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hotel-form">

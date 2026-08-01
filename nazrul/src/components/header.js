@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './themeprovider';
+import {
+  canAccessAdmin,
+  canAccessSuperAdmin,
+  clearCurrentUserSession,
+  getCurrentUserRole,
+  getRoleLabel,
+  setCurrentUserSession,
+} from '../lib/bookingStorage';
 import './header.css';
 import logo from '../img/assets/Booking.png';
 import searchIcon from '../img/assets/search-w.png';
@@ -23,10 +31,16 @@ function Header({ openRayaPopup }) {
 
   const email = location.state?.email || localStorage.getItem('userEmail');
   if (location.state?.email) {
-    localStorage.setItem('userEmail', location.state.email);
+    setCurrentUserSession(location.state.email, location.state.role);
   }
+  const role = getCurrentUserRole();
+  const roleLabel = getRoleLabel(role);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const closeMenus = () => {
+    setMenuOpen(false);
+    setDropdownOpen(false);
+  };
 
   const handleHelpSelect = (text) => { 
     setSearchTerm(text);
@@ -58,7 +72,7 @@ function Header({ openRayaPopup }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userEmail');
+    clearCurrentUserSession();
     navigate('/');
   };
 
@@ -104,6 +118,9 @@ function Header({ openRayaPopup }) {
             <li><Link to="/about" className={isActive('/about') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>About</Link></li>
             <li><Link to="/services" className={isActive('/services') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>Check-in</Link></li>
             <li><Link to="/flightstatus" className={isActive('/flightstatus') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>Flight Status</Link></li>
+            {email && <li><Link to="/dashboard" className={isActive('/dashboard') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>Dashboard</Link></li>}
+            {email && canAccessAdmin(role) && <li><Link to="/admin" className={isActive('/admin') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>Admin</Link></li>}
+            {email && canAccessSuperAdmin(role) && <li><Link to="/super-admin" className={isActive('/super-admin') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>Super Admin</Link></li>}
 
             {!email && (
               <>
@@ -117,18 +134,34 @@ function Header({ openRayaPopup }) {
         {/* Header Actions */}
         <div className="header-actions">
           {email ? (
-            <div className="user-dropdown1" ref={dropdownRef}>
-              <div className="user-greeting1" onClick={() => setDropdownOpen(!dropdownOpen)}>
-                Hi, {email.split('@')[0]} ▼
-              </div>
-              {dropdownOpen && (
-                <div className="dropdown-menu1">
-                  <Link to="/profile" className="dropdown-item1">Profile</Link>
-                  <Link to="/profile-maintenance" className="dropdown-item1">Profile Maintenance</Link>
-                  <div className="dropdown-item1 logout" onClick={handleLogout}>Logout</div>
+            <>
+              <div className={`theme-toggle ${isDarkMode ? 'dark' : 'light'}`} onClick={toggleTheme} aria-label="Toggle theme">
+                <div className="theme-track">
+                  <span className="theme-icon sun">☀️</span>
+                  <span className="theme-icon moon">🌙</span>
                 </div>
-              )}
-            </div>
+                <div className="theme-thumb">
+                  <span className="thumb-icon">{isDarkMode ? "🌙" : "☀️"}</span>
+                </div>
+              </div>
+
+              <div className="user-dropdown1" ref={dropdownRef}>
+                <div className="user-greeting1" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                  <span>Hi, {email.split('@')[0]}</span>
+                  <small>{roleLabel}</small>
+                </div>
+                {dropdownOpen && (
+                  <div className="dropdown-menu1">
+                    <Link to="/dashboard" className="dropdown-item1" onClick={closeMenus}>Dashboard</Link>
+                    {canAccessAdmin(role) && <Link to="/admin" className="dropdown-item1" onClick={closeMenus}>Admin Operations</Link>}
+                    {canAccessSuperAdmin(role) && <Link to="/super-admin" className="dropdown-item1" onClick={closeMenus}>Super Admin Studio</Link>}
+                    <Link to="/profile" className="dropdown-item1" onClick={closeMenus}>Profile</Link>
+                    <Link to="/profile-maintenance" className="dropdown-item1" onClick={closeMenus}>Profile Maintenance</Link>
+                    <div className="dropdown-item1 logout" onClick={handleLogout}>Logout</div>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             <>
               {/* Theme Toggle */}
