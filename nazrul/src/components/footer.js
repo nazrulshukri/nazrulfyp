@@ -58,9 +58,9 @@ function Footer() {
         </div>
       </div>
       <div className="footer-bottom90">
-        <p>&copy; 2024 Booking Flex</p>
+        <p>&copy; 2026 Booking Flex</p>
         <p>Privacy policy | Cookies | Legal notice | Terms of Use | Digital wellbeing | Accessibility | Cookie Settings</p>
-        <p>No 35 jalan tj 7/4 taman temerloh Jaya 28000 Pahang Darul Makmur. Must be 18 years or older to purchase online. Booking Flex, the Booking Flex, the Minifigure, DUPLO, the FRIENDS logo, the MINIFIGURES logo, DREAMZzz, NINJAGO, VIDIYO and MINDSTORMS are trademarks of the  Booking Flex Group. ©2024 The Flex Group. All rights reserved. Use of this site signifies your agreement to the Terms of Use.</p>
+        <p>No. 35, Jalan TJ 7/4, Taman Temerloh Jaya, 28000 Pahang Darul Makmur. Booking Flex helps travellers compare and organise trip options. Airline and travel-provider terms may apply.</p>
       </div>
     </footer>
   );

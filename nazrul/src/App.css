@@ -11,6 +11,13 @@ html, body {
 }
 .app {
   text-align: left;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app > main {
+  flex: 1 0 auto;
 }
 
 /* Light and dark mode background and text colors for the entire app */

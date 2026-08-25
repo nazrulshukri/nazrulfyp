@@ -3,9 +3,10 @@
   background-color: #1e1e1e; /* Dark modern background */
   color: #f4f4f4; /* Light text for contrast */
   text-align: center;
-  width: 101%;
+  width: 100%;
   justify-content: flex-start; /* Aligns items to the left */
-  margin-left: -20px; /* Extend the container to the left */
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .footer-content78 {
@@ -104,11 +105,12 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .footer-content {
+  .footer-content78 {
     flex-direction: column;
   }
-  
-  .footer-section {
-    text-align: left;
+
+  .footer-section90 {
+    min-width: 0;
+    text-align: center;
   }
 }
