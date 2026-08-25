@@ -117,9 +117,6 @@ import TrainPage from './components/train';
 import Dashboard from './components/dashboard';
 import Profile from './components/profile';
 import ProfileMaintenance from './components/profilemaintenance';
-import AdminConsole from './components/AdminConsole';
-import SuperAdminConsole from './components/SuperAdminConsole';
-import ManagedFeaturePage from './components/ManagedFeaturePage';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -164,9 +161,6 @@ function AppContent() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile-maintenance" element={<ProfileMaintenance />} />
-          <Route path="/admin" element={<AdminConsole />} />
-          <Route path="/super-admin" element={<SuperAdminConsole />} />
-          <Route path="/feature-lab/:pageId" element={<ManagedFeaturePage />} />
         </Routes>
       </main>
       <Footer />

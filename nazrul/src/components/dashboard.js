@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  BadgePercent,
   BadgeCheck,
   CalendarDays,
   Clock3,
@@ -14,13 +13,10 @@ import {
 import {
   formatFlightDate,
   formatMoney,
-  getActiveVouchers,
   getBookingHistory,
   getCurrentUserEmail,
-  getCurrentUserRole,
   getDaysUntil,
   getProfile,
-  getRoleLabel,
 } from "../lib/bookingStorage";
 import "./dashboard.css";
 
@@ -138,8 +134,6 @@ const Dashboard = () => {
   const email = getCurrentUserEmail();
   const bookings = useMemo(() => getBookingHistory(email).slice().sort(sortByDeparture), [email]);
   const profile = useMemo(() => getProfile(email), [email]);
-  const role = useMemo(() => getCurrentUserRole(), []);
-  const vouchers = useMemo(() => getActiveVouchers(), []);
   const upcoming = bookings.filter((booking) => {
     const days = getDaysUntil(booking.outboundFlight?.departure);
     return days === null || days >= 0;
@@ -155,7 +149,7 @@ const Dashboard = () => {
       <div className="account-shell">
         <div className="account-topbar">
           <div>
-            <p className="account-kicker"><BadgeCheck size={16} /> BookingFlex {getRoleLabel(role)}</p>
+            <p className="account-kicker"><BadgeCheck size={16} /> BookingFlex account</p>
             <h1 className="account-title">Flight Dashboard</h1>
             <p className="account-subtitle">
               Welcome back{profile.fullName ? `, ${profile.fullName}` : ""}. Track your confirmed flights, departure dates, and travel readiness in one place.
@@ -253,33 +247,6 @@ const Dashboard = () => {
                     <strong>{profile.preferredAirport || "Not set"}</strong>
                   </div>
                 </div>
-              </div>
-            </section>
-
-            <section className="account-panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>Available vouchers</h2>
-                  <p>Use these codes during payment checkout.</p>
-                </div>
-              </div>
-              <div className="voucher-list compact">
-                {vouchers.length ? (
-                  vouchers.slice(0, 3).map((voucher) => (
-                    <article className="voucher-card user-voucher" key={voucher.id}>
-                      <span className="field-icon"><BadgePercent size={18} /></span>
-                      <div>
-                        <span className="voucher-code">{voucher.code}</span>
-                        <h3>{voucher.title}</h3>
-                        <p>
-                          {voucher.discountType === "fixed" ? formatMoney(voucher.discountValue) : `${voucher.discountValue}%`} off
-                        </p>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <p className="metric-note">No active vouchers right now.</p>
-                )}
               </div>
             </section>
           </aside>

@@ -1,11 +1,12 @@
+const path = require('path');
 require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const path = require('path');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
@@ -67,6 +68,18 @@ if (MONGODB_URI) {
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
+const requireMongoConnection = (req, res, next) => {
+  if (isMongoReady()) {
+    return next();
+  }
+
+  return res.status(503).json({
+    message: MONGODB_URI
+      ? 'MongoDB is not connected yet. Please try again after the backend logs "Connected to MongoDB".'
+      : 'MongoDB is not configured. Add MONGODB_URI to backend/.env.',
+  });
+};
+
 const sendPersistenceSkipped = (res, resourceName, data) => {
   res.status(202).json({
     saved: false,
@@ -76,31 +89,6 @@ const sendPersistenceSkipped = (res, resourceName, data) => {
 };
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
-
-const USER_ROLES = ['user', 'admin', 'super-admin'];
-
-const deriveDemoRoleFromEmail = (email = '') => {
-  const normalized = String(email).trim().toLowerCase();
-
-  if (
-    normalized.startsWith('superadmin') ||
-    normalized.startsWith('super-admin') ||
-    normalized.includes('+super') ||
-    normalized.includes('super.admin')
-  ) {
-    return 'super-admin';
-  }
-
-  if (
-    normalized.startsWith('admin') ||
-    normalized.includes('+admin') ||
-    normalized.includes('admin.')
-  ) {
-    return 'admin';
-  }
-
-  return 'user';
-};
 
 const getFirebaseCredential = () => {
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
@@ -150,7 +138,6 @@ const firebaseAdminReady = initializeFirebaseAdmin();
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: USER_ROLES, default: 'user' },
   resetToken: { type: String },
   resetTokenExpiration: { type: Date },
 });
@@ -394,7 +381,7 @@ const createUserFolder = async (userId) => {
 };
 
 // Signup route
-app.post('/signup', async (req, res) => {
+app.post('/signup', requireMongoConnection, async (req, res) => {
   const { email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
@@ -403,18 +390,18 @@ app.post('/signup', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, role: deriveDemoRoleFromEmail(email) });
+    const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
     await createUserFolder(newUser._id);
 
-    res.status(201).json({ message: 'User created successfully', role: newUser.role });
+    res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // Signin route
-app.post('/signin', async (req, res) => {
+app.post('/signin', requireMongoConnection, async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -427,14 +414,8 @@ app.post('/signin', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const role = user.role || deriveDemoRoleFromEmail(user.email);
-    if (!user.role) {
-      user.role = role;
-      await user.save();
-    }
-
-    const token = jwt.sign({ userId: user._id, role }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ token, role, message: 'Sign-in successful' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({ token, message: 'Sign-in successful' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -849,7 +830,7 @@ app.post('/process-payment', async (req, res) => {
 // module.exports = { generatePDF };
 
 // Forgot password route
-app.post('/forgotpassword', async (req, res) => {
+app.post('/forgotpassword', requireMongoConnection, async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -1050,7 +1031,7 @@ app.post('/trainsubmit-payment', async (req, res) => {
   }
 });
 
-app.post("/auth/firebase", async (req, res) => {
+app.post("/auth/firebase", requireMongoConnection, async (req, res) => {
   console.log("🔥 /auth/firebase endpoint called");
 
   try {
@@ -1079,23 +1060,17 @@ app.post("/auth/firebase", async (req, res) => {
 
     if (!user) {
       console.log("🆕 Creating new Mongo user for:", email);
-      user = await User.create({ email, password: "FIREBASE", role: deriveDemoRoleFromEmail(email) });
+      user = await User.create({ email, password: "FIREBASE" });
     } else {
       console.log("👤 Existing Mongo user:", email);
     }
 
-    const role = user.role || deriveDemoRoleFromEmail(email);
-    if (!user.role) {
-      user.role = role;
-      await user.save();
-    }
-
     // issue your JWT
-    const token = jwt.sign({ userId: user._id, role }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
     console.log("🎟️ JWT issued for:", email);
 
-    res.json({ token, role });
+    res.json({ token });
 
   } catch (err) {
     console.error("❌ Firebase authentication error:", err.message);

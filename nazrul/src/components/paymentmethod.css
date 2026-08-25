@@ -132,96 +132,6 @@
   white-space: nowrap;
 }
 
-.voucher-checkout {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.66);
-  backdrop-filter: blur(18px);
-}
-
-.voucher-checkout-head,
-.voucher-input-row,
-.voucher-suggestions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.voucher-checkout-head {
-  justify-content: space-between;
-}
-
-.voucher-checkout-head .payment-kicker {
-  margin-bottom: 0;
-}
-
-.voucher-checkout button {
-  min-height: 40px;
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  border-radius: 8px;
-  background: #0f172a;
-  color: #ffffff;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.voucher-checkout-head button {
-  min-height: 34px;
-  padding: 0 10px;
-  background: rgba(15, 23, 42, 0.08);
-  color: #0f172a;
-}
-
-.voucher-input-row input {
-  min-width: 0;
-  flex: 1;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
-  color: #0f172a;
-  font-weight: 850;
-  text-transform: uppercase;
-  outline: none;
-}
-
-.voucher-input-row button {
-  flex: 0 0 auto;
-  padding: 0 14px;
-}
-
-.voucher-suggestions {
-  flex-wrap: wrap;
-}
-
-.voucher-suggestions button {
-  min-height: 32px;
-  padding: 0 10px;
-  background: rgba(37, 99, 235, 0.08);
-  color: #1d4ed8;
-}
-
-.voucher-error,
-.voucher-success {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.45;
-}
-
-.voucher-error {
-  color: #dc2626;
-}
-
-.voucher-success {
-  color: #047857;
-}
-
 .payment-method-dropdown {
   position: relative;
   z-index: 5;
@@ -821,15 +731,6 @@
     flex-direction: column;
   }
 
-  .voucher-input-row {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .voucher-input-row button {
-    width: 100%;
-  }
-
   .payment-form-header h1 {
     font-size: 30px;
   }
@@ -904,27 +805,6 @@
 .app.dark-mode .booking-detail-list strong,
 .app.dark-mode .form-group1 label {
   color: #cbd5e1;
-}
-
-.app.dark-mode .voucher-checkout {
-  border-color: rgba(96, 165, 250, 0.18);
-  background: rgba(15, 23, 42, 0.62);
-}
-
-.app.dark-mode .voucher-checkout-head button,
-.app.dark-mode .voucher-input-row input {
-  border-color: rgba(148, 163, 184, 0.22);
-  background: rgba(15, 23, 42, 0.78);
-  color: #f8fafc;
-}
-
-.app.dark-mode .voucher-suggestions button {
-  background: rgba(14, 165, 233, 0.16);
-  color: #bae6fd;
-}
-
-.app.dark-mode .voucher-success {
-  color: #86efac;
 }
 
 .app.dark-mode .payment-method-trigger,

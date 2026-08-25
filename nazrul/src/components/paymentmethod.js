@@ -13,12 +13,7 @@ import cvvIcon from "../img/assets/seat/4117733.png";
 import expiryIcon from "../img/assets/seat/2068755-200.png";
 import accountIcon from "../img/assets/seat/user-icon-trendy-flat-style-600nw-1697898655.webp";
 import bankIcon from "../img/assets/seat/bank-vector-icon-isolated-on-transparent-background-bank-logo-concept-P28454.jpg";
-import {
-  applyVoucherToAmount,
-  formatMoney,
-  getActiveVouchers,
-  saveBookingForUser,
-} from "../lib/bookingStorage";
+import { saveBookingForUser } from "../lib/bookingStorage";
 
 const PaymentMethodPage = () => {
   const location = useLocation();
@@ -41,9 +36,6 @@ const PaymentMethodPage = () => {
     expiryDate: "",
     cvv: "",
   });
-  const [voucherCode, setVoucherCode] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState(null);
-  const [voucherError, setVoucherError] = useState("");
 
   const bankOptions = [
     "Maybank",
@@ -101,10 +93,6 @@ const PaymentMethodPage = () => {
   ];
 
   const selectedMethod = paymentMethods.find((method) => method.id === paymentType) || paymentMethods[0];
-  const activeVouchers = getActiveVouchers();
-  const originalAmount = Math.max(Number(totalAmount) || 0, 0);
-  const discountAmount = appliedVoucher?.discount || 0;
-  const payableAmount = Math.max(originalAmount - discountAmount, 0);
 
   // ✅ GUARD AFTER HOOKS
   if (!location.state) {
@@ -128,45 +116,13 @@ const PaymentMethodPage = () => {
     if (paymentType === "applePay") setApplePayDetails((p) => ({ ...p, [name]: value }));
   };
 
-  const handleVoucherApply = () => {
-    const result = applyVoucherToAmount(voucherCode, originalAmount);
-
-    if (!result.valid) {
-      setAppliedVoucher(null);
-      setVoucherError(result.message);
-      return;
-    }
-
-    setVoucherError("");
-    setAppliedVoucher({
-      ...result.voucher,
-      discount: result.discount,
-    });
-  };
-
-  const handleVoucherClear = () => {
-    setVoucherCode("");
-    setAppliedVoucher(null);
-    setVoucherError("");
-  };
-
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
 
     const paymentData = {
       bookingId,
       paymentMethod: paymentType,
-      amount: payableAmount,
-      originalAmount,
-      discountAmount,
-      voucher: appliedVoucher
-        ? {
-            id: appliedVoucher.id,
-            code: appliedVoucher.code,
-            title: appliedVoucher.title,
-            discount: appliedVoucher.discount,
-          }
-        : null,
+      amount: totalAmount,
       status: "Confirmed",
       paymentDetails:
         paymentType === "paypal"
@@ -194,7 +150,7 @@ const PaymentMethodPage = () => {
           localStorage.setItem("userEmail", userEmail);
           saveBookingForUser(userEmail, {
             ...paymentData,
-            amount: payableAmount,
+            amount: totalAmount,
             paidAt: new Date().toISOString(),
           });
         }
@@ -230,51 +186,10 @@ const PaymentMethodPage = () => {
             <p><strong>Return Price</strong> <span>MYR {returnFlight?.price ?? 0}</span></p>
             <p><strong>Seats</strong> <span>{selectedSeats.length ? selectedSeats.join(", ") : "-"}</span></p>
             <p><strong>Insurance</strong> <span>{selectedInsurance ? `${selectedInsurance.name} (MYR ${selectedInsurance.price})` : "No Insurance"}</span></p>
-            {appliedVoucher && <p><strong>Voucher</strong> <span>{appliedVoucher.code} - {formatMoney(discountAmount)}</span></p>}
           </div>
           <div className="booking-total-pill">
-            <span>{appliedVoucher ? "Discounted total" : "Total due"}</span>
-            <strong>{formatMoney(payableAmount)}</strong>
-          </div>
-
-          <div className="voucher-checkout">
-            <div className="voucher-checkout-head">
-              <span className="payment-kicker">Voucher</span>
-              {appliedVoucher && <button type="button" onClick={handleVoucherClear}>Clear</button>}
-            </div>
-            <div className="voucher-input-row">
-              <input
-                value={voucherCode}
-                onChange={(event) => {
-                  setVoucherCode(event.target.value.toUpperCase());
-                  setVoucherError("");
-                }}
-                placeholder="Enter voucher code"
-              />
-              <button type="button" onClick={handleVoucherApply}>Apply</button>
-            </div>
-            {voucherError && <p className="voucher-error">{voucherError}</p>}
-            {appliedVoucher && (
-              <p className="voucher-success">
-                {appliedVoucher.title} applied. You saved {formatMoney(discountAmount)}.
-              </p>
-            )}
-            {!appliedVoucher && activeVouchers.length > 0 && (
-              <div className="voucher-suggestions">
-                {activeVouchers.slice(0, 3).map((voucher) => (
-                  <button
-                    key={voucher.id}
-                    type="button"
-                    onClick={() => {
-                      setVoucherCode(voucher.code);
-                      setVoucherError("");
-                    }}
-                  >
-                    {voucher.code}
-                  </button>
-                ))}
-              </div>
-            )}
+            <span>Total due</span>
+            <strong>MYR {Number(totalAmount || 0).toFixed(2)}</strong>
           </div>
         </div>
 
