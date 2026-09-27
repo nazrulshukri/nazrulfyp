@@ -1,0 +1,11 @@
+// Cloudflare Workers static hosting for the React build (Workers Builds:
+// root directory "nazrul", build command "npm run build").
+// The live site with the /api backend runs on Vercel (see vercel.json).
+{
+  "name": "bookingflex",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./build",
+    "not_found_handling": "single-page-application"
+  }
+}

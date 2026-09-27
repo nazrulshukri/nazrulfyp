@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrain } from "@fortawesome/free-solid-svg-icons";
 import gatewayIcon from "../img/assets/train/gate.png";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
 
 const TransportStep = ({
   Image,
@@ -43,15 +43,9 @@ const TransportStep = ({
       returnDate,
     };
 
-    try {
-      await axios.post("http://localhost:5001/selectTrain", {
-        selectedTrain: selectedTrainData,
-      });
+    // Choosing a sample route is local; save only after the booking is submitted.
+    navigate("/fillform", { state: { selectedTrain: selectedTrainData } });
 
-      navigate("/fillform", { state: { selectedTrain: selectedTrainData } });
-    } catch (error) {
-      console.error("Error saving train selection:", error);
-    }
   };
 
   return (

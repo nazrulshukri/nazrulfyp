@@ -14,11 +14,15 @@ const bwipjs = require('bwip-js');
 // // const { generatePDF } = require("./pdfgenerator");
 // console.log("generatePDF type:", typeof generatePDF); // should be 'function'
 // console.log(typeof generatePDF); // Should print 'function'
-const pdfMod = require("../src/components/pdfgenerator");
-const admin = require("firebase-admin");
-const generatePDF = pdfMod.generatePDF || pdfMod.default || pdfMod;
-const getStream = require('get-stream');
+// firebase-admin is optional (only needed for Google/Facebook sign-in).
+let admin = null;
+try {
+  admin = require("firebase-admin");
+} catch (error) {
+  console.warn('firebase-admin is not installed; social sign-in is disabled.');
+}
 const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymentEmail');
+const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -32,13 +36,16 @@ const loadImageAsBytes = async (imageUrl) => {
   return await response.arrayBuffer();
 };
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Set EMAIL_DRY_RUN=true to build emails without sending them (useful for testing).
+const transporter = process.env.EMAIL_DRY_RUN === 'true'
+  ? nodemailer.createTransport({ jsonTransport: true })
+  : nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
     
 
 // Debugging
@@ -58,13 +65,21 @@ const MONGODB_URI = process.env.MONGODB_URI
   || process.env.MONGO_URL
   || process.env.DATABASE_URL;
 
-if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI)
+const mongoConnecting = MONGODB_URI
+  ? mongoose.connect(MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`));
-} else {
-  console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
-}
+    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`))
+  : Promise.resolve();
+if (!MONGODB_URI) console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
+
+// On serverless hosts (Vercel) a cold start can receive a request before the
+// database connects, so give the connection a few seconds to finish first.
+app.use(async (req, res, next) => {
+  if (MONGODB_URI && mongoose.connection.readyState !== 1) {
+    await Promise.race([mongoConnecting, new Promise((r) => setTimeout(r, 5000))]);
+  }
+  next();
+});
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -91,6 +106,7 @@ const sendPersistenceSkipped = (res, resourceName, data) => {
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const getFirebaseCredential = () => {
+  if (!admin) return null;
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
     return admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
@@ -458,17 +474,7 @@ app.post('/save-hotel', async (req, res) => {
 
 
 app.post('/submit-payment', async (req, res) => {
-  const {
-    bookingId,
-    paymentMethod,
-    amount,
-    email, // Ensure email is received
-    outboundFlight,
-    returnFlight,
-    passengerDetails,
-    selectedSeats,
-    selectedInsurance,
-  } = req.body;
+  const { bookingId, paymentMethod, amount, email } = req.body;
 
   try {
     if (!bookingId || !email || !paymentMethod || amount == null) {
@@ -478,61 +484,70 @@ app.post('/submit-payment', async (req, res) => {
       });
     }
 
-    // ✅ Generate PDF
-    const ticketData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
-    const pdfBuffer = await generatePDF(ticketData);
-
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      throw new Error("PDF generation failed. Buffer is empty.");
-    }
-
-    // ✅ Read Malaysia Airlines logo image
-    const imagePath = path.join(__dirname, '../src/img/assets/Booking1.png');
-    if (!fs.existsSync(imagePath)) {
-      throw new Error('Error: Image file not found at ' + imagePath);
-    }
-    const imageBuffer = fs.readFileSync(imagePath);
-
-    const emailData = { bookingId, paymentMethod, amount, outboundFlight, returnFlight, passengerDetails, selectedSeats, selectedInsurance };
-    const emailContent = buildPaymentEmail(emailData);
-    const emailText = buildPaymentEmailText(emailData);
-
-    // ✅ Email options with **PDF & Image attachment**
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    // Boarding-pass style email with the PDF e-ticket attached.
+    const mail = await buildTicketEmail('flight', req.body);
+    await transporter.sendMail({
+      from: `BookingFlex <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `BookingFlex payment confirmed - ${bookingId}`,
-      html: emailContent,
-      text: emailText,
-      attachments: [
-        {
-          filename: `Bookingflex_${bookingId}.pdf`,
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-        {
-          filename: 'BookingFlexLogo.png',
-          content: imageBuffer,
-          contentType: "image/png",
-          cid: 'malaysiaLogo', // ✅ Embeds image in email
-        },
-      ],
-    };
-
-    // ✅ Send email
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully to:', email);
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+      attachments: mail.attachments,
+    });
+    console.log('Flight e-ticket emailed to:', email);
 
     res.send({
       success: true,
-      message: 'Payment processed and email sent successfully.',
+      reference: mail.reference,
+      message: 'Payment processed and e-ticket emailed.',
     });
   } catch (error) {
     console.error('Error processing payment or sending email:', error);
     res.status(500).send({
       success: false,
-      message: 'Failed to process payment or send email.',
+      message: 'Payment recorded, but the e-ticket email could not be sent.',
     });
+  }
+});
+
+// Send (or re-send) a ticket email for any booking type.
+app.post('/send-ticket', async (req, res) => {
+  const { kind = 'flight', email, booking } = req.body || {};
+  if (!['flight', 'train', 'hotel'].includes(kind) || !email || !booking) {
+    return res.status(400).json({ success: false, message: 'kind, email and booking are required.' });
+  }
+  try {
+    const mail = await buildTicketEmail(kind, booking);
+    await transporter.sendMail({
+      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+      attachments: mail.attachments,
+    });
+    console.log(`${kind} ticket emailed to:`, email);
+    res.json({ success: true, reference: mail.reference });
+  } catch (error) {
+    console.error('Error sending ticket email:', error);
+    res.status(500).json({ success: false, message: 'The ticket email could not be sent.' });
+  }
+});
+
+// Download the ticket PDF for any booking type.
+app.post('/ticket-pdf', async (req, res) => {
+  const { kind = 'flight', booking } = req.body || {};
+  if (!['flight', 'train', 'hotel'].includes(kind) || !booking) {
+    return res.status(400).json({ message: 'kind and booking are required.' });
+  }
+  try {
+    const pdf = await buildTicketPdf(kind, booking);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="BookingFlex-ticket.pdf"');
+    res.send(pdf);
+  } catch (error) {
+    console.error('Error building ticket PDF:', error);
+    res.status(500).json({ message: 'Could not build the ticket PDF.' });
   }
 });
 
@@ -1007,27 +1022,27 @@ app.post('/bookTrain', async (req, res) => {
 
 
 app.post('/trainsubmit-payment', async (req, res) => {
-  const { trainId, origin, destination, departureTime, totalPrice, paymentMethod, cardDetails } = req.body;
-
-  const newPayment = new paymentmethodtrain({
+  const { trainId, origin, destination, departureTime, totalPrice, paymentMethod } = req.body;
+  // Card numbers and CVVs are never stored.
+  const record = {
     trainId,
     origin,
     destination,
     departureTime,
     totalPrice,
     paymentMethod,
-    cardNumber: cardDetails.cardNumber,
-    expiryDate: cardDetails.expiryDate,
-    cvv: cardDetails.cvv,
-    paymentStatus: 'Success', // Simulating payment success
-    
-  });
+    paymentStatus: 'Success',
+  };
 
   try {
-    const savedPayment = await newPayment.save();
+    if (!isMongoReady()) {
+      return res.status(202).json({ ...record, saved: false });
+    }
+    const savedPayment = await new paymentmethodtrain(record).save();
     res.status(201).json(savedPayment);
   } catch (err) {
-    res.status(400).json({ message: 'Error processing payment', error: err });
+    console.error('Error saving train payment:', err);
+    res.status(400).json({ message: 'Error processing payment' });
   }
 });
 
@@ -1127,15 +1142,22 @@ app.get('/api/suggest', (req, res) => {
 });
 // Start the server
 const PORT = process.env.PORT || 5001;
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the existing server or run with PORT=5010 node server.js.`);
+// Run a normal server locally (`node server.js`); on Vercel the app is
+// imported by api/index.js and served as a serverless function instead.
+if (require.main === module) {
+  const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Stop the existing server or run with PORT=5010 node server.js.`);
+      process.exit(1);
+    }
+
+    console.error('Server startup error:', err);
     process.exit(1);
-  }
+  });
+}
 
-  console.error('Server startup error:', err);
-  process.exit(1);
-});
+module.exports = app;
 

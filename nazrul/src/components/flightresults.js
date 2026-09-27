@@ -1,679 +1,705 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { generateMockFlights } from "../mockdata/flights";
-import "./flightresults.css";
-
-import malaysiaLogo from "../img/assets/images.png";
-import britishAirwaysLogo from "../img/assets/britishairways.jpg";
-import emiratesLogo from "../img/assets/Emirates_logo.png";
-import emiratesLogo1 from "../img/assets/flightlogo/Cathay_Pacific-Logo.wine.png";
-import emiratesLogo2 from "../img/assets/flightlogo/d9b0566be426fb2a5edb292e1231a974.jpg";
-import emiratesLogo3 from "../img/assets/flightlogo/Etihad-airways-logo.svg.png";
-import emiratesLogo4 from "../img/assets/flightlogo/images (4).png";
-import emiratesLogo5 from "../img/assets/flightlogo/Logo_of_Saudia.svg.png";
-import emiratesLogo6 from "../img/assets/flightlogo/Qatar_Airways-Logo.wine.png";
-import emiratesLogo7 from "../img/assets/flightlogo/Turkish_Airlines-Logo.wine.png";
-
+import React, { useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  FaBaby,
-  FaCalendarAlt,
-  FaChild,
-  FaPlaneArrival,
-  FaPlaneDeparture,
-  FaSuitcase,
-  FaUsers,
-} from "react-icons/fa";
+  Plane,
+  ArrowRight,
+  ArrowLeft,
+  SlidersHorizontal,
+  CalendarDays,
+  Users,
+  Info,
+  Check,
+  Zap,
+  BadgeDollarSign,
+  Sunrise,
+  Sun,
+  Sunset,
+  Moon,
+  Luggage,
+  Briefcase,
+  Wifi,
+  Utensils,
+  ChevronDown,
+  X,
+  BedDouble,
+  Palmtree,
+} from "lucide-react";
+import { generateMockFlights } from "../mockdata/flights";
+import { generateMockReturnFlights1 } from "../mockdata/returnlondon";
+import { validateSearch, localDate } from "../lib/searchValidation";
+import { formatMoney } from "../lib/bookingStorage";
+import {
+  airlineMeta,
+  airportMeta,
+  formatDay,
+  shiftDate,
+  indicativeFare,
+  minutesToLabel,
+} from "../lib/travelMeta";
 
-const airlineLogos = {
-  "Malaysia Airlines": malaysiaLogo,
-  "British Airways": britishAirwaysLogo,
-  Emirates: emiratesLogo,
-  "Cathay Pacific": emiratesLogo1,
-  "Singapore Airlines": emiratesLogo2,
-  Etihad: emiratesLogo3,
-  "All Nippon Airways": emiratesLogo4,
-  "Saudia Airlines": emiratesLogo5,
-  "Qatar Airways": emiratesLogo6,
-  "Turkish Airlines": emiratesLogo7,
-};
-
-const getStoredFlightParams = () => {
+const readSaved = () => {
   try {
-    const stored = JSON.parse(localStorage.getItem("flightParams"));
-    return stored?.flightParams || stored || null;
-  } catch (err) {
-    console.warn("Could not read saved flight search:", err);
+    const value = JSON.parse(localStorage.getItem("flightParams"));
+    return value?.flightParams || value;
+  } catch {
     return null;
   }
 };
-
-function FlightResults() {
-  const navigate = useNavigate();
-
-  // ✅ get router state safely
-  const { state } = useLocation();
-  const flightParams = state?.flightParams || getStoredFlightParams();
-  const [infoOpenId, setInfoOpenId] = useState(null);
-  // ✅ tripType: "return" | "oneway"
-  const tripType = flightParams?.tripType || "return";
-  const [noFlightsOpen, setNoFlightsOpen] = useState(false);
-const [hasSearched, setHasSearched] = useState(false);
-  const [flights, setFlights] = useState([]);
-  const [filteredFlights, setFilteredFlights] = useState([]);
-  const [selectedFlightId, setSelectedFlightId] = useState(null);
-
-  // const [people, setPeople] = useState(Number(flightParams?.people || 1));
-  const [passengers, setPassengers] = useState({
-  adults: Math.max(1, Number(flightParams?.adults ?? 1)),
-  children: Number(flightParams?.children ?? 0),
-  infants: Number(flightParams?.infants ?? 0),
-});
-
-const totalPeople = passengers.adults + passengers.children + passengers.infants;
-  const [error, setError] = useState("");
-
-  const [startDate, setStartDate] = useState(flightParams?.departureDate || "");
-  const [returnDate, setReturnDate] = useState(flightParams?.returnDate || "");
-  const [locationInput, setLocationInput] = useState(flightParams?.origin || "");
-  const [destinationInput, setDestinationInput] = useState(flightParams?.destination || "");
-
-  const fmtTime = (iso) => {
-  if (!iso) return "";
-
-  const d = new Date(iso);
-
-  return d.toLocaleTimeString([], {
+const time = (value) =>
+  new Date(value).toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
   });
-};
-  const [filters, setFilters] = useState({
-    nonStop: false,
-    layovers: "any",
-    journeyDuration: 59,
-    layoverDuration: 25,
-    cabinClass: "Economy",
-    airline: "All",
-  });
+const minutes = (flight) =>
+  Math.round((new Date(flight.arrival) - new Date(flight.departure)) / 60000);
+const hourOf = (flight) => new Date(flight.departure).getHours();
 
+const TIME_SLOTS = [
+  ["morning", "Morning", "05–12", Sunrise, (h) => h >= 5 && h < 12],
+  ["afternoon", "Afternoon", "12–18", Sun, (h) => h >= 12 && h < 18],
+  ["evening", "Evening", "18–24", Sunset, (h) => h >= 18],
+  ["night", "Night", "00–05", Moon, (h) => h < 5],
+];
 
-  const toggleInfo = (id) => {
-  setInfoOpenId((prev) => (prev === id ? null : id));
-};
-
-  // ✅ guard when user refreshes / no navigation state
-useEffect(() => {
-  if (!flightParams) {
-    setError("No flight search data. Please search again.");
-    return;
-  }
-
-  localStorage.setItem("flightParams", JSON.stringify(flightParams));
-}, [flightParams]);
-
-  // ✅ generate flights
-  useEffect(() => {
-  if (!flightParams) return;
-
-  try {
-    const generatedFlights = generateMockFlights(
-      startDate,
-      returnDate,
-      locationInput,
-      destinationInput,
-      totalPeople
+export function AirlineBadge({ name, size = 44 }) {
+  const { code, color, logo } = airlineMeta(name);
+  const [failed, setFailed] = useState(false);
+  if (logo && !failed) {
+    return (
+      <span
+        className="bf26-airline has-logo"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      >
+        <img src={logo} alt="" onError={() => setFailed(true)} />
+      </span>
     );
-
-    setFlights(generatedFlights);
-    setFilteredFlights(generatedFlights);
-    setError("");
-    setHasSearched(true);
-  } catch (err) {
-    setError("Error fetching flight data.");
-    console.error("Error:", err);
-    setHasSearched(true);
   }
-}, [flightParams, startDate, returnDate, locationInput, destinationInput, totalPeople]);
-  // ✅ apply filters
-  useEffect(() => {
-    let filtered = flights;
-
-    if (filters.nonStop) {
-      filtered = filtered.filter((flight) => flight.nonStop);
-    }
-
-    if (filters.layovers === "none") {
-      filtered = filtered.filter((flight) => !flight.layovers || flight.layovers === 0);
-    }
-
-    if (filters.airline !== "All") {
-      filtered = filtered.filter((flight) => flight.airline === filters.airline);
-    }
-
-    setFilteredFlights(filtered);
-  }, [flights, filters]);
-
-  // const getTotalCostForFlight = (pricePerPerson) => {
-  //   return (pricePerPerson * people).toFixed(2);
-  // };
-
- const getTotalCostForFlight = (pricePerPerson) => {
-  const totalPeople = passengers.adults + passengers.children + passengers.infants;
-  return (pricePerPerson * totalPeople).toFixed(2);
-};
-
-useEffect(() => {
-  if (!hasSearched) return;
-  if (!error && flights.length === 0) {
-    setNoFlightsOpen(true);
-  } else {
-    setNoFlightsOpen(false);
-  }
-}, [hasSearched, flights, error]);
-
-  const handleFilterChange = (e) => {
-    const { name, value, type } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: type === "radio" ? value : value,
-    }));
-  };
-
-  const handleSelectFlight = (id) => setSelectedFlightId(id);
-  const handleCloseDetails = () => setSelectedFlightId(null);
-  
-  // ✅ select outbound flight -> return OR payment (oneway)
-  const handleSubmitFlight = async (id) => {
-    const selectedFlight = flights.find((f) => f.id === id);
-    if (!selectedFlight) return;
-
-    const totalPrice = getTotalCostForFlight(selectedFlight.price);
-
-    if (tripType === "return") {
-      navigate("/return", {
-        state: {
-          selectedOutboundFlight: selectedFlight,
-          outboundPrice: totalPrice,
-          locationInput,
-          destinationInput,
-          startDate,
-          returnDate,
-          passengers,   // ✅ send object
-          tripType: "return",
-        },
-      });
-    } else {
-      // ✅ ONEWAY => skip return page
-     navigate("/payment", {
-  state: {
-    selectedOutboundFlight: selectedFlight,
-    outboundFlight: selectedFlight,
-
-    selectedReturnFlight: null,
-    returnFlight: null,
-
-    outboundPrice: totalPrice,
-    price: totalPrice,
-
-    locationInput,
-    destinationInput,
-    startDate,
-
-    passengers,
-    totalPeople,
-
-    tripType: "oneway",
-  },
-});
-    }
-
-    // ✅ still save outbound to backend (doesn't block navigation)
-    try {
-      await fetch("http://localhost:5001/flightresults", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: selectedFlight.id,
-          airline: selectedFlight.airline,
-          flightNumber: selectedFlight.flightNumber,
-          departure: selectedFlight.departure,
-          arrival: selectedFlight.arrival,
-          price: totalPrice,
-          origin: selectedFlight.origin,
-          destination: selectedFlight.destination,
-          nonStop: selectedFlight.nonStop,
-        }),
-      });
-    } catch (err) {
-      console.warn("Backend save failed (ignored):", err);
-    }
-  };
-
   return (
-    <div className="flight-results-container">
-      <div className="filters">
-        <p className="filter-text">Filter Your Flight:</p>
-        <div className="filter-section">
-          <h6>Number of layovers:</h6>
-          <div className="filterlayovers">
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="layovers"
-                value="any"
-                checked={filters.layovers === "any"}
-                onChange={handleFilterChange}
-              />
-              Any
-            </label>
-
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="layovers"
-                value="none"
-                checked={filters.layovers === "none"}
-                onChange={handleFilterChange}
-              />
-              Non-stop
-            </label>
-
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="layovers"
-                value="1"
-                checked={filters.layovers === "1"}
-                onChange={handleFilterChange}
-              />
-              Up to 1 stop
-            </label>
-
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="layovers"
-                value="2"
-                checked={filters.layovers === "2"}
-                onChange={handleFilterChange}
-              />
-              Up to 2 stops
-            </label>
-          </div>
-        </div>
-
-        <div className="filter-section">
-          <label>
-            Journey Duration (min):
-            <input
-              type="range"
-              name="journeyDuration"
-              min="0"
-              max="120"
-              value={filters.journeyDuration}
-              onChange={handleFilterChange}
-            />
-            {filters.journeyDuration} hours
-          </label>
-        </div>
-
-        <div className="filter-section">
-          <label>
-            Layover Duration (min):
-            <input
-              type="range"
-              name="layoverDuration"
-              min="0"
-              max="60"
-              value={filters.layoverDuration}
-              onChange={handleFilterChange}
-            />
-            {filters.layoverDuration} hours
-          </label>
-        </div>
-
-        <div className="filter-section">
-          <label>
-            Cabin Class:
-            <select name="cabinClass" value={filters.cabinClass} onChange={handleFilterChange}>
-              <option value="Economy">Economy</option>
-              <option value="Business">Business</option>
-              <option value="First">First</option>
-            </select>
-          </label>
-        </div>
-
-        <div className="filter-section">
-          <label>
-            Airline:
-            <select name="airline" value={filters.airline} onChange={handleFilterChange}>
-              <option value="All">All</option>
-              <option value="Malaysia Airlines">Malaysia Airlines</option>
-              <option value="British Airways">British Airways</option>
-              <option value="Emirates">Emirates</option>
-              <option value="Cathay Pacific">Cathay Pacific</option>
-              <option value="Singapore Airlines">Singapore Airline</option>
-              <option value="Qatar Airways">Qatar Airways</option>
-              <option value="Turkish Airlines">Turkish Airlines</option>
-              <option value="Saudia Airlines">Saudi Airline</option>
-              <option value="Etihad">Etihad Airline</option>
-              <option value="All Nippon Airways">All Nippon Airways</option>
-            </select>
-          </label>
-        </div>
-
-        <button className="filter-button" onClick={() => {}}>
-          Apply Filters
-        </button>
-      </div>
-
-      <div className="flight-results-content">
-        <h1 className="flight-results-title">Flight Results</h1>
-        {error && <p className="error">{error}</p>}
-
-        <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
-          <div className="form-inline">
-            <label>
-              <span className="flight-search-label">
-                <FaPlaneDeparture /> From:
-              </span>
-              <input
-                type="text"
-                value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                className="form-input"
-                placeholder="Enter origin"
-              />
-            </label>
-
-            <label>
-              <span className="flight-search-label">
-                <FaPlaneArrival /> To:
-              </span>
-              <input
-                type="text"
-                value={destinationInput}
-                onChange={(e) => setDestinationInput(e.target.value)}
-                className="form-input"
-                placeholder="Enter destination"
-              />
-            </label>
-
-            <label>
-              <span className="flight-search-label">
-                <FaCalendarAlt /> Start Date:
-              </span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="form-input"
-              />
-            </label>
-
-            {/* ✅ hide return date for oneway */}
-            {tripType !== "oneway" && (
-              <label>
-                <span className="flight-search-label">
-                  <FaCalendarAlt /> Return Date:
-                </span>
-                <input
-                  type="date"
-                  value={returnDate}
-                  onChange={(e) => setReturnDate(e.target.value)}
-                  className="form-input"
-                />
-              </label>
-            )}
-
-            <label>
-  <span className="flight-search-label">
-    <FaUsers /> Adults:
-  </span>
-  <input
-    type="number"
-    value={passengers.adults}
-    onChange={(e) =>
-      setPassengers((p) => ({
-        ...p,
-        adults: Number(e.target.value),
-      }))
-    }
-    min="0"
-    className="form-input"
-  />
-</label>
-
-<label>
-  <span className="flight-search-label">
-    <FaChild /> Children:
-  </span>
-  <input
-    type="number"
-    value={passengers.children}
-    onChange={(e) =>
-      setPassengers((p) => ({
-        ...p,
-        children: Number(e.target.value),
-      }))
-    }
-    min="0"
-    className="form-input"
-  />
-</label>
-
-<label>
-  <span className="flight-search-label">
-    <FaBaby /> Infants:
-  </span>
-  <input
-    type="number"
-    value={passengers.infants}
-    onChange={(e) =>
-      setPassengers((p) => ({
-        ...p,
-        infants: Number(e.target.value),
-      }))
-    }
-    min="0"
-    className="form-input"
-  />
-</label>
-          </div>
-        </form>
-
-        {filteredFlights.length > 0 ? (
-          <ul className="flight-list">
-            {filteredFlights.map((flight) => (
-              <li key={flight.id} className="flight-item">
-                <div className="flight-header">
-                  <img
-                    src={airlineLogos[flight.airline] || emiratesLogo}
-                    alt={`${flight.airline} logo`}
-                    className="airline-logo"
-                  />
-               
-                  <h3>{flight.airline}</h3>
-                  <h5>{flight.flightNumber}</h5>
-          
-                </div>
-
-                <div className="flight-details1">
-                  <div className="flight-times1">
-                    <div className="departure1">
-                      <p className="time1">{fmtTime(flight.departure)}</p>
-                      <p className="airport1">{flight.origin}</p>
-                    </div>
-                   <div className="duration1">
-                    <span className="route-line1 left"></span>
-                    <span className="route-plane">✈</span>
-                    <span className="route-line1 right1"></span>
-                    </div>
-                    <div className="arrival">
-                      <p className="time1">{fmtTime(flight.arrival)}</p>
-                      <p className="airport1">{flight.destination}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flight-price1">
-                  <div className="pricefont1">
-                    <h4>{getTotalCostForFlight(flight.price)} MYR</h4>
-                  </div>
-
-                  <div className="button-container">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectFlight(flight.id)}
-                      className="flight-details-button"
-                    >
-                      View Details
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSubmitFlight(flight.id)}
-                      className="flight-select-button"
-                    >
-                      Select Flight
-                    </button>
-                  </div>
-                </div>
-
-{selectedFlightId === flight.id && (
-  <div className="flight-detailsSheet">
-    {/* Timeline column INSIDE the sheet */}
-    <div className="fd-leftRail">
-      <span className="fd-dot" />
-      <span className="fd-rail" />
-      <span className="fd-dot" />
-    </div>
-
-    <div className="fd-body">
-      {/* Header row */}
-     <div className="fd-head">
-  <div className="fd-headLeft">
-    <span className="fd-airline">{flight.airline}</span>
-    <span className="fd-flightNo">{flight.flightNumber}</span>
-  </div>
-</div>
-
-      {/* Departure block */}
-      <div className="fd-stop">
-        <div className="fd-row">
-          <div className="fd-time">{fmtTime(flight.departure)}</div>
-          <div className="fd-code">{flight.origin}</div>
-          <div className="fd-place">{flight.originFull || "Kuala Lumpur International Airport"}</div>
-        </div>
-
-<div className="fd-meta">
-  <span className="fd-chip">⏱ {flight.duration}</span>
-  <span className="fd-chip">🍱 Meal</span>
-  <span className="fd-chip">📶 Wi-Fi</span>
-  <span className="fd-chip">🔌 Power</span>
-
-  <button
-    type="button"
-    className="fd-infoBtn"
-    onClick={() => toggleInfo(flight.id)}
-  >
-    {infoOpenId === flight.id ? "Hide info" : "Show info"}
-  </button>
-</div>
-
-        {/* Expandable info (like screenshot #2) */}
-        <div className={`fd-expand ${infoOpenId === flight.id ? "open" : ""}`}>
-          <div className="fd-expandInner">
-            <div className="fd-infoRow">✈️ <span>A350 (widebody)</span></div>
-            <div className="fd-infoRow">💺 <span>3-3-3 seat layout</span></div>
-            <div className="fd-infoRow">📏 <span>79 cm seat pitch</span></div>
-            <div className="fd-dash" />
-            <div className="fd-infoRow">🍱 <span>Meal provided</span></div>
-            <div className="fd-infoRow">📺 <span>Seatback on-demand & live TV</span></div>
-            <div className="fd-infoRow">📶 <span>Basic web browsing (fee)</span></div>
-            <div className="fd-infoRow">🔌 <span>Power & USB outlets</span></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Separation like timeline break */}
-      {!flight.nonStop && (
-        <div className="fd-layover">
-          <span className="fd-layoverTime">4h 40</span>
-          <span className="fd-layoverText">Connect in airport</span>
-          <span className="fd-layoverTag">Long wait</span>
-        </div>
-      )}
-
-      {/* Arrival block */}
-      <div className="fd-stop">
-        <div className="fd-row">
-          <div className="fd-time">{fmtTime(flight.arrival)}</div>
-          <div className="fd-code">{flight.destination}</div>
-          <div className="fd-place">{flight.destFull || "London Heathrow Airport"}</div>
-        </div>
-      </div>
-
-      {/* Baggage */}
-      <div className="fd-baggage">
-        <div className="fd-bagTitle">Complimentary Baggage Allowance</div>
-        <div className="fd-bagRow">
-          <FaSuitcase />
-          <span>Carry-on baggage: 20 kg</span>
-        </div>
-      </div>
-
-      <button className="fd-closeBtn" onClick={handleCloseDetails} type="button">
-        Close
-      </button>
-    </div>
-  </div>
-)}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No flights available for your search criteria.</p>
-        )}
-      </div>
-       {/* ✅ MODAL MUST BE HERE (inside return) */}
-      {noFlightsOpen && (
-        <div className="nf-overlay" role="dialog" aria-modal="true">
-          <div className="nf-modal">
-            <div className="nf-title">No flights found</div>
-            <div className="nf-text">
-              Try changing dates, origin/destination, or passengers.
-            </div>
-
-            <div className="nf-actions">
-              <button
-                type="button"
-                className="nf-btn secondary"
-                onClick={() => setNoFlightsOpen(false)}
-              >
-                Close
-              </button>
-
-              <button
-                type="button"
-                className="nf-btn primary"
-                onClick={() => {
-                  setNoFlightsOpen(false);
-                  setPassengers((p) => ({ ...p, adults: Math.max(1, p.adults) }));
-                }}
-              >
-                Set 1 Adult
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <span
+      className="bf26-airline"
+      style={{ "--airline": color, width: size, height: size }}
+      aria-hidden="true"
+    >
+      {code}
+    </span>
   );
 }
-//     </div>
-//   );
-// }
 
+export function BookingSteps({ current, tripType, steps: custom }) {
+  const steps = custom ? [...custom] : ["Search", "Outbound"];
+  if (!custom) {
+    if (tripType === "return") steps.push("Return");
+    steps.push("Traveller details", "Payment");
+  }
+  const index = Math.max(0, steps.indexOf(current));
+  return (
+    <ol className="bf26-steps" aria-label="Booking progress">
+      {steps.map((step, i) => (
+        <li
+          key={step}
+          className={i < index ? "is-done" : i === index ? "is-current" : ""}
+          aria-current={i === index ? "step" : undefined}
+        >
+          <span>{i < index ? <Check size={13} /> : i + 1}</span>
+          {step}
+        </li>
+      ))}
+    </ol>
+  );
+}
 
-export default FlightResults;
+export default function FlightResults({ returnLeg = false }) {
+  const { state, pathname } = useLocation();
+  const navigate = useNavigate();
+  const params = useMemo(
+    () =>
+      returnLeg ? state?.flightParams : state?.flightParams || readSaved(),
+    [state, returnLeg],
+  );
+  const [airlines, setAirlines] = useState([]);
+  const [stops, setStops] = useState("any");
+  const [slots, setSlots] = useState([]);
+  const [maxDuration, setMaxDuration] = useState(24);
+  const [sort, setSort] = useState("price");
+  const [expanded, setExpanded] = useState(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const people = Number(params?.people) || 1;
+
+  const flights = useMemo(() => {
+    if (
+      !params ||
+      validateSearch({
+        mode: "flight",
+        ...params,
+        adults: Number(params.adults ?? people),
+        children: Number(params.children || 0),
+        infants: Number(params.infants || 0),
+      })
+    )
+      return [];
+    if (returnLeg)
+      return generateMockReturnFlights1(
+        params.returnDate,
+        params.returnDate,
+        params.origin,
+        params.destination,
+      );
+    return generateMockFlights(
+      params.departureDate,
+      params.returnDate,
+      params.origin,
+      params.destination,
+    );
+  }, [params, returnLeg, people]);
+
+  const stats = useMemo(() => {
+    if (!flights.length) return null;
+    const byPrice = [...flights].sort((a, b) => a.price - b.price)[0];
+    const byTime = [...flights].sort((a, b) => minutes(a) - minutes(b))[0];
+    const byDeparture = [...flights].sort(
+      (a, b) => new Date(a.departure) - new Date(b.departure),
+    )[0];
+    return { byPrice, byTime, byDeparture };
+  }, [flights]);
+
+  const airlineOptions = useMemo(() => {
+    const map = new Map();
+    flights.forEach((f) => {
+      map.set(f.airline, Math.min(map.get(f.airline) ?? Infinity, f.price));
+    });
+    return [...map.entries()].sort((a, b) => a[1] - b[1]);
+  }, [flights]);
+
+  const filtered = flights
+    .filter(
+      (f) =>
+        (!airlines.length || airlines.includes(f.airline)) &&
+        (stops !== "direct" || f.nonStop) &&
+        minutes(f) <= maxDuration * 60 &&
+        (!slots.length ||
+          TIME_SLOTS.some(
+            ([key, , , , test]) => slots.includes(key) && test(hourOf(f)),
+          )),
+    )
+    .sort((a, b) =>
+      sort === "duration"
+        ? minutes(a) - minutes(b)
+        : sort === "departure"
+          ? new Date(a.departure) - new Date(b.departure)
+          : a.price - b.price,
+    );
+
+  const activeFilters =
+    airlines.length + slots.length + (stops !== "any") + (maxDuration < 24);
+
+  function resetFilters() {
+    setAirlines([]);
+    setSlots([]);
+    setStops("any");
+    setMaxDuration(24);
+  }
+
+  function toggle(list, setList, value) {
+    setList(
+      list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
+    );
+  }
+
+  function changeDate(date) {
+    const next = returnLeg
+      ? { ...params, returnDate: date }
+      : {
+          ...params,
+          departureDate: date,
+          returnDate:
+            params.returnDate && params.returnDate < date
+              ? date
+              : params.returnDate,
+        };
+    if (!returnLeg) localStorage.setItem("flightParams", JSON.stringify(next));
+    setExpanded(null);
+    navigate(pathname, { replace: true, state: { ...state, flightParams: next } });
+  }
+
+  function select(flight) {
+    if (!returnLeg && params.tripType === "return") {
+      navigate("/return", {
+        state: { flightParams: params, selectedOutboundFlight: flight },
+      });
+    } else {
+      navigate("/payment", {
+        state: {
+          outboundFlight: returnLeg ? state.selectedOutboundFlight : flight,
+          returnFlight: returnLeg ? flight : null,
+          people,
+          passengers: {
+            adults: params.adults,
+            children: params.children,
+            infants: params.infants,
+          },
+          tripType: params.tripType,
+          vacation: params.vacation,
+        },
+      });
+    }
+  }
+
+  if (
+    !params ||
+    !flights.length ||
+    (returnLeg && !state?.selectedOutboundFlight)
+  )
+    return (
+      <section className="bf-empty">
+        <Plane size={36} />
+        <h1>Let’s find your next flight.</h1>
+        <p>
+          Your search is missing or has expired. Choose a route and new travel
+          dates.
+        </p>
+        <Link className="bf-primary" to="/">
+          Search flights <ArrowRight size={16} />
+        </Link>
+      </section>
+    );
+
+  const from = airportMeta(returnLeg ? params.destination : params.origin);
+  const to = airportMeta(returnLeg ? params.origin : params.destination);
+  const currentDate = returnLeg ? params.returnDate : params.departureDate;
+  const earliest = returnLeg ? params.departureDate : localDate();
+  const cheapest = stats.byPrice.price;
+  const dates = [-3, -2, -1, 0, 1, 2, 3]
+    .map((offset) => shiftDate(currentDate, offset))
+    .filter((d) => d >= earliest);
+  const outbound = state?.selectedOutboundFlight;
+
+  return (
+    <section className="bf26-results">
+      <div className="bf26-results-top">
+        <Link className="bf-back" to="/">
+          <ArrowLeft size={15} /> Change your search
+        </Link>
+        <BookingSteps
+          current={returnLeg ? "Return" : "Outbound"}
+          tripType={params.tripType}
+        />
+      </div>
+
+      <header className="bf26-route">
+        <div className="bf26-route-main">
+          <span className="bf26-kicker">
+            {returnLeg ? "Choose your return flight" : "Choose your outbound flight"}
+          </span>
+          <div className="bf26-route-cities">
+            <div>
+              <strong>{from.code}</strong>
+              <span>{from.city}</span>
+            </div>
+            <div className="bf26-route-line" aria-hidden="true">
+              <i />
+              <Plane size={20} />
+              <i />
+            </div>
+            <div>
+              <strong>{to.code}</strong>
+              <span>{to.city}</span>
+            </div>
+          </div>
+          <p className="bf26-route-meta">
+            <span>
+              <CalendarDays size={15} /> {formatDay(currentDate, { year: "numeric" })}
+            </span>
+            <span>
+              <Users size={15} /> {people} {people === 1 ? "traveller" : "travellers"}
+            </span>
+            <span>Economy</span>
+            <span>{params.tripType === "return" ? "Round trip" : "One way"}</span>
+          </p>
+        </div>
+        <div className="bf26-route-side">
+          {outbound ? (
+            <div className="bf26-chosen">
+              <span className="bf26-kicker">Outbound selected</span>
+              <div>
+                <AirlineBadge name={outbound.airline} size={36} />
+                <span>
+                  <strong>
+                    {time(outbound.departure)} – {time(outbound.arrival)}
+                  </strong>
+                  <small>
+                    {outbound.airline} · {formatDay(outbound.departure)}
+                  </small>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/flight-results", {
+                    state: { flightParams: params },
+                  })
+                }
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <div className="bf26-from-price">
+              <span className="bf26-kicker">Fares from</span>
+              <strong>{formatMoney(cheapest)}</strong>
+              <small>per traveller · sample fare</small>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {params.vacation && (
+        <div className="bf26-vacation">
+          <Palmtree size={20} />
+          <p>
+            <strong>Vacation package · {params.vacation.city}</strong>
+            <span>
+              Pick your flights, then add a stay in {params.vacation.city} for
+              the same dates.
+            </span>
+          </p>
+          <Link to="/hotel" className="bf26-ghost">
+            <BedDouble size={16} /> Browse stays
+          </Link>
+        </div>
+      )}
+
+      <nav className="bf26-datestrip" aria-label="Nearby dates">
+        {dates.map((date) => {
+          const fare = date === currentDate ? cheapest : indicativeFare(cheapest, date);
+          const low = fare <= cheapest;
+          return (
+            <button
+              key={date}
+              type="button"
+              className={date === currentDate ? "is-active" : ""}
+              aria-pressed={date === currentDate}
+              onClick={() => date !== currentDate && changeDate(date)}
+            >
+              <small>{formatDay(date, { day: undefined, month: undefined })}</small>
+              <strong>{formatDay(date, { weekday: undefined })}</strong>
+              <em className={low ? "is-low" : ""}>
+                {formatMoney(fare).replace(".00", "")}
+              </em>
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="bf26-sorts" role="tablist" aria-label="Sort flights">
+        {[
+          ["price", "Cheapest", BadgeDollarSign, stats.byPrice],
+          ["duration", "Fastest", Zap, stats.byTime],
+          ["departure", "Earliest", Sunrise, stats.byDeparture],
+        ].map(([value, label, Icon, flight]) => (
+          <button
+            key={value}
+            role="tab"
+            aria-selected={sort === value}
+            className={sort === value ? "is-active" : ""}
+            onClick={() => setSort(value)}
+          >
+            <Icon size={18} />
+            <span>
+              <strong>{label}</strong>
+              <small>
+                {formatMoney(flight.price).replace(".00", "")} ·{" "}
+                {value === "departure"
+                  ? time(flight.departure)
+                  : minutesToLabel(minutes(flight))}
+              </small>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="bf26-results-layout">
+        <aside className={`bf26-filters ${filtersOpen ? "is-open" : ""}`}>
+          <div className="bf26-filters-head">
+            <h2>
+              <SlidersHorizontal size={17} /> Filters
+              {activeFilters > 0 && <span>{activeFilters}</span>}
+            </h2>
+            <button type="button" onClick={resetFilters} disabled={!activeFilters}>
+              Reset
+            </button>
+            <button
+              type="button"
+              className="bf26-filters-close"
+              aria-label="Close filters"
+              onClick={() => setFiltersOpen(false)}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <fieldset>
+            <legend>Stops</legend>
+            <div className="bf26-segment">
+              {[
+                ["any", "Any"],
+                ["direct", "Direct only"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={stops === value}
+                  className={stops === value ? "is-active" : ""}
+                  onClick={() => setStops(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Departure time</legend>
+            <div className="bf26-slots">
+              {TIME_SLOTS.map(([key, label, range, Icon]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={slots.includes(key)}
+                  className={slots.includes(key) ? "is-active" : ""}
+                  onClick={() => toggle(slots, setSlots, key)}
+                >
+                  <Icon size={17} />
+                  <strong>{label}</strong>
+                  <small>{range}</small>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>
+              Max journey time <strong>{maxDuration}h</strong>
+            </legend>
+            <input
+              type="range"
+              min="1"
+              max="24"
+              value={maxDuration}
+              aria-label="Maximum journey time in hours"
+              onChange={(e) => setMaxDuration(Number(e.target.value))}
+              style={{ "--fill": `${((maxDuration - 1) / 23) * 100}%` }}
+            />
+          </fieldset>
+
+          <fieldset>
+            <legend>Airlines</legend>
+            <div className="bf26-airline-list">
+              {airlineOptions.map(([name, price]) => (
+                <label key={name}>
+                  <input
+                    type="checkbox"
+                    checked={airlines.includes(name)}
+                    onChange={() => toggle(airlines, setAirlines, name)}
+                  />
+                  <AirlineBadge name={name} size={26} />
+                  <span>{name}</span>
+                  <small>{formatMoney(price).replace(".00", "")}</small>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <p className="bf26-note">
+            <Info size={14} /> Demonstration fares. Availability and prices are
+            not connected to airline inventory.
+          </p>
+          <button
+            type="button"
+            className="bf26-primary bf26-filters-apply"
+            onClick={() => setFiltersOpen(false)}
+          >
+            Show {filtered.length} flights
+          </button>
+        </aside>
+
+        <div className="bf26-list">
+          <div className="bf26-list-bar">
+            <span>
+              <strong>{filtered.length}</strong> of {flights.length} flights
+            </span>
+            <button
+              type="button"
+              className="bf26-filter-toggle"
+              onClick={() => setFiltersOpen(true)}
+            >
+              <SlidersHorizontal size={16} /> Filters
+              {activeFilters > 0 && <span>{activeFilters}</span>}
+            </button>
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="bf26-empty-card">
+              <Plane size={28} />
+              <h2>No flights match these filters.</h2>
+              <p>Try a longer journey time or include connecting flights.</p>
+              <button type="button" className="bf26-ghost" onClick={resetFilters}>
+                Clear filters
+              </button>
+            </div>
+          )}
+
+          {filtered.map((flight, index) => {
+            const isCheapest = flight.id === stats.byPrice.id;
+            const isFastest = flight.id === stats.byTime.id;
+            const nextDay =
+              flight.arrival.slice(0, 10) !== flight.departure.slice(0, 10);
+            const open = expanded === flight.id;
+            const dep = airportMeta(flight.origin);
+            const arr = airportMeta(flight.destination);
+            return (
+              <article
+                className={`bf26-flight ${open ? "is-open" : ""}`}
+                key={flight.id}
+                style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+              >
+                <div className="bf26-flight-main">
+                  <div className="bf26-flight-airline">
+                    <AirlineBadge name={flight.airline} />
+                    <span>
+                      <strong>{flight.airline}</strong>
+                      <small>{flight.flightNumber} · Economy</small>
+                    </span>
+                  </div>
+
+                  <div className="bf26-flight-times">
+                    <div>
+                      <strong>{time(flight.departure)}</strong>
+                      <span>{dep.code}</span>
+                    </div>
+                    <div className="bf26-flight-path">
+                      <small>{minutesToLabel(minutes(flight))}</small>
+                      <span aria-hidden="true">
+                        <i />
+                        {!flight.nonStop && <b />}
+                        <Plane size={14} />
+                      </span>
+                      <small className={flight.nonStop ? "is-direct" : ""}>
+                        {flight.nonStop ? "Direct" : "1 stop"}
+                      </small>
+                    </div>
+                    <div>
+                      <strong>
+                        {time(flight.arrival)}
+                        {nextDay && <sup>+1</sup>}
+                      </strong>
+                      <span>{arr.code}</span>
+                    </div>
+                  </div>
+
+                  <div className="bf26-flight-fare">
+                    <div className="bf26-tags">
+                      {isCheapest && <span className="is-lime">Cheapest</span>}
+                      {isFastest && <span className="is-sky">Fastest</span>}
+                    </div>
+                    <strong>{formatMoney(flight.price * people)}</strong>
+                    <small>
+                      {people > 1
+                        ? `${formatMoney(flight.price)} × ${people} travellers`
+                        : "per traveller"}
+                    </small>
+                    <button
+                      type="button"
+                      className="bf26-primary"
+                      onClick={() => select(flight)}
+                    >
+                      Select <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="bf26-flight-toggle"
+                  aria-expanded={open}
+                  onClick={() => setExpanded(open ? null : flight.id)}
+                >
+                  <span>
+                    <Briefcase size={14} /> 7 kg cabin
+                  </span>
+                  <span>
+                    <Luggage size={14} /> 30 kg checked
+                  </span>
+                  <span className="bf26-hide-sm">
+                    <Utensils size={14} /> Meal
+                  </span>
+                  <span className="bf26-hide-sm">
+                    <Wifi size={14} /> Wi-Fi
+                  </span>
+                  <em>
+                    {open ? "Hide details" : "Flight details"}{" "}
+                    <ChevronDown size={15} />
+                  </em>
+                </button>
+
+                {open && (
+                  <div className="bf26-flight-details">
+                    <ol className="bf26-timeline">
+                      <li>
+                        <strong>{time(flight.departure)}</strong>
+                        <span>
+                          {flight.origin}
+                          <small>{formatDay(flight.departure, { year: "numeric" })}</small>
+                        </span>
+                      </li>
+                      <li className="is-travel">
+                        <small>
+                          {minutesToLabel(minutes(flight))} ·{" "}
+                          {flight.nonStop ? "Non-stop" : "Includes 1 connection"} ·{" "}
+                          {flight.flightNumber}
+                        </small>
+                      </li>
+                      <li>
+                        <strong>{time(flight.arrival)}</strong>
+                        <span>
+                          {flight.destination}
+                          <small>{formatDay(flight.arrival, { year: "numeric" })}</small>
+                        </span>
+                      </li>
+                    </ol>
+                    <div className="bf26-fare-box">
+                      <span className="bf26-kicker">Fare breakdown</span>
+                      <p>
+                        <span>Per traveller</span>
+                        <strong>{formatMoney(flight.price)}</strong>
+                      </p>
+                      <p>
+                        <span>Travellers</span>
+                        <strong>× {people}</strong>
+                      </p>
+                      <p className="is-total">
+                        <span>Flight total</span>
+                        <strong>{formatMoney(flight.price * people)}</strong>
+                      </p>
+                      <small>
+                        Taxes, seats and extras are added at checkout. Times are
+                        illustrative local times, not a live schedule.
+                      </small>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </div>
+      {filtersOpen && (
+        <div
+          className="bf26-scrim"
+          onClick={() => setFiltersOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+    </section>
+  );
+}

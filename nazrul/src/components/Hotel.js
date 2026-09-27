@@ -1,5 +1,6 @@
+import { API_BASE } from "../lib/apiConfig";
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { generateMockHotels } from '../mockdata/Hotel';
 import './Hotel.css';
 import Slider from 'react-slick';
@@ -9,25 +10,41 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-  FaArrowRight,
-  FaBed,
-  FaCalendarAlt,
-  FaDumbbell,
-  FaHotel,
-  FaMapMarkedAlt,
-  FaMapMarkerAlt,
-  FaParking,
-  FaRuler,
-  FaSearch,
-  FaSearchLocation,
-  FaSlidersH,
-  FaSpa,
-  FaStar,
-  FaSwimmingPool,
-  FaTags,
-  FaUsers,
-  FaWifi,
-} from 'react-icons/fa';
+  ArrowLeft,
+  ArrowRight,
+  BedDouble,
+  CalendarDays,
+  Dumbbell,
+  Hotel as HotelIcon,
+  MapPin,
+  Moon,
+  ParkingCircle,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  Users,
+  Waves,
+  Wifi,
+} from 'lucide-react';
+import { BookingSteps } from './flightresults';
+import { formatDay } from '../lib/travelMeta';
+import { localDate, validateSearch } from '../lib/searchValidation';
+
+const HOTEL_STEPS = ['Search', 'Stay', 'Guest details', 'Payment'];
+const AMENITY_ICONS = { WiFi: Wifi, Pool: Waves, Gym: Dumbbell, Parking: ParkingCircle, Spa: Sparkles };
+const amenityIcon = (name) => {
+  const Icon = AMENITY_ICONS[name] || HotelIcon;
+  return <Icon size={14} />;
+};
+const pricePin = (price) =>
+  L.divIcon({
+    className: 'bf26-price-pin-host',
+    html: `<span class="bf26-price-pin">MYR ${Number(price).toLocaleString('en-MY')}</span>`,
+    iconSize: [86, 30],
+    iconAnchor: [43, 30],
+    popupAnchor: [0, -28],
+  });
 
 const HOTEL_PARAMS_KEY = 'hotelParams';
 const HOTEL_FILTERS_KEY = 'hotelFilters';
@@ -87,23 +104,6 @@ const sliderSettings = {
   slidesToScroll: 1,
   arrows: false,
 };
-
-const hotelGlassIcon = () =>
-  L.divIcon({
-    className: 'hotel-filter-glass-marker-host',
-    html: `
-      <div class="hotel-filter-glass-pin" aria-hidden="true">
-        <span class="hotel-filter-glass-pin-core">
-          <span class="hotel-filter-glass-pin-dot"></span>
-        </span>
-        <span class="hotel-filter-glass-pin-point"></span>
-        <span class="hotel-filter-glass-pin-pulse"></span>
-      </div>
-    `,
-    iconSize: [46, 54],
-    iconAnchor: [23, 48],
-    popupAnchor: [0, -45],
-  });
 
 const MapRecenter = ({ center }) => {
   const map = useMap();
@@ -199,8 +199,22 @@ function Hotel() {
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
+    const next = normalizeSearch(searchValues);
+    const problem = validateSearch({
+      mode: 'hotel',
+      destination: next.location,
+      departureDate: next.checkInDate,
+      returnDate: next.checkOutDate,
+      adults: next.people,
+      children: 0,
+      infants: 0,
+    });
+    if (problem) {
+      setError(problem);
+      return;
+    }
     setError('');
-    setAppliedSearch(normalizeSearch(searchValues));
+    setAppliedSearch(next);
   };
 
   const handleFilterChange = (event) => {
@@ -232,7 +246,7 @@ function Hotel() {
 
   const saveHotelSelection = async (hotelData) => {
     try {
-      const response = await fetch('http://localhost:5001/save-hotel', {
+      const response = await fetch(`${API_BASE}/save-hotel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -289,176 +303,189 @@ function Hotel() {
     });
   };
 
-  const scrollToResults = () => {
-    document.querySelector('.hotel-results-content')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const renderAmenities = (amenities = []) => {
-    const icons = {
-      WiFi: <FaWifi />,
-      Pool: <FaSwimmingPool />,
-      Gym: <FaDumbbell />,
-      Parking: <FaParking />,
-      Spa: <FaSpa />,
-    };
-
-    return amenities.slice(0, 4).map((amenity) => (
-      <span key={amenity}>
-        {icons[amenity] || <FaHotel />}
-        {amenity}
-      </span>
-    ));
-  };
+  const minNightly = hotels.length
+    ? Math.min(...hotels.map((hotel) => hotel.pricePerNight))
+    : 0;
+  const scoreLabel = (score) =>
+    score >= 9 ? 'Exceptional' : score >= 8.5 ? 'Superb' : score >= 8 ? 'Very good' : 'Good';
+  const chip = (name, value, label) => (
+    <button
+      key={`${name}-${value}`}
+      type="button"
+      aria-pressed={filters[name] === value}
+      className={filters[name] === value ? 'is-active' : ''}
+      onClick={() => setFilters((current) => ({ ...current, [name]: value }))}
+    >
+      {label}
+    </button>
+  );
 
   return (
-    <div className="hotel-results-container1">
-      <section className="hotel-results-hero" aria-label="Hotel results overview">
-        <div className="hotel-results-hero-copy">
-          <span className="hotel-modern-kicker">
-            <FaHotel /> Curated hotel stays
+    <section className="bf26-results bf26-hotels">
+      <div className="bf26-results-top">
+        <Link className="bf-back" to="/">
+          <ArrowLeft size={15} /> Back to search
+        </Link>
+        <BookingSteps current="Stay" steps={HOTEL_STEPS} />
+      </div>
+
+      <header className="bf26-route bf26-route-hotel">
+        <div className="bf26-route-main">
+          <span className="bf26-kicker">
+            <BedDouble size={14} /> Stays in
           </span>
-          <h1>{appliedSearch.location || 'London'} hotel stays for your next trip</h1>
-          <p>
-            Central stays with dependable ratings, room comfort, location context, and
-            transparent pricing.
+          <h1 className="bf26-hotel-city">{appliedSearch.location || 'London'}</h1>
+          <p className="bf26-route-meta">
+            <span>
+              <CalendarDays size={15} />{' '}
+              {appliedSearch.checkInDate
+                ? `${formatDay(appliedSearch.checkInDate)} – ${formatDay(appliedSearch.checkOutDate)}`
+                : 'Choose dates'}
+            </span>
+            <span>
+              <Moon size={15} /> {nights} night{nights === 1 ? '' : 's'}
+            </span>
+            <span>
+              <Users size={15} /> {appliedSearch.people} guest{appliedSearch.people === 1 ? '' : 's'}
+            </span>
           </p>
-          <div className="hotel-search-chips">
-            <span>
-              <FaMapMarkerAlt /> {appliedSearch.location || 'London'}
-            </span>
-            <span>
-              <FaCalendarAlt /> {nights} night{nights === 1 ? '' : 's'}
-            </span>
-            <span>
-              <FaUsers /> {appliedSearch.people} guest{appliedSearch.people === 1 ? '' : 's'}
-            </span>
+        </div>
+        <div className="bf26-route-side">
+          <div className="bf26-from-price">
+            <span className="bf26-kicker">Stays from</span>
+            <strong>{formatMYR(minNightly)}</strong>
+            <small>per night · {filteredHotels.length} properties</small>
           </div>
         </div>
+      </header>
 
-        <div className="hotel-results-hero-panel">
-          <strong>{filteredHotels.length}</strong>
-          <span>properties found</span>
-          <small>
-            From {formatMYR(Math.min(...hotels.map((hotel) => hotel.pricePerNight)))}/night
-          </small>
-          <button type="button" onClick={scrollToResults}>
-            View matches
-          </button>
-        </div>
-      </section>
+      <form className="bf26-hotel-search" onSubmit={handleSearchSubmit} noValidate>
+        <label>
+          <span>Destination</span>
+          <input
+            type="text"
+            name="location"
+            value={searchValues.location}
+            onChange={handleSearchChange}
+            placeholder="City or destination"
+            list="bf26-hotel-cities"
+          />
+        </label>
+        <label>
+          <span>Check-in</span>
+          <input
+            type="date"
+            name="checkInDate"
+            min={localDate()}
+            value={searchValues.checkInDate}
+            onChange={handleSearchChange}
+          />
+        </label>
+        <label>
+          <span>Check-out</span>
+          <input
+            type="date"
+            name="checkOutDate"
+            min={searchValues.checkInDate || localDate()}
+            value={searchValues.checkOutDate}
+            onChange={handleSearchChange}
+          />
+        </label>
+        <label className="bf26-hotel-guests">
+          <span>Guests</span>
+          <input
+            type="number"
+            name="people"
+            min="1"
+            max="9"
+            value={searchValues.people}
+            onChange={handleSearchChange}
+          />
+        </label>
+        <button className="bf26-primary" type="submit">
+          <Search size={17} /> Update
+        </button>
+        <datalist id="bf26-hotel-cities">
+          {['London', 'Kuala Lumpur', 'Bali', 'Tokyo', 'Paris', 'Singapore'].map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
+      </form>
+      {error && (
+        <p className="bf-search-error bf26-hotel-error" role="alert">
+          {error}
+        </p>
+      )}
 
-      <div className="hotel-main-content1">
-        <aside className="filters5" aria-label="Hotel filters">
-          <div className="filter-panel-header">
-            <span className="filter-kicker">
-              <FaSlidersH /> Smart filters
-            </span>
-            <p className="filter-text">Filter your hotel</p>
-            <p>Nightly budget, star class, brand, and location context in one compact panel.</p>
+      <div className="bf26-results-layout">
+        <aside className="bf26-filters" aria-label="Hotel filters">
+          <div className="bf26-filters-head">
+            <h2>
+              <SlidersHorizontal size={17} /> Filters
+            </h2>
+            <button
+              type="button"
+              onClick={() => setFilters(defaultFilters)}
+              disabled={JSON.stringify(filters) === JSON.stringify(defaultFilters)}
+            >
+              Reset
+            </button>
           </div>
 
-          <div className="filter-quick-stats">
-            <span>
-              <strong>{hotels.length}</strong>
-              <small>stays</small>
-            </span>
-            <span>
-              <strong>{filteredHotels.length}</strong>
-              <small>matches</small>
-            </span>
-            <span>
-              <strong>{nights}</strong>
-              <small>nights</small>
-            </span>
-          </div>
+          <fieldset>
+            <legend>Sort by</legend>
+            <select
+              className="bf26-select"
+              name="sortBy"
+              value={filters.sortBy}
+              onChange={handleFilterChange}
+              aria-label="Sort hotels"
+            >
+              <option value="recommended">Recommended</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="rating-high">Guest rating</option>
+              <option value="distance">Closest to centre</option>
+            </select>
+          </fieldset>
 
-          <div className="filter-control-grid">
-            <div className="filter-section filter-select-section">
-              <label htmlFor="priceRange">
-                <span>
-                  <FaTags /> Price range
-                </span>
-              </label>
-              <select
-                id="priceRange"
-                name="priceRange"
-                value={filters.priceRange}
-                onChange={handleFilterChange}
-              >
-                <option value="any">Any price</option>
-                <option value="300">Under MYR300/night</option>
-                <option value="400">Under MYR400/night</option>
-                <option value="500">Under MYR500/night</option>
-              </select>
+          <fieldset>
+            <legend>Nightly budget</legend>
+            <div className="bf26-chips">
+              {chip('priceRange', 'any', 'Any')}
+              {chip('priceRange', '300', '< MYR 300')}
+              {chip('priceRange', '400', '< MYR 400')}
+              {chip('priceRange', '500', '< MYR 500')}
             </div>
+          </fieldset>
 
-            <div className="filter-section filter-select-section">
-              <label htmlFor="starRating">
-                <span>
-                  <FaStar /> Star rating
-                </span>
-              </label>
-              <select
-                id="starRating"
-                name="starRating"
-                value={filters.starRating}
-                onChange={handleFilterChange}
-              >
-                <option value="any">Any rating</option>
-                <option value="3">3 stars</option>
-                <option value="4">4 stars</option>
-                <option value="5">5 stars</option>
-              </select>
+          <fieldset>
+            <legend>Star rating</legend>
+            <div className="bf26-chips">
+              {chip('starRating', 'any', 'Any')}
+              {['3', '4', '5'].map((n) =>
+                chip('starRating', n, (
+                  <>
+                    {n} <Star size={12} fill="currentColor" />
+                  </>
+                ))
+              )}
             </div>
+          </fieldset>
 
-            <div className="filter-section filter-select-section">
-              <label htmlFor="hotelBrand">
-                <span>
-                  <FaHotel /> Hotel brand
-                </span>
-              </label>
-              <select
-                id="hotelBrand"
-                name="hotelBrand"
-                value={filters.hotelBrand}
-                onChange={handleFilterChange}
-              >
-                {brandOptions.map((brand) => (
-                  <option value={brand} key={brand}>
-                    {brand}
-                  </option>
-                ))}
-              </select>
+          <fieldset>
+            <legend>Brand</legend>
+            <div className="bf26-chips">
+              {brandOptions.map((brand) => chip('hotelBrand', brand, brand === 'All' ? 'All brands' : brand))}
             </div>
+          </fieldset>
 
-            <div className="filter-section filter-select-section">
-              <label htmlFor="sortBy">
-                <span>
-                  <FaSearchLocation /> Sort hotels
-                </span>
-              </label>
-              <select id="sortBy" name="sortBy" value={filters.sortBy} onChange={handleFilterChange}>
-                <option value="recommended">Recommended</option>
-                <option value="price-low">Price low to high</option>
-                <option value="rating-high">Rating high to low</option>
-                <option value="distance">Closest to centre</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="filter-map-shell">
-            <div className="filter-map-header">
-              <span>
-                <FaMapMarkedAlt /> Map preview
-              </span>
-              <small>{filteredHotels.length} pins</small>
-            </div>
-            <div className="map-container1">
+          <div className="bf26-map-card bf26-hotel-map">
+            <div className="bf26-map">
               <MapContainer
                 center={mapCenter}
                 zoom={12}
                 style={{ height: '100%', width: '100%' }}
-                scrollWheelZoom
+                scrollWheelZoom={false}
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -468,16 +495,12 @@ function Hotel() {
                   <Marker
                     key={hotel.id}
                     position={[hotel.latitude, hotel.longitude]}
-                    icon={hotelGlassIcon()}
+                    icon={pricePin(hotel.pricePerNight)}
                   >
                     <Popup>
                       <div className="map-popup-card">
                         <h3>{hotel.hotelName}</h3>
                         <p>{hotel.location}</p>
-                        <div className="map-popup-meta">
-                          <span>{hotel.rating} rating</span>
-                          <span>{hotel.roomsAvailable} rooms left</span>
-                        </div>
                         <strong>
                           {formatMYR(hotel.pricePerNight)}
                           <small>/night</small>
@@ -490,200 +513,107 @@ function Hotel() {
               </MapContainer>
             </div>
           </div>
-
-          <button className="filter-button" type="button" onClick={scrollToResults}>
-            <FaSearch /> Apply filters
-          </button>
         </aside>
 
-        <section className="hotel-results-content">
-          <div className="hotel-results-toolbar">
-            <div>
-              <span className="hotel-modern-kicker">Results</span>
-              <h1 className="hotel-results-title">Hotel Results</h1>
-            </div>
-            <span className="hotel-sort-pill">
-              {filters.sortBy === 'recommended' ? 'Recommended first' : 'Sorted results'}
+        <div className="bf26-list">
+          <div className="bf26-list-bar">
+            <span>
+              <strong>{filteredHotels.length}</strong> of {hotels.length} stays ·
+              prices for {nights} night{nights === 1 ? '' : 's'}, {appliedSearch.people} guest
+              {appliedSearch.people === 1 ? '' : 's'}
             </span>
           </div>
 
-          {error && <p className="error">{error}</p>}
-
-          <form className="booking-form" onSubmit={handleSearchSubmit}>
-            <div className="form-inline">
-              <label>
-                <span className="form-label">
-                  <FaMapMarkerAlt /> Location
-                </span>
-                <input
-                  type="text"
-                  name="location"
-                  value={searchValues.location}
-                  onChange={handleSearchChange}
-                  className="form-input"
-                  placeholder="Enter destination"
-                />
-              </label>
-
-              <label>
-                <span className="form-label">
-                  <FaCalendarAlt /> Check-in
-                </span>
-                <input
-                  type="date"
-                  name="checkInDate"
-                  value={searchValues.checkInDate}
-                  onChange={handleSearchChange}
-                  className="form-input"
-                />
-              </label>
-
-              <label>
-                <span className="form-label">
-                  <FaCalendarAlt /> Check-out
-                </span>
-                <input
-                  type="date"
-                  name="checkOutDate"
-                  value={searchValues.checkOutDate}
-                  onChange={handleSearchChange}
-                  className="form-input"
-                />
-              </label>
-
-              <label>
-                <span className="form-label">
-                  <FaUsers /> Guests
-                </span>
-                <input
-                  type="number"
-                  name="people"
-                  min="1"
-                  value={searchValues.people}
-                  onChange={handleSearchChange}
-                  className="form-input"
-                />
-              </label>
-
-              <button className="hotel-search-button" type="submit">
-                <FaSearch /> Search
+          {filteredHotels.length === 0 && (
+            <div className="bf26-empty-card">
+              <BedDouble size={28} />
+              <h2>No stays match these filters.</h2>
+              <button type="button" className="bf26-ghost" onClick={() => setFilters(defaultFilters)}>
+                Clear filters
               </button>
             </div>
-          </form>
+          )}
 
-          <div className="hotel-list-container23">
-            <div className="hotel-list-heading">
-              <div>
-                <h2>
-                  {appliedSearch.location || 'London'}: {filteredHotels.length} properties found
-                </h2>
-                <p>
-                  Prices shown per night and total stay for {appliedSearch.people} guest
-                  {appliedSearch.people === 1 ? '' : 's'}.
-                </p>
+          {filteredHotels.map((hotel, index) => (
+            <article
+              key={hotel.id}
+              className="bf26-hotel"
+              style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+            >
+              <div className="bf26-hotel-media">
+                <Slider {...sliderSettings}>
+                  {hotel.images?.map((image, i) => (
+                    <div key={`${hotel.id}-${i}`}>
+                      <img src={image} alt={`${hotel.hotelName} view ${i + 1}`} loading="lazy" />
+                    </div>
+                  ))}
+                </Slider>
+                {hotel.limitedDeal && <span className="bf26-hotel-deal">Limited-time deal</span>}
               </div>
-            </div>
 
-            <div className="hotel-list">
-              {filteredHotels.map((hotel) => (
-                <article key={hotel.id} className="hotel-card1">
-                  <Slider {...sliderSettings}>
-                    {hotel.images?.map((image, index) => (
-                      <div key={`${hotel.id}-${index}`}>
-                        <img
-                          src={image}
-                          alt={`${hotel.hotelName} view ${index + 1}`}
-                          className="hotel-image"
-                        />
-                      </div>
-                    ))}
-                  </Slider>
-
-                  <div className="hotel-details1">
-                    <div className="hotel-card-topline">
-                      <span className="hotel-brand-pill">{hotel.brand}</span>
-                      <span className="hotel-status-pill">{hotel.roomsAvailable} rooms left</span>
-                    </div>
-
-                    <div className="hotel-header">
-                      <div>
-                        <h3 className="hotel-name1">{hotel.hotelName}</h3>
-                        <div className="star-rating1" aria-label={`${hotel.starRating} star hotel`}>
-                          {'★'.repeat(hotel.starRating)}
-                        </div>
-                      </div>
-                      <div className="rating-container">
-                        <div className="rating-section">
-                          <span className="rating-score">{hotel.rating}</span>
-                        </div>
-                        <div className="reviews">{hotel.reviews.toLocaleString('en-MY')} reviews</div>
-                      </div>
-                    </div>
-
-                    <div className="hotel-card-location">
-                      <span className="hotel-location-main">
-                        <FaMapMarkerAlt /> {hotel.location}
-                      </span>
-                      <button type="button" onClick={() => handleShowOnMap(hotel)} className="map-link">
-                        <FaMapMarkedAlt /> Show on map
+              <div className="bf26-hotel-body">
+                <div className="bf26-hotel-top">
+                  <div>
+                    <span className="bf26-hotel-brand">
+                      {hotel.brand} · {'★'.repeat(hotel.starRating)}
+                    </span>
+                    <h3>{hotel.hotelName}</h3>
+                    <p className="bf26-hotel-loc">
+                      <MapPin size={14} /> {hotel.location} · {hotel.distanceFromCenter} km from centre
+                      <button type="button" onClick={() => handleShowOnMap(hotel)}>
+                        Show on map
                       </button>
-                      <span>{hotel.distanceFromCenter} km from centre</span>
-                    </div>
-
-                    {hotel.limitedDeal && <span className="deal-tag">Limited-time deal</span>}
-
-                    <div className="hotel-card-description">
-                      <span className="description-label">
-                        <FaHotel /> Stay profile
-                      </span>
-                      <p>{hotel.description}</p>
-                    </div>
-
-                    <div className="hotel-feature-grid">
-                      <span>
-                        <FaBed /> {hotel.roomType}
-                      </span>
-                      <span>
-                        <FaSearchLocation /> {hotel.bedType}
-                      </span>
-                      <span>
-                        <FaRuler /> {hotel.roomSize}m2
-                      </span>
-                    </div>
-
-                    <div className="hotel-feature-grid">{renderAmenities(hotel.amenities)}</div>
-
-                    <div className="hotel-card-midline">
-                      <p className="availability">Available now</p>
-                      <div className="reviews">{nights} night total: {formatMYR(hotel.totalPrice)}</div>
-                    </div>
-
-                    <div className="hotel-card-footer">
-                      <div className="pricing-info">
-                        <span className="price-caption">Per night</span>
-                        <span className="old-price">{formatMYR(hotel.oldPrice)}</span>
-                        <span className="current-price">
-                          {formatMYR(hotel.pricePerNight)}
-                          <small>/night</small>
-                        </span>
-                        <span className="current-price">
-                          <em>Total {formatMYR(hotel.totalPrice)}</em>
-                        </span>
-                      </div>
-
-                      <button className="availability-btn" onClick={() => handleSubmitHotel(hotel.id)}>
-                        <span>Book Now</span>
-                        <FaArrowRight />
-                      </button>
-                    </div>
+                    </p>
                   </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+                  <div className="bf26-score">
+                    <span>
+                      <strong>{scoreLabel(hotel.rating)}</strong>
+                      <small>{hotel.reviews.toLocaleString('en-MY')} reviews</small>
+                    </span>
+                    <b>{hotel.rating}</b>
+                  </div>
+                </div>
+
+                <p className="bf26-hotel-desc">{hotel.description}</p>
+
+                <div className="bf26-hotel-feats">
+                  <span>
+                    <BedDouble size={14} /> {hotel.roomType}
+                  </span>
+                  <span>{hotel.bedType}</span>
+                  <span>{hotel.roomSize} m²</span>
+                  {hotel.amenities?.slice(0, 4).map((a) => (
+                    <span key={a} className="is-amenity">
+                      {amenityIcon(a)} {a}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="bf26-hotel-bottom">
+                  <span className={`bf26-rooms ${hotel.roomsAvailable <= 3 ? 'is-low' : ''}`}>
+                    {hotel.roomsAvailable <= 3
+                      ? `Only ${hotel.roomsAvailable} rooms left`
+                      : 'Free cancellation on many rooms'}
+                  </span>
+                  <div className="bf26-hotel-price">
+                    <small>
+                      <s>{formatMYR(hotel.oldPrice)}</s> {formatMYR(hotel.pricePerNight)} / night
+                    </small>
+                    <strong>{formatMYR(hotel.totalPrice)}</strong>
+                    <small>
+                      total for {nights} night{nights === 1 ? '' : 's'}
+                    </small>
+                  </div>
+                  <button className="bf26-primary" type="button" onClick={() => handleSubmitHotel(hotel.id)}>
+                    View stay <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
