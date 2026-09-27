@@ -1,0 +1,11 @@
+# Netlify: the React app lives in the "nazrul" folder.
+# The /api backend only runs on Vercel (see nazrul/vercel.json).
+[build]
+  base = "nazrul"
+  command = "npm run build"
+  publish = "build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
