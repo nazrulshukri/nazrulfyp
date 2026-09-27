@@ -14,10 +14,13 @@ const bwipjs = require('bwip-js');
 // // const { generatePDF } = require("./pdfgenerator");
 // console.log("generatePDF type:", typeof generatePDF); // should be 'function'
 // console.log(typeof generatePDF); // Should print 'function'
-const pdfMod = require("../src/components/pdfgenerator");
-const admin = require("firebase-admin");
-const generatePDF = pdfMod.generatePDF || pdfMod.default || pdfMod;
-const getStream = require('get-stream');
+// firebase-admin is optional (only needed for Google/Facebook sign-in).
+let admin = null;
+try {
+  admin = require("firebase-admin");
+} catch (error) {
+  console.warn('firebase-admin is not installed; social sign-in is disabled.');
+}
 const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymentEmail');
 const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
@@ -62,13 +65,21 @@ const MONGODB_URI = process.env.MONGODB_URI
   || process.env.MONGO_URL
   || process.env.DATABASE_URL;
 
-if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI)
+const mongoConnecting = MONGODB_URI
+  ? mongoose.connect(MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`));
-} else {
-  console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
-}
+    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`))
+  : Promise.resolve();
+if (!MONGODB_URI) console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
+
+// On serverless hosts (Vercel) a cold start can receive a request before the
+// database connects, so give the connection a few seconds to finish first.
+app.use(async (req, res, next) => {
+  if (MONGODB_URI && mongoose.connection.readyState !== 1) {
+    await Promise.race([mongoConnecting, new Promise((r) => setTimeout(r, 5000))]);
+  }
+  next();
+});
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -95,6 +106,7 @@ const sendPersistenceSkipped = (res, resourceName, data) => {
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const getFirebaseCredential = () => {
+  if (!admin) return null;
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
     return admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
@@ -1130,15 +1142,22 @@ app.get('/api/suggest', (req, res) => {
 });
 // Start the server
 const PORT = process.env.PORT || 5001;
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the existing server or run with PORT=5010 node server.js.`);
+// Run a normal server locally (`node server.js`); on Vercel the app is
+// imported by api/index.js and served as a serverless function instead.
+if (require.main === module) {
+  const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Stop the existing server or run with PORT=5010 node server.js.`);
+      process.exit(1);
+    }
+
+    console.error('Server startup error:', err);
     process.exit(1);
-  }
+  });
+}
 
-  console.error('Server startup error:', err);
-  process.exit(1);
-});
+module.exports = app;
 
