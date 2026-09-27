@@ -39,3 +39,4 @@ backend/serviceAccount*.json
 *.txt
 *.pdf
 *.sln
+/src/build

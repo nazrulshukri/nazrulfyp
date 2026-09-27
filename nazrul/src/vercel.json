@@ -1,0 +1,6 @@
+{
+  "installCommand": "cd .. && npm install",
+  "buildCommand": "cd .. && npm run build && rm -rf src/build && cp -r build src/build",
+  "outputDirectory": "build",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
