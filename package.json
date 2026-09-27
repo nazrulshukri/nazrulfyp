@@ -4,9 +4,9 @@
   "description": "A brief description of your project",
   "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "npm --prefix nazrul start",
+    "build": "npm --prefix nazrul run build",
+    "test": "npm --prefix nazrul run test --",
     "eject": "react-scripts eject"
   },
   "keywords": [],

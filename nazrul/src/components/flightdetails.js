@@ -1,356 +1,272 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './flightdetails.css';
-import arrowDownIcon from '../img/assets/arrowdown2.png';
-import arrowUpIcon from '../img/assets/arrowup.png';
-import { FaDoorOpen, FaPlaneDeparture, FaRestroom, FaShieldAlt } from "react-icons/fa";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useState } from "react";
+import {
+  Plane,
+  User,
+  Mail,
+  ShieldCheck,
+  ShieldPlus,
+  Shield,
+  ShieldOff,
+  Armchair,
+  ChevronDown,
+  DoorOpen,
+  Check,
+} from "lucide-react";
+import { AirlineBadge } from "./flightresults";
+import PhoneField, { isValidPhone } from "./PhoneField";
+import { airportMeta, formatDay, minutesToLabel } from "../lib/travelMeta";
+import "./flightdetails.css";
 
-const FlightDetails = ({ outboundFlight, returnFlight,returnPrice }) => {
-  if (!outboundFlight || !returnFlight) {
-    return <div>No flight details available.</div>;
-  }
+const time = (value) =>
+  new Date(value).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+function LegCard({ label, flight }) {
+  const from = airportMeta(flight.origin);
+  const to = airportMeta(flight.destination);
+  const mins = Math.round(
+    (new Date(flight.arrival) - new Date(flight.departure)) / 60000,
+  );
+  const nextDay = flight.arrival.slice(0, 10) !== flight.departure.slice(0, 10);
   return (
-    <div className="flight-details-container">
-      <div className="flight-summary">
-        <h3 className="summary-heading">Departure Flight Summary</h3>
-        <div className="flight-info">
-          <div className="route">
-            <div className="location">
-              <strong>{outboundFlight.origin}</strong>
-              <p className="date">{new Date(outboundFlight.departure).toLocaleString()}</p>
-            </div>
-            <div className="arrow">➔</div>
-            <div className="location">
-              <strong>{outboundFlight.destination}</strong>
-              <p className="date">{new Date(outboundFlight.arrival).toLocaleString()}</p>
-            </div>
+    <article className="bf26-leg">
+      <header>
+        <span className="bf26-leg-label">{label}</span>
+        <span>{formatDay(flight.departure, { year: "numeric" })}</span>
+      </header>
+      <div className="bf26-leg-body">
+        <div className="bf26-flight-airline">
+          <AirlineBadge name={flight.airline} size={40} />
+          <span>
+            <strong>{flight.airline}</strong>
+            <small>{flight.flightNumber || "—"} · Economy</small>
+          </span>
+        </div>
+        <div className="bf26-flight-times">
+          <div>
+            <strong>{time(flight.departure)}</strong>
+            <span>{from.code}</span>
           </div>
-          <div className="details23">
-            <p><strong>Airline:</strong> {outboundFlight.airline}</p>
-            <p><strong>Flight Number:</strong> {outboundFlight?.flightNumber || "-"}</p>
+          <div className="bf26-flight-path">
+            <small>{minutesToLabel(mins)}</small>
+            <span aria-hidden="true">
+              <i />
+              {flight.nonStop === false && <b />}
+              <Plane size={14} />
+            </span>
+            <small className={flight.nonStop !== false ? "is-direct" : ""}>
+              {flight.nonStop === false ? "1 stop" : "Direct"}
+            </small>
+          </div>
+          <div>
+            <strong>
+              {time(flight.arrival)}
+              {nextDay && <sup>+1</sup>}
+            </strong>
+            <span>{to.code}</span>
           </div>
         </div>
       </div>
-  
-      <div className="flight-summary">
-        <h3 className="summary-heading">Return Flight Summary</h3>
-        <div className="flight-info">
-          <div className="route">
-            <div className="location">
-              <strong>{returnFlight.origin}</strong>
-              <p className="date">{new Date(returnFlight.departure).toLocaleString()}</p>
-            </div>
-            <div className="arrow">➔</div>
-            <div className="location">
-              <strong>{returnFlight.destination}</strong>
-              <p className="date">{new Date(returnFlight.arrival).toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="details23">
-            <p><strong>Airline:</strong> {returnFlight.airline}</p>
-            <p><strong>Flight Number:</strong> {returnFlight.flightNumber}</p>
-          </div>
-        </div>
-      </div>
+      <footer>
+        <span>{flight.origin}</span>
+        <span>→</span>
+        <span>{flight.destination}</span>
+      </footer>
+    </article>
+  );
+}
+
+function FlightDetails({ outboundFlight, returnFlight }) {
+  if (!outboundFlight) return <p>No flight details available.</p>;
+  return (
+    <div className="bf26-legs">
+      <LegCard label="Outbound" flight={outboundFlight} />
+      {returnFlight && <LegCard label="Return" flight={returnFlight} />}
     </div>
   );
-};
+}
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function Field({ id, label, icon: Icon, error, ...props }) {
+  return (
+    <label className={`bf26-input ${error ? "has-error" : ""}`} htmlFor={id}>
+      <span>{label}</span>
+      <div>
+        <Icon size={17} aria-hidden="true" />
+        <input id={id} aria-invalid={!!error} {...props} />
+      </div>
+      {error && <small role="alert">{error}</small>}
+    </label>
+  );
+}
 
 const PassengerForm = ({ setPassengerDetails, initialPassengerDetails = {} }) => {
-  const [firstName, setFirstName] = useState(initialPassengerDetails.firstName || '');
-  const [lastName, setLastName] = useState(initialPassengerDetails.lastName || '');
-  const [email, setEmail] = useState(initialPassengerDetails.email || '');
-  const [phone, setPhone] = useState(initialPassengerDetails.phone || '');
-  const [errors, setErrors] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
+  const [values, setValues] = useState({
+    firstName: initialPassengerDetails.firstName || "",
+    lastName: initialPassengerDetails.lastName || "",
+    email: initialPassengerDetails.email || "",
+    phone: initialPassengerDetails.phone || "",
   });
-  const [showErrorPopup, setShowErrorPopup] = useState(false);
-
-  const validate = () => {
-    let isValid = true;
-    const newErrors = {};
-
-    // First Name Validation
-    if (!firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-      isValid = false;
-    }
-
-    // Last Name Validation
-    if (!lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-      isValid = false;
-    }
-
-    // Email Validation
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!emailPattern.test(email)) {
-      newErrors.email = 'Please enter a valid email address';
-      isValid = false;
-    }
-
-    // Phone Validation (onBlur)
-    const phonePattern = /^01[0-46-9]-?\d{7,8}$/; // Malaysian format
-    if (phone && !phonePattern.test(phone)) {
-      newErrors.phone = 'Please enter a valid Malaysian phone number';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    setShowErrorPopup(!isValid); // Show error popup if validation fails
-    return isValid;
-  };
-
-  const handleInputChange = (e, setter) => {
-    setter(e.target.value);
-  };
-
-  const handlePhoneBlur = () => {
-    validate(); // Validate phone number when it loses focus
-  };
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
-    setPassengerDetails({ firstName, lastName, email, phone });
-  }, [firstName, lastName, email, phone, setPassengerDetails]);
+    setPassengerDetails(values);
+  }, [values, setPassengerDetails]);
 
-  // Close the error popup when the user clicks outside or when the popup is closed
-  const closePopup = () => {
-    setShowErrorPopup(false);
+  const errors = {
+    firstName: !values.firstName.trim() && "Enter a first name",
+    lastName: !values.lastName.trim() && "Enter a last name",
+    email: !emailPattern.test(values.email) && "Enter a valid email address",
+    phone: !isValidPhone(values.phone) && "Enter a valid mobile number",
   };
+  const bind = (key) => ({
+    value: values[key],
+    onChange: (e) => setValues((v) => ({ ...v, [key]: e.target.value })),
+    onBlur: () => setTouched((t) => ({ ...t, [key]: true })),
+    error: touched[key] ? errors[key] : "",
+  });
 
   return (
-    <div className="passenger-form-container1">
-      <h2>Passenger Details</h2>
-      <form>
-        <div className="form-row8">
-          <FontAwesomeIcon icon={faUser} className="form-icon3" />
-          <label>First Name:</label>
-          <input
-            placeholder="Muhammad"
-            type="text"
-            value={firstName}
-            onChange={(e) => handleInputChange(e, setFirstName)}
-            required
-          />
-        </div>
-
-        <div className="form-row8">
-          <FontAwesomeIcon icon={faUser} className="form-icon3" />
-          <label>Last Name:</label>
-          <input
-            placeholder="Nazrul"
-            type="text"
-            value={lastName}
-            onChange={(e) => handleInputChange(e, setLastName)}
-            required
-          />
-        </div>
-
-        <div className="form-row2">
-          <FontAwesomeIcon icon={faEnvelope} className="form-icon3" />
-          <label>Email:</label>
-          <input
-            placeholder="example@gmail.com"
-            type="email"
-            value={email}
-            onChange={(e) => handleInputChange(e, setEmail)}
-            required
-          />
-        </div>
-
-        <div className="form-row2">
-          <FontAwesomeIcon icon={faPhone} className="form-icon3" />
-          <label>Phone:</label>
-          <input
-            placeholder="01161007484"
-            type="tel"
-            value={phone}
-            onChange={(e) => handleInputChange(e, setPhone)}
-            onBlur={handlePhoneBlur} // Trigger validation on blur
-            required
-          />
-        </div>
-      </form>
-
-      {/* Error Popup */}
-      {showErrorPopup && (
-        <div className="error-popup" onClick={closePopup}>
-          <div className="error-popup-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Form Validation Errors</h3>
-            <ul>
-              {Object.keys(errors).map(
-                (key) =>
-                  errors[key] && <li key={key}>{errors[key]}</li>
-              )}
-            </ul>
-          </div>
-        </div>
-      )}
+    <div className="bf26-form-grid">
+      <Field
+        id="passenger-first"
+        label="First name"
+        icon={User}
+        placeholder="As shown on passport"
+        autoComplete="given-name"
+        {...bind("firstName")}
+      />
+      <Field
+        id="passenger-last"
+        label="Last name"
+        icon={User}
+        placeholder="As shown on passport"
+        autoComplete="family-name"
+        {...bind("lastName")}
+      />
+      <Field
+        id="passenger-email"
+        label="Email"
+        icon={Mail}
+        type="email"
+        placeholder="you@example.com"
+        autoComplete="email"
+        {...bind("email")}
+      />
+      <PhoneField
+        id="passenger-phone"
+        value={values.phone}
+        onChange={(phone) => setValues((v) => ({ ...v, phone }))}
+        onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+        error={touched.phone ? errors.phone : ""}
+      />
+      <p className="bf26-note bf26-form-note">
+        We’ll send your e-ticket and trip updates to this email.
+      </p>
     </div>
   );
 };
 
+const OCCUPIED = ["2B", "4E", "6A", "8F", "10C", "12D", "3C", "9A", "11F"];
+const ROWS = Array.from({ length: 14 }, (_, i) => i + 1);
 
-const SeatSelection = ({ setTotalPrice, setSelectedSeats, initialSelectedSeats = [] }) => {
-  const [selectedSeats, setSelectedSeatsState] = useState(initialSelectedSeats);
-  const [showSeats, setShowSeats] = useState(false);
-  const occupiedSeats = ['2B', '4E', '6A', '8F', '10C', '12D'];
-
-  const toggleSeats = () => {
-    setShowSeats((prev) => !prev);
-  };
-
-  const seatRows = Array.from({ length: 14 }, (_, index) => {
-    const rowNumber = index + 1;
-    return ['A', 'B', 'C', 'D', 'E', 'F'].map((letter) => `${rowNumber}${letter}`);
-  });
-
-  const handleSeatClick = (seat) => {
-    if (occupiedSeats.includes(seat)) return;
-
-    const seatPrice = 20;
-    if (selectedSeats.includes(seat)) {
-      setSelectedSeatsState(selectedSeats.filter((s) => s !== seat));
-      setTotalPrice((prev) => prev - seatPrice);
-    } else {
-      setSelectedSeatsState([...selectedSeats, seat]);
-      setTotalPrice((prev) => prev + seatPrice);
-    }
-  };
+const SeatSelection = ({ setSelectedSeats, initialSelectedSeats = [], maxSeats = 9 }) => {
+  const [selected, setSelected] = useState(initialSelectedSeats);
+  const [open, setOpen] = useState(initialSelectedSeats.length > 0);
 
   useEffect(() => {
-    setSelectedSeats(selectedSeats);
-  }, [selectedSeats, setSelectedSeats]);
+    setSelectedSeats(selected);
+  }, [selected, setSelectedSeats]);
+
+  function toggle(seat) {
+    if (OCCUPIED.includes(seat)) return;
+    if (selected.includes(seat)) setSelected(selected.filter((s) => s !== seat));
+    else if (selected.length < maxSeats) setSelected([...selected, seat]);
+  }
+
+  const seat = (row, letter) => {
+    const id = `${row}${letter}`;
+    const taken = OCCUPIED.includes(id);
+    const mine = selected.includes(id);
+    const full = !mine && selected.length >= maxSeats;
+    return (
+      <button
+        key={id}
+        type="button"
+        className={`bf26-seat ${mine ? "is-selected" : ""} ${taken ? "is-taken" : ""}`}
+        onClick={() => toggle(id)}
+        disabled={taken || full}
+        aria-pressed={mine}
+        aria-label={`Seat ${id}${taken ? ", occupied" : ""}`}
+      >
+        {mine ? <Check size={14} /> : letter}
+      </button>
+    );
+  };
 
   return (
-    <div className="seat-booking-container">
-      <button 
-        className="seat-booking-toggle" 
-        onClick={toggleSeats} 
-        aria-label="Toggle Seat Selection"
+    <div className="bf26-seats">
+      <button
+        type="button"
+        className="bf26-seats-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
       >
+        <Armchair size={20} />
         <span>
-          <FaPlaneDeparture className="seat-toggle-icon" />
-          Select Your Seats
+          <strong>
+            {selected.length
+              ? `${selected.length} of ${maxSeats} seat${maxSeats > 1 ? "s" : ""} chosen`
+              : "Choose your seats"}
+          </strong>
+          <small>MYR 20 per seat · or get one assigned free at check-in</small>
         </span>
-        <img
-          className="toggle-arrow"
-          src={showSeats ? arrowUpIcon : arrowDownIcon}
-          alt={showSeats ? "Collapse" : "Expand"}
-        />
+        {selected.length > 0 && (
+          <em>{selected.join(", ")}</em>
+        )}
+        <ChevronDown size={18} className="bf26-chev" />
       </button>
 
-      {showSeats && (
-        <div className="aircraft-seat-shell">
-          <div className="seat-map-header">
-            <div>
-              <span className="seat-map-eyebrow">Cabin seat map</span>
-              <h3>Economy cabin</h3>
-            </div>
-            <div className="selected-seat-counter">
-              {selectedSeats.length} selected
-            </div>
+      {open && (
+        <div className="bf26-cabin-wrap">
+          <div className="bf26-seat-legend">
+            <span>
+              <i className="is-free" /> Available
+            </span>
+            <span>
+              <i className="is-selected" /> Selected
+            </span>
+            <span>
+              <i className="is-taken" /> Occupied
+            </span>
           </div>
-
-          <div className="seat-legend">
-            <span><i className="legend-dot available"></i>Available</span>
-            <span><i className="legend-dot selected"></i>Selected</span>
-            <span><i className="legend-dot occupied"></i>Occupied</span>
-          </div>
-
-          <div className="aircraft-cabin">
-            <div className="aircraft-nose">
-              <FaPlaneDeparture />
-              <span>Front</span>
+          <div className="bf26-cabin">
+            <div className="bf26-cabin-nose">
+              <Plane size={18} /> Front of aircraft
             </div>
-
-            <div className="cabin-exit-row">
-              <span><FaDoorOpen /> Exit</span>
-              <span><FaDoorOpen /> Exit</span>
-            </div>
-
-            <div className="seat-letter-row">
-              <span>A</span>
-              <span>B</span>
-              <span>C</span>
-              <span className="aisle-word">Aisle</span>
-              <span>D</span>
-              <span>E</span>
-              <span>F</span>
-            </div>
-
-            <div className="seat-grid-container">
-              {seatRows.map((row, rowIndex) => (
-                <React.Fragment key={row[0]}>
-                  {row.slice(0, 3).map((seat) => {
-                    const isSelected = selectedSeats.includes(seat);
-                    const isOccupied = occupiedSeats.includes(seat);
-
-                    return (
-                      <button
-                        key={seat}
-                        className={`seat ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
-                        onClick={() => handleSeatClick(seat)}
-                        disabled={isOccupied}
-                        aria-label={`Seat ${seat}${isOccupied ? ' occupied' : ''}`}
-                        style={{ animationDelay: `${rowIndex * 35}ms` }}
-                      >
-                        <span className="seat-back"></span>
-                        <span className="seat-label">{seat}</span>
-                      </button>
-                    );
-                  })}
-
-                  <div className="aisle-label">{rowIndex + 1}</div>
-
-                  {row.slice(3).map((seat) => {
-                    const isSelected = selectedSeats.includes(seat);
-                    const isOccupied = occupiedSeats.includes(seat);
-
-                    return (
-                      <button
-                        key={seat}
-                        className={`seat ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
-                        onClick={() => handleSeatClick(seat)}
-                        disabled={isOccupied}
-                        aria-label={`Seat ${seat}${isOccupied ? ' occupied' : ''}`}
-                        style={{ animationDelay: `${rowIndex * 35}ms` }}
-                      >
-                        <span className="seat-back"></span>
-                        <span className="seat-label">{seat}</span>
-                      </button>
-                    );
-                  })}
-
-                  {rowIndex === 6 && (
-                    <div className="cabin-service-row">
-                      <span><FaRestroom /> Restroom</span>
-                      <span><FaDoorOpen /> Mid exit</span>
+            <div className="bf26-cabin-grid">
+              {ROWS.map((row) => (
+                <React.Fragment key={row}>
+                  {(row === 1 || row === 8) && (
+                    <div className="bf26-cabin-exit">
+                      <span>
+                        <DoorOpen size={13} /> Exit
+                      </span>
+                      <span>
+                        Exit <DoorOpen size={13} />
+                      </span>
                     </div>
                   )}
+                  {["A", "B", "C"].map((l) => seat(row, l))}
+                  <span className="bf26-cabin-row">{row}</span>
+                  {["D", "E", "F"].map((l) => seat(row, l))}
                 </React.Fragment>
               ))}
             </div>
           </div>
-
-          {selectedSeats.length > 0 && (
-            <div className="selected-seat-summary">
-              <span>Selected seats</span>
-              <div>
-                {selectedSeats.map((seat) => (
-                  <strong key={seat}>{seat}</strong>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -358,124 +274,146 @@ const SeatSelection = ({ setTotalPrice, setSelectedSeats, initialSelectedSeats =
 };
 
 const insuranceOptions = [
-  { id: 1, name: 'Basic Coverage', description: 'Covers trip cancellation and lost luggage.', price: 20 },
-  { id: 2, name: 'Standard Coverage', description: 'Includes medical and emergency assistance.', price: 50 },
-  { id: 3, name: 'Premium Coverage', description: 'Full coverage including trip interruption and delay.', price: 80 },
-  { id: 4, name: 'No insurance', description: '', price: 0 },
+  {
+    id: 4,
+    name: "No protection",
+    description: "Travel without cover.",
+    price: 0,
+    icon: ShieldOff,
+  },
+  {
+    id: 1,
+    name: "Basic",
+    description: "Trip cancellation and lost luggage.",
+    price: 20,
+    icon: Shield,
+  },
+  {
+    id: 2,
+    name: "Standard",
+    description: "Adds medical and emergency assistance.",
+    price: 50,
+    icon: ShieldCheck,
+    badge: "Popular",
+  },
+  {
+    id: 3,
+    name: "Premium",
+    description: "Full cover incl. interruption and delay.",
+    price: 80,
+    icon: ShieldPlus,
+  },
 ];
 
-const InsuranceSelection = ({ setTotalPrice, setSelectedInsurance, initialSelectedInsurance = null }) => {
-  const [selectedInsurance, setInsurance] = useState(initialSelectedInsurance);
-
-  const handleInsuranceChange = (insurance) => {
-    setInsurance(insurance);
-    setSelectedInsurance(insurance);
-    setTotalPrice((prev) => prev - (selectedInsurance?.price || 0) + insurance.price);
-  };
-
+const InsuranceSelection = ({ setSelectedInsurance, initialSelectedInsurance = null }) => {
+  const [chosen, setChosen] = useState(initialSelectedInsurance);
   return (
-    <div className="insurance-container">
-    <h3>Insurance Options</h3>
-    {insuranceOptions.map((insurance) => (
-        <div
-            key={insurance.id}
-            className={`insurance-option ${selectedInsurance?.id === insurance.id ? 'selected' : ''}`}
-            onClick={() => handleInsuranceChange(insurance)}
-        >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FaShieldAlt className="insurance-icon" /> {/* Add Icon */}
-                <div>
-                    <h4>{insurance.name}</h4>
-                    <p>{insurance.description}</p>
-                </div>
-            </div>
-            <p><strong>Price:</strong> MYR{insurance.price}</p>
-        </div>
-    ))}
-</div>
-);
+    <div className="bf26-protect" role="radiogroup" aria-label="Travel protection">
+      {insuranceOptions.map((option) => {
+        const Icon = option.icon;
+        const active = chosen?.id === option.id;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            className={active ? "is-active" : ""}
+            onClick={() => {
+              const value = {
+                id: option.id,
+                name: option.name,
+                description: option.description,
+                price: option.price,
+              };
+              setChosen(value);
+              setSelectedInsurance(value);
+            }}
+          >
+            {option.badge && <em>{option.badge}</em>}
+            <Icon size={22} />
+            <strong>{option.name}</strong>
+            <small>{option.description}</small>
+            <span>{option.price ? `MYR ${option.price}` : "Free"}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 
 const FlightDetailsPage = ({
   outboundFlight,
   returnFlight,
-  returnPrice,
   initialPassengerDetails = {},
   initialSelectedSeats = [],
   initialSelectedInsurance = null,
   onPassengerDetailsChange,
   onSelectedSeatsChange,
   onSelectedInsuranceChange,
-  showBookingButton = true,
+  people = 1,
 }) => {
-  const [passengerDetails, setPassengerDetails] = useState(initialPassengerDetails);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedSeats, setSelectedSeats] = useState(initialSelectedSeats);
-  const [selectedInsurance, setSelectedInsurance] = useState(initialSelectedInsurance);
-
-  
-
-  console.log("Received returnPrice in FlightDetailsPage:", returnPrice); // Debugging
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    onPassengerDetailsChange?.(passengerDetails);
-  }, [passengerDetails, onPassengerDetailsChange]);
-
-  useEffect(() => {
-    onSelectedSeatsChange?.(selectedSeats);
-  }, [selectedSeats, onSelectedSeatsChange]);
-
-  useEffect(() => {
-    onSelectedInsuranceChange?.(selectedInsurance);
-  }, [selectedInsurance, onSelectedInsuranceChange]);
-
-  const handleBooking = () => {
-    const bookingData = {
-      outboundFlight,
-      returnFlight,
-      passengerDetails,
-      returnPrice, // Make sure returnPrice here is not reset
-      selectedSeats,
-      selectedInsurance,
-      totalPrice,
-    };
-    
-    // Navigate to payment page and pass bookingData through state
-    navigate('/payment', { state: bookingData });
-  };
-
+  const noop = () => {};
   return (
-    <div className="flight-details-page">
-      <FlightDetails 
-        outboundFlight={outboundFlight} 
-        returnFlight={returnFlight} 
-        returnPrice={returnPrice} // Pass returnPrice to FlightDetails
-      />
-      <PassengerForm
-        setPassengerDetails={setPassengerDetails}
-        initialPassengerDetails={initialPassengerDetails}
-      />
-      <SeatSelection
-        setTotalPrice={setTotalPrice}
-        setSelectedSeats={setSelectedSeats}
-        initialSelectedSeats={initialSelectedSeats}
-      />
-      <InsuranceSelection
-        setTotalPrice={setTotalPrice}
-        setSelectedInsurance={setSelectedInsurance}
-        initialSelectedInsurance={initialSelectedInsurance}
-      />
-      {showBookingButton && (
-        <>
-          <button className="booking-button" onClick={handleBooking}>Book Flight</button>
-          <div className="total-price">Total Price: MYR {totalPrice.toFixed(2)}</div>
-        </>
-      )}
+    <div className="bf26-checkout-sections">
+      <section className="bf26-panel">
+        <div className="bf26-panel-head">
+          <span className="bf26-step-no">1</span>
+          <div>
+            <h2>Your trip</h2>
+            <p>Check the flights and times before you continue.</p>
+          </div>
+        </div>
+        <FlightDetails outboundFlight={outboundFlight} returnFlight={returnFlight} />
+      </section>
+
+      <section className="bf26-panel">
+        <div className="bf26-panel-head">
+          <span className="bf26-step-no">2</span>
+          <div>
+            <h2>Lead traveller</h2>
+            <p>
+              Booking for {people} {people === 1 ? "traveller" : "travellers"}.
+              Names must match travel documents.
+            </p>
+          </div>
+        </div>
+        <PassengerForm
+          setPassengerDetails={onPassengerDetailsChange || noop}
+          initialPassengerDetails={initialPassengerDetails}
+        />
+      </section>
+
+      <section className="bf26-panel">
+        <div className="bf26-panel-head">
+          <span className="bf26-step-no">3</span>
+          <div>
+            <h2>Seats</h2>
+            <p>Sit together, or pick the window. Up to {people} seat{people > 1 ? "s" : ""}.</p>
+          </div>
+        </div>
+        <SeatSelection
+          setSelectedSeats={onSelectedSeatsChange || noop}
+          initialSelectedSeats={initialSelectedSeats}
+          maxSeats={people}
+        />
+      </section>
+
+      <section className="bf26-panel">
+        <div className="bf26-panel-head">
+          <span className="bf26-step-no">4</span>
+          <div>
+            <h2>Travel protection</h2>
+            <p>Cover for the unexpected. You can skip this.</p>
+          </div>
+        </div>
+        <InsuranceSelection
+          setSelectedInsurance={onSelectedInsuranceChange || noop}
+          initialSelectedInsurance={initialSelectedInsurance}
+        />
+      </section>
     </div>
   );
 };
-
 
 export default FlightDetailsPage;

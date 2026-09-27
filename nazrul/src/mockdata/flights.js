@@ -16,10 +16,12 @@ export const generateMockFlights = (departureDate, returnDate, origin, destinati
 
   // Function to calculate arrival time based on departure and flight duration in hours
   const calculateArrivalTime = (departureTime, flightDurationHours) => {
-    const departureDateObj = new Date(departureTime);
-    const arrivalDate = new Date(departureDateObj.getTime() + flightDurationHours * 60 * 60 * 1000);
-    return arrivalDate.toISOString().substring(0, 19); // Formats to ISO without milliseconds
+    // Keep both timestamps in the same illustrative local time zone.
+    const date = new Date(`${departureTime}Z`);
+    date.setUTCHours(date.getUTCHours() + flightDurationHours);
+    return date.toISOString().slice(0, 19);
   };
+
   return [
     {
       id: 1,

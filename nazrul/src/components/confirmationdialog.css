@@ -39,7 +39,7 @@
   }
 
 /* Heading with refined font and subtle color */
-h2 {
+.dialog1 h2 {
     font-size: 26px;
     color: #333;
     margin-bottom: 10px;
@@ -48,7 +48,7 @@ h2 {
   }
 
 /* Text with a lighter color for readability */
-p {
+.dialog1 p {
     font-size: 16px;
     color: #666;
     margin-bottom: 25px;

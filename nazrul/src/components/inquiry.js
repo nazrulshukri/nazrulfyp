@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/apiConfig";
 // src/components/InquiryForm.js
 import React, { useState } from 'react';
 import './inquriy.css'; // Updated styles
@@ -19,7 +20,7 @@ const InquiryForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5001/inquiries', {
+            const response = await fetch(`${API_BASE}/inquiries`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

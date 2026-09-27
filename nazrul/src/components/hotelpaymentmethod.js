@@ -1,24 +1,16 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './hotelpaymentmethod.css';
-import visa from '../img/assets/seat/images.png';
-import mastercard from '../img/assets/seat/Mastercard-logo.svg.png';
-import americanexpress from '../img/assets/seat/png-transparent-american-express-icon.png';
-import paypal from '../img/assets/paymentmethod/PayPal_Logo2014.png';
-import jcb from '../img/assets/paymentmethod/images (6).png';
-import applePay from '../img/assets/paymentmethod/png-transparent-apple-pay-mobile-payment-apple-wallet-apple-text-service-rectangle-thumbnail.png';
-import klarna from '../img/assets/paymentmethod/images (7).png';
-import googlePay from '../img/assets/seat/images (1).png';
-import affirm from '../img/assets/paymentmethod/Affirm-Emblem.png';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
-import { faHotel, faMapMarkerAlt, faCalendarAlt, faUser, faDollarSign } from '@fortawesome/free-solid-svg-icons';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { API_BASE } from "../lib/apiConfig";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, BedDouble, CalendarDays, Users, Mail, ShieldCheck, MapPin } from "lucide-react";
+import PaymentPanel, { ProcessingOverlay } from "./PaymentPanel";
+import { BookingSteps } from "./flightresults";
+import { formatMoney } from "../lib/bookingStorage";
+import { formatDay } from "../lib/travelMeta";
+import "./hotelpaymentmethod.css";
 
-const HOTEL_PAYMENT_DRAFT_KEY = 'hotelPaymentDraft';
-
+const HOTEL_STEPS = ["Search", "Stay", "Guest details", "Payment"];
+const HOTEL_PAYMENT_DRAFT_KEY = "hotelPaymentDraft";
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const safeParse = (value, fallback) => {
   try {
     return value ? JSON.parse(value) : fallback;
@@ -30,84 +22,29 @@ const safeParse = (value, fallback) => {
 const HotelPaymentMethod = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const bookingState = location.state || safeParse(sessionStorage.getItem(HOTEL_PAYMENT_DRAFT_KEY), {});
-  const {
-    hotelName,
-    checkInDate,
-    checkOutDate,
-    people,
-    userData,
-  } = bookingState;
-  const hotellocation = bookingState.hotellocation || bookingState.location;
-  const price = bookingState.price || bookingState.totalPrice;
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [formData, setFormData] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    paypalEmail: '',
-  });
+  const [step, setStep] = useState(-1);
+  const booking = location.state || safeParse(sessionStorage.getItem(HOTEL_PAYMENT_DRAFT_KEY), {});
+  const { hotelName, hotellocation, checkInDate, checkOutDate, price, people, userData = {}, roomType } = booking;
 
-  const handlePaymentMethodChange = (e) => {
-    setPaymentMethod(e.target.value);
-    setFormData({});
-  };
+  if (!hotelName) {
+    return (
+      <section className="bf-empty">
+        <BedDouble size={36} />
+        <h1>Your stay checkout has expired.</h1>
+        <p>Choose your hotel again to continue.</p>
+        <Link className="bf-primary" to="/hotel">
+          Browse hotels <ArrowRight size={16} />
+        </Link>
+      </section>
+    );
+  }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const email = userData.email;
+  const nights = Math.max(1, Math.round((new Date(checkOutDate) - new Date(checkInDate)) / 86400000) || 1);
 
-  const isValidCardNumber = (number) => /^[0-9]{16}$/.test(number);
-  const isValidExpiryDate = (date) => {
-    const [month, year] = date.split('/').map((num) => parseInt(num, 10));
-    const now = new Date();
-    if (!month || !year || month < 1 || month > 12) return false;
-    const expiry = new Date(`20${year}`, month - 1);
-    return expiry > now;
-  };
-  const isValidCVV = (cvv) => /^[0-9]{3,4}$/.test(cvv);
-
-  const handlePayment = async () => {
-    if (!paymentMethod) {
-      toast.error('Please select a payment method.');
-      return;
-    }
-
-    if (paymentMethod === 'card') {
-      const { cardNumber, expiryDate, cvv } = formData;
-
-      if (!isValidCardNumber(cardNumber)) {
-        toast.error('Please enter a valid 16-digit card number.');
-        return;
-      }
-      if (!isValidExpiryDate(expiryDate)) {
-        toast.error('Please enter a valid expiry date in MM/YY format.');
-        return;
-      }
-      if (!isValidCVV(cvv)) {
-        toast.error('Please enter a valid 3 or 4 digit CVV.');
-        return;
-      }
-    } else if (paymentMethod === 'paypal') {
-      const { paypalEmail } = formData;
-  
-      // Check if PayPal email is empty
-      if (!paypalEmail) {
-        toast.error('Please provide your PayPal email.');
-        return;
-      }
-  
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(paypalEmail)) {
-        toast.error('Please enter a valid email address.');
-        return;
-      }
-    }
-
-    
-
+  async function pay({ label, detail }) {
+    setStep(0);
+    // No card or bank details are sent to the server.
     const paymentData = {
       hotelName,
       location: hotellocation,
@@ -115,154 +52,122 @@ const HotelPaymentMethod = () => {
       checkInDate,
       checkOutDate,
       people,
+      roomType,
       userData,
-      paymentMethod,
-      formData,
-      status: 'Completed',
+      paymentMethod: label,
+      paymentDetail: detail,
+      status: "Completed",
+      paidAt: new Date().toISOString(),
     };
-
-    sessionStorage.setItem(HOTEL_PAYMENT_DRAFT_KEY, JSON.stringify(paymentData));
-
-    try {
-      const response = await fetch('http://localhost:5001/hotelpaymentmethod', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    await Promise.all([
+      wait(1000),
+      fetch(`${API_BASE}/hotelpaymentmethod`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData),
+      }).catch(() => null),
+    ]);
+    setStep(1);
+    await wait(700);
+    setStep(2);
+    let emailStatus = "sent";
+    try {
+      const res = await fetch(`${API_BASE}/send-ticket`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "hotel", email, booking: paymentData }),
       });
-
-      if (response.ok) {
-        console.log('Hotel payment saved successfully');
-      } else {
-        console.warn('Hotel payment was not saved, continuing to confirmation.');
-      }
-    } catch (error) {
-      console.warn('Hotel payment save failed, continuing to confirmation:', error);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) emailStatus = "failed";
+    } catch (e) {
+      emailStatus = "failed";
     }
-
-    toast.success('Payment completed successfully!');
-    navigate('/hotelpaymentdone', { state: { paymentData } });
-  };
-
-  if (!hotelName) {
-    return (
-      <div className="payment-container17">
-        <div className="payment-method-section67">
-          <h2>No hotel booking data found</h2>
-          <p>Please complete the hotel details form before payment.</p>
-          <button className="pay-button" onClick={() => navigate('/Hotel')}>Back to Hotels</button>
-        </div>
-      </div>
-    );
+    const done = { ...paymentData, emailStatus };
+    sessionStorage.setItem(HOTEL_PAYMENT_DRAFT_KEY, JSON.stringify(done));
+    setStep(3);
+    await wait(500);
+    navigate("/hotelpaymentdone", { state: { paymentData: done } });
   }
 
   return (
-    <div className="payment-container17">
-      <ToastContainer /> {/* Toast Container for notifications */}
-      <div className="payment-method-section67">
-        <h2>Select Your Payment Method</h2>
-        <div className="payment-options">
-          <label className="payment-option">
-            <input type="radio" name="payment" value="card" onChange={handlePaymentMethodChange} />
-            <span>Credit/Debit Card</span>
-            <img src={visa} alt="Visa" className="payment-icon" />
-            <img src={mastercard} alt="Mastercard" className="payment-icon" />
-            <img src={americanexpress} alt="American Express" className="payment-icon" />
-            <img src={jcb} alt="JCB Payment" className="payment-icon" />
-          </label>
-          <label className="payment-option">
-            <input type="radio" name="payment" value="paypal" onChange={handlePaymentMethodChange} />
-            <span>Email</span>
-            <img src={paypal} alt="Paypal" className="payment-icon" />
-            <img src={applePay} alt="Apple Pay" className="payment-icon" />
-            <img src={googlePay} alt="Google Pay" className="payment-icon" />
-            <img src={klarna} alt="klarna" className="payment-icon" />
-            <img src={affirm} alt="affrim" className="payment-icon" />
-          </label>
-        </div>
-
-        {paymentMethod === 'card' && (
-          <div className="payment-form17">
-            <h3>Card Details</h3>
-            <div className="input-container17">
-              <FontAwesomeIcon icon={faCreditCard} className="input-icon76" />
-              <input type="text" name="cardNumber" placeholder="Card Number" onChange={handleInputChange} maxLength="16" />
-            </div>
-            <div className="input-container17">
-              <FontAwesomeIcon icon={faUser} className="input-icon76" />
-              <input type="text" name="Name" placeholder="Cardholder Name" onChange={handleInputChange} />
-            </div>
-            <div className="input-container17">
-              <FontAwesomeIcon icon={faCalendarAlt} className="input-icon76" />
-              <input type="text" name="expiryDate" placeholder="Expiry Date (MM/YY)" onChange={handleInputChange} />
-            </div>
-            <div className="input-container17">
-              <FontAwesomeIcon icon={faCreditCard} className="input-icon76" />
-              <input type="text" name="cvv" placeholder="CVV" onChange={handleInputChange} maxLength="4" />
-            </div>
-          </div>
-        )}
-
-        {paymentMethod === 'paypal' && (
-          <div className="payment-form17">
-            <h3>PayPal Email</h3>
-            <div className="input-container17">
-              <FontAwesomeIcon icon={faEnvelope} className="input-icon76" />
-              <input type="email" name="paypalEmail" placeholder="PayPal Email" onChange={handleInputChange} />
-            </div>
-          </div>
-        )}
-        <button className="pay-button" onClick={handlePayment}>Complete Payment</button>
+    <div className="bf26-page bf26-checkout">
+      <div className="bf26-results-top">
+        <button type="button" className="bf-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={15} /> Back to guest details
+        </button>
+        <BookingSteps current="Payment" steps={HOTEL_STEPS} />
       </div>
-
-      <div className="order-summary-section">
-        <h3>Order Summary</h3>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faHotel} className="order-summary-icon" />
-            <span>Hotel:</span>
+      <header className="bf26-checkout-head">
+        <span className="bf26-kicker">Final step</span>
+        <h1>Secure payment</h1>
+      </header>
+      <div className="bf26-checkout-layout">
+        <section className="bf26-panel">
+          <div className="bf26-panel-head">
+            <span className="bf26-step-no">
+              <ShieldCheck size={17} />
+            </span>
+            <div>
+              <h2>How would you like to pay?</h2>
+              <p>Your voucher is issued as soon as payment is confirmed.</p>
+            </div>
           </div>
-          <span>{hotelName || "N/A"}</span>
-        </div>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faMapMarkerAlt} className="order-summary-icon" />
-            <span>Location:</span>
+          <PaymentPanel amountLabel={formatMoney(price)} defaultEmail={email} onPay={pay} disabled={step >= 0} />
+        </section>
+        <aside className="bf26-summary">
+          <div className="bf26-summary-card">
+            <span className="bf26-kicker">Your stay</span>
+            <h3 className="bf26-summary-hotel">{hotelName}</h3>
+            <p className="bf26-hotel-loc">
+              <MapPin size={13} /> {hotellocation}
+            </p>
+            <div className="bf26-stay-dates">
+              <div>
+                <small>Check-in</small>
+                <strong>{formatDay(checkInDate)}</strong>
+              </div>
+              <div>
+                <small>Check-out</small>
+                <strong>{formatDay(checkOutDate)}</strong>
+              </div>
+            </div>
+            <div className="bf26-summary-rows">
+              <p>
+                <span>
+                  <BedDouble size={13} /> {roomType || "Room"}
+                </span>
+              </p>
+              <p>
+                <span>
+                  <CalendarDays size={13} /> {nights} night{nights === 1 ? "" : "s"} · <Users size={13} /> {people} guest
+                  {Number(people) === 1 ? "" : "s"}
+                </span>
+              </p>
+            </div>
+            <div className="bf26-summary-total">
+              <span>Total to pay</span>
+              <strong>{formatMoney(price)}</strong>
+            </div>
+            {email && (
+              <p className="bf26-email-note">
+                <Mail size={15} />
+                <span>
+                  Your voucher will be emailed to <strong>{email}</strong>
+                </span>
+              </p>
+            )}
           </div>
-          <span>{hotellocation || "N/A"}</span>
-        </div>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faCalendarAlt} className="order-summary-icon" />
-            <span>Check-in:</span>
-          </div>
-          <span>{checkInDate || "N/A"}</span>
-        </div>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faCalendarAlt} className="order-summary-icon" />
-            <span>Check-out:</span>
-          </div>
-          <span>{checkOutDate || "N/A"}</span>
-        </div>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faUser} className="order-summary-icon" />
-            <span>People:</span>
-          </div>
-          <span>{people || "N/A"}</span>
-        </div>
-        <div className="order-summary-detail">
-          <div>
-            <FontAwesomeIcon icon={faDollarSign} className="order-summary-icon" />
-            <span>Total Price:</span>
-          </div>
-          <span>MYR{price || "N/A"}</span>
-        </div>
+        </aside>
       </div>
+      {step >= 0 && (
+        <ProcessingOverlay
+          title="Confirming your stay"
+          steps={["Authorising payment", "Reserving your room", `Emailing your voucher to ${email}`]}
+          current={step}
+        />
+      )}
     </div>
   );
 };
 
-
 export default HotelPaymentMethod;
-

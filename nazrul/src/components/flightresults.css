@@ -1496,7 +1496,7 @@ label {
 
 /* 3) Prevent horizontal scroll everywhere */
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* 4) Airport names: always truncate nicely */

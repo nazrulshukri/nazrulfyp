@@ -56,7 +56,7 @@ body {
   color: #555;
 }
 
-button {
+.payment-success909 button {
   display: inline-block;
   background-color: #3498db;
   color: #fff;
@@ -69,17 +69,17 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
+.payment-success909 button:hover {
   background-color: #2980b9;
 }
 
-a {
+.payment-success909 a {
   text-decoration: none;
   color: #3498db;
   transition: color 0.3s ease;
 }
 
-a:hover {
+.payment-success909 a:hover {
   color: #2980b9;
 }
 

@@ -80,7 +80,7 @@
     color: #93c5fd; /* Light blue labels */
 }
 
-.app.dark-mode button:hover {
+.app.dark-mode .inquiry-container button:hover {
     background-color: #2563eb;
     box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
 }
@@ -127,7 +127,7 @@
     min-height: 150px; /* Increase height for textarea */
 }
 
-button {
+.inquiry-container button {
     width: 100%;
     padding: 20px; /* Increase padding for a bigger button */
     border: none;
@@ -183,7 +183,7 @@ button {
   box-shadow: inset -1px 0 0 rgba(59, 130, 246, 0.15);
 }
 
-button:hover {
+.inquiry-container button:hover {
     background-color: #0056b3;
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
 }
@@ -216,7 +216,7 @@ button:hover {
         font-size: 16px; /* Adjust input size for mobile */
     }
 
-    button {
+    .inquiry-container button {
         font-size: 18px; /* Adjust button size for mobile */
     }
 }

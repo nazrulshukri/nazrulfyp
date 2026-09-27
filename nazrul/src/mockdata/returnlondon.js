@@ -24,8 +24,10 @@ export const generateMockReturnFlights1 = (departureDate, returnDate, origin, de
   };
 
   const calculateArrivalTime = (departureTime, flightDurationHours) => {
-    return new Date(new Date(departureTime).getTime() + flightDurationHours * 60 * 60 * 1000)
-      .toISOString().substring(0, 19);
+    // Keep both timestamps in the same illustrative local time zone.
+    const date = new Date(`${departureTime}Z`);
+    date.setUTCHours(date.getUTCHours() + flightDurationHours);
+    return date.toISOString().slice(0, 19);
   };
 
   return [

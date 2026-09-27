@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/apiConfig";
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -13,7 +14,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     console.log('Form submitted with email:', email); // Debugging line
     try {
-      const response = await axios.post('http://localhost:5001/forgotpassword', { email });
+      const response = await axios.post(`${API_BASE}/forgotpassword`, { email });
       toast.success(response.data.message, {
         position: "top-center", // Corrected position as string
         autoClose: 3000,
@@ -46,7 +47,7 @@ const ForgotPassword = () => {
         <p className="subtitle">
           Enter your email address, and we'll send you a link to reset your password.
         </p>
-        
+
         <form onSubmit={handleSubmit}>
   <div className="form-group">
     <input
@@ -62,7 +63,7 @@ const ForgotPassword = () => {
     Send Reset Link
   </button>
 
- 
+
 </form>
       </div>
       {/* ToastContainer for notifications */}

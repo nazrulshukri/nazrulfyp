@@ -1,69 +1,52 @@
-import React from 'react';
-import './footer.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebookF, faTwitter, faInstagram, faYoutube } from '@fortawesome/free-brands-svg-icons';
-
-function Footer() {
+import React from "react";
+import { Link } from "react-router-dom";
+import { Plane, ArrowUpRight } from "lucide-react";
+export default function Footer() {
   return (
-    <footer className="footer1">
-      <div className="footer-content78">
-        <div className="footer-section90">
-          <h4>Find inspiration</h4>
-          <ul>
-            <li><a href="./">Booking Flex</a></li>
-            <li><a href="./">About Us</a></li>
-            <li><a href="./">About the Bookingflex</a></li>
-            <li><a href="./">Bookingflex® news</a></li>
-            <li><a href="./">Sustainability</a></li>
-          </ul>
+    <footer className="bf-footer">
+      <div className="bf-footer-top">
+        <div>
+          <Link className="bf-brand" to="/">
+            <span className="bf-brand-mark">
+              <Plane size={22} />
+            </span>
+            booking<span>flex</span>
+            <i />
+          </Link>
+          <p>
+            A world of possibilities.
+            <br />A simpler way to get there.
+          </p>
         </div>
-        <div className="footer-section90">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="./">Contact us</a></li>
-            <li><a href="./">Find building instructions</a></li>
-            <li><a href="./">Replacement parts</a></li>
-            <li><a href="./">Deliveries and returns</a></li>
-            <li><a href="./">Payment methods</a></li>
-            <li><a href="./">Terms & conditions</a></li>
-            <li><a href="./">Product recalls</a></li>
-          </ul>
+        <div>
+          <h3>Discover</h3>
+          <Link to="/">Explore destinations</Link>
+          <Link to="/about">About BookingFlex</Link>
+          <Link to="/flightstatus">Flight status</Link>
         </div>
-        <div className="footer-section90">
-          <h4>Attractions</h4>
-          <ul>
-            <li><a href="./">Booking flex</a></li>
-            <li><a href="./">Booking flex offer</a></li>
-            <li><a href="./">Price deal booking flex</a></li>
-          </ul>
+        <div>
+          <h3>Your journey</h3>
+          <Link to="/dashboard">My trips</Link>
+          <Link to="/services">Check-in</Link>
+          <Link to="/contact">
+            Contact & support <ArrowUpRight size={13} />
+          </Link>
         </div>
-        <div className="footer-section90">
-          <h4>More From Us</h4>
-          <ul>
-            <li><a href="./">Bookingflex® magazine (FREE)</a></li>
-            <li><a href="./">Flex education</a></li>
-            <li><a href="./">Flex ideas</a></li>
-            <li><a href="./">Flex foundation</a></li>
-            <li><a href="./">Flex braille bricks</a></li>
-          </ul>
-        </div>
-        <div className="footer-section90">
-          <h4>Follow Us</h4>
-          <ul className="social-media">
-            <li><a href="./"><FontAwesomeIcon icon={faFacebookF} /></a></li>
-            <li><a href="./"><FontAwesomeIcon icon={faTwitter} /></a></li>
-            <li><a href="./"><FontAwesomeIcon icon={faInstagram} /></a></li>
-            <li><a href="./"><FontAwesomeIcon icon={faYoutube} /></a></li>
-          </ul>
+        <div className="bf-footer-message">
+          <span>WHEREVER YOU GO,</span>
+          <strong>
+            make it
+            <br />
+            memorable.
+          </strong>
         </div>
       </div>
-      <div className="footer-bottom90">
-        <p>&copy; 2026 Booking Flex</p>
-        <p>Privacy policy | Cookies | Legal notice | Terms of Use | Digital wellbeing | Accessibility | Cookie Settings</p>
-        <p>No. 35, Jalan TJ 7/4, Taman Temerloh Jaya, 28000 Pahang Darul Makmur. Booking Flex helps travellers compare and organise trip options. Airline and travel-provider terms may apply.</p>
+      <div className="bf-footer-bottom">
+        <span>
+          © {new Date().getFullYear()} BookingFlex. All rights reserved.
+        </span>
+        <span>Made for the way you travel. &nbsp; EN · MYR</span>
       </div>
     </footer>
   );
 }
-
-export default Footer;

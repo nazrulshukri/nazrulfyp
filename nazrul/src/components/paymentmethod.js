@@ -1,60 +1,45 @@
+import { API_BASE } from "../lib/apiConfig";
 import axios from "axios";
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Mail, Users, Armchair, ShieldCheck, Plane } from "lucide-react";
+import PaymentPanel, { ProcessingOverlay } from "./PaymentPanel";
+import { AirlineBadge, BookingSteps } from "./flightresults";
+import { saveBookingForUser, formatMoney } from "../lib/bookingStorage";
+import { airportMeta, formatDay } from "../lib/travelMeta";
 import "./paymentmethod.css";
 
-import paypalIcon from "../img/assets/seat/Paypal_2014_logo.png";
-import cardIcon from "../img/assets/seat/Mastercard-logo.svg.png";
-import fpxIcon from "../img/assets/seat/images.png";
-import applePayIcon from "../img/assets/seat/Apple_Pay-Logo.wine.png";
-import emailIcon from "../img/assets/seat/email-icon--clipart-best-22.png";
-import cvvIcon from "../img/assets/seat/4117733.png";
-import expiryIcon from "../img/assets/seat/2068755-200.png";
-import accountIcon from "../img/assets/seat/user-icon-trendy-flat-style-600nw-1697898655.webp";
-import bankIcon from "../img/assets/seat/bank-vector-icon-isolated-on-transparent-background-bank-logo-concept-P28454.jpg";
-import { saveBookingForUser } from "../lib/bookingStorage";
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const time = (value) =>
+  new Date(value).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+function Leg({ label, flight }) {
+  if (!flight) return null;
+  const from = airportMeta(flight.origin);
+  const to = airportMeta(flight.destination);
+  return (
+    <div className="bf26-mini-leg">
+      <AirlineBadge name={flight.airline} size={36} />
+      <span>
+        <small>
+          {label} · {formatDay(flight.departure)}
+        </small>
+        <strong>
+          {from.code} {time(flight.departure)} <ArrowRight size={13} /> {to.code} {time(flight.arrival)}
+        </strong>
+        <small>
+          {flight.airline} · {flight.flightNumber}
+        </small>
+      </span>
+    </div>
+  );
+}
 
 const PaymentMethodPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [step, setStep] = useState(-1);
 
-  // ✅ HOOKS FIRST (always called)
-  const [paymentType, setPaymentType] = useState("paypal");
-  const [isMethodOpen, setIsMethodOpen] = useState(false);
-  const [paypalDetails, setPaypalDetails] = useState({ email: "" });
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    cardHolder: "",
-    expiryDate: "",
-    cvv: "",
-  });
-  const [fpxDetails, setFpxDetails] = useState({ accountNumber: "", bankName: "" });
-  const [applePayDetails, setApplePayDetails] = useState({
-    cardNumber: "",
-    cardHolder: "",
-    expiryDate: "",
-    cvv: "",
-  });
-
-  const bankOptions = [
-    "Maybank",
-    "CIMB Bank",
-    "Bank Islam",
-    "RHB Bank",
-    "Public Bank",
-    "Hong Leong Bank",
-    "AmBank",
-    "HSBC Bank",
-    "OCBC Bank",
-    "Standard Chartered",
-    "UOB Bank",
-    "Affin Bank",
-    "Bank Rakyat",
-    "BSN",
-  ];
-
-  // ✅ SAFE STATE READ (after hooks is fine)
   const {
     bookingId,
     totalAmount,
@@ -63,333 +48,153 @@ const PaymentMethodPage = () => {
     passengerDetails,
     selectedSeats = [],
     selectedInsurance,
+    people = 1,
   } = location.state || {};
 
-  const paymentMethods = [
-    {
-      id: "paypal",
-      label: "PayPal",
-      subtitle: "Fast wallet checkout",
-      icon: paypalIcon,
-    },
-    {
-      id: "card",
-      label: "Credit/Debit Card",
-      subtitle: "Visa, Mastercard and debit cards",
-      icon: cardIcon,
-    },
-    {
-      id: "fpx",
-      label: "FPX Bank Transfer",
-      subtitle: "Malaysia online banking",
-      icon: fpxIcon,
-    },
-    {
-      id: "applePay",
-      label: "Apple Pay",
-      subtitle: "Device wallet payment",
-      icon: applePayIcon,
-    },
-  ];
-
-  const selectedMethod = paymentMethods.find((method) => method.id === paymentType) || paymentMethods[0];
-
-  // ✅ GUARD AFTER HOOKS
   if (!location.state) {
     return (
-      <div style={{ padding: 20 }}>
-        <h2>Payment Method</h2>
-        <p>
-          No booking data found. This can happen if you refreshed the page or opened it directly.
-        </p>
-        <button onClick={() => navigate("/payment")}>Back to Payment</button>
-      </div>
+      <section className="bf-empty">
+        <Plane size={36} />
+        <h1>Your checkout has expired.</h1>
+        <p>This can happen after a refresh. Choose your flights again to continue.</p>
+        <Link className="bf-primary" to="/">
+          Search flights <ArrowRight size={16} />
+        </Link>
+      </section>
     );
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const email = passengerDetails?.email;
+  const steps = ["Authorising payment", "Issuing your e-ticket", `Emailing your ticket to ${email}`];
 
-    if (paymentType === "paypal") setPaypalDetails((p) => ({ ...p, [name]: value }));
-    if (paymentType === "card") setCardDetails((p) => ({ ...p, [name]: value }));
-    if (paymentType === "fpx") setFpxDetails((p) => ({ ...p, [name]: value }));
-    if (paymentType === "applePay") setApplePayDetails((p) => ({ ...p, [name]: value }));
-  };
+  async function pay({ method, label, detail }) {
+    setStep(0);
+    await wait(1100);
+    setStep(1);
+    await wait(700);
+    setStep(2);
 
-  const handlePaymentSubmit = async (e) => {
-    e.preventDefault();
-
+    const paidAt = new Date().toISOString();
     const paymentData = {
       bookingId,
-      paymentMethod: paymentType,
+      paymentMethod: label,
+      paymentDetail: detail,
       amount: totalAmount,
       status: "Confirmed",
-      paymentDetails:
-        paymentType === "paypal"
-          ? paypalDetails
-          : paymentType === "card"
-          ? cardDetails
-          : paymentType === "fpx"
-          ? fpxDetails
-          : applePayDetails,
-
-      email: passengerDetails?.email,
+      // Never send or persist raw card, CVV or bank details.
+      paymentDetails: { method },
+      email,
       outboundFlight,
       returnFlight,
       passengerDetails,
       selectedSeats,
       selectedInsurance,
+      people,
+      paidAt,
     };
 
+    let emailStatus = "sent";
     try {
-      const response = await axios.post("http://localhost:5001/submit-payment", paymentData);
-
-      if (response.data.success) {
-        const userEmail = passengerDetails?.email || localStorage.getItem("userEmail");
-        if (userEmail) {
-          localStorage.setItem("userEmail", userEmail);
-          saveBookingForUser(userEmail, {
-            ...paymentData,
-            amount: totalAmount,
-            paidAt: new Date().toISOString(),
-          });
-        }
-
-        navigate("/ticketpage", { state: paymentData });
-      } else {
-        alert("Failed to save payment. Please try again.");
-      }
+      const response = await axios.post(`${API_BASE}/submit-payment`, paymentData, { timeout: 25000 });
+      if (!response.data?.success) emailStatus = "failed";
     } catch (error) {
-      console.error("Error submitting payment:", {
-    message: error.message,
-    status: error?.response?.status,
-    data: error?.response?.data,
-  }); alert(
-    error?.response?.data?.message ||
-    JSON.stringify(error?.response?.data) ||
-    "Error processing payment. Please try again."
-  );
-}};
+      console.warn("Ticket email could not be sent:", error?.response?.data || error.message);
+      emailStatus = "failed";
+    }
+
+    const userEmail = email || localStorage.getItem("userEmail");
+    if (userEmail) saveBookingForUser(userEmail, { ...paymentData, emailStatus });
+
+    // "email" at the top level of route state is read by the header as a sign-in,
+    // so the ticket keeps the address under "sentTo" instead.
+    const { email: sentTo, ...rest } = paymentData;
+    const ticket = { ...rest, sentTo, emailStatus };
+    sessionStorage.setItem("lastFlightTicket", JSON.stringify(ticket));
+    setStep(3);
+    await wait(500);
+    navigate("/ticketpage", { state: ticket });
+  }
+
+  const seatsTotal = selectedSeats.length * 20;
+  const insurance = Number(selectedInsurance?.price) || 0;
 
   return (
-    <div className="payment-page1">
-      <div className="payment-sidebar1">
-        <div className="booking-details-container">
-          <span className="payment-kicker">Final step</span>
-          <h2>Booking Details</h2>
-          <div className="booking-detail-list">
-            <p><strong>Email</strong> <span>{passengerDetails?.email || "-"}</span></p>
-            <p><strong>Booking ID</strong> <span>{bookingId || "-"}</span></p>
-            <p><strong>Departure</strong> <span>{outboundFlight?.flightNumber || "-"}</span></p>
-            <p><strong>Departure Price</strong> <span>MYR {outboundFlight?.price ?? 0}</span></p>
-            <p><strong>Return</strong> <span>{returnFlight?.flightNumber || "-"}</span></p>
-            <p><strong>Return Price</strong> <span>MYR {returnFlight?.price ?? 0}</span></p>
-            <p><strong>Seats</strong> <span>{selectedSeats.length ? selectedSeats.join(", ") : "-"}</span></p>
-            <p><strong>Insurance</strong> <span>{selectedInsurance ? `${selectedInsurance.name} (MYR ${selectedInsurance.price})` : "No Insurance"}</span></p>
-          </div>
-          <div className="booking-total-pill">
-            <span>Total due</span>
-            <strong>MYR {Number(totalAmount || 0).toFixed(2)}</strong>
-          </div>
-        </div>
+    <div className="bf26-page bf26-checkout">
+      <div className="bf26-results-top">
+        <button type="button" className="bf-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={15} /> Back to traveller details
+        </button>
+        <BookingSteps current="Payment" tripType={returnFlight ? "return" : "oneway"} />
+      </div>
 
-        <h2 className="payment-method-title">Select Payment Method</h2>
+      <header className="bf26-checkout-head">
+        <span className="bf26-kicker">Final step</span>
+        <h1>Secure payment</h1>
+      </header>
 
-        <div className={`payment-method-dropdown ${isMethodOpen ? "open" : ""}`}>
-          <button
-            type="button"
-            className="payment-method-trigger"
-            onClick={() => setIsMethodOpen((open) => !open)}
-            aria-expanded={isMethodOpen}
-            aria-haspopup="listbox"
-          >
-            <span className="method-trigger-main">
-              <img src={selectedMethod.icon} alt="" className="payment-icon" />
-              <span>
-                <strong>{selectedMethod.label}</strong>
-                <small>{selectedMethod.subtitle}</small>
-              </span>
+      <div className="bf26-checkout-layout">
+        <section className="bf26-panel">
+          <div className="bf26-panel-head">
+            <span className="bf26-step-no">
+              <ShieldCheck size={17} />
             </span>
-            <span className="method-chevron">⌄</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="payment-content1">
-        <form className="payment-method-form1" onSubmit={handlePaymentSubmit}>
-          <div className="payment-form-header">
-            <button type="button" className="payment-back-button" onClick={() => navigate(-1)}>
-              <ArrowLeft size={16} /> Back
-            </button>
-            <span className="payment-kicker">Secure payment</span>
-            <h1>{paymentType === "paypal" ? "Pay with PayPal" : paymentType === "card" ? "Pay by Card" : paymentType === "fpx" ? "Pay with FPX" : "Pay with Apple Pay"}</h1>
-            <p>Complete your booking with encrypted checkout details.</p>
-          </div>
-
-          {paymentType === "paypal" && (
-            <div className="form-group1">
-              <label>PayPal Email</label>
-              <div className="input-icon-wrapper78">
-                <img className="input-icon1" src={emailIcon} alt="Email icon" />
-                <input type="email" name="email" placeholder="Enter your PayPal email" value={paypalDetails.email} onChange={handleInputChange} required />
-              </div>
+            <div>
+              <h2>How would you like to pay?</h2>
+              <p>Choose a method. Your e-ticket is issued as soon as payment is confirmed.</p>
             </div>
-          )}
-
-          {paymentType === "card" && (
-            <>
-              <div className="form-group1">
-                <label>Card Number</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={cardIcon} alt="Card icon" />
-                  <input type="text" name="cardNumber" placeholder="Card Number" value={cardDetails.cardNumber} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>Card Holder Name</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={cardIcon} alt="Card icon" />
-                  <input type="text" name="cardHolder" placeholder="Card Holder Name" value={cardDetails.cardHolder} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>Expiry Date (MM/YY)</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={expiryIcon} alt="Expiry icon" />
-                  <input type="text" name="expiryDate" placeholder="MM/YY" value={cardDetails.expiryDate} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>CVV</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={cvvIcon} alt="CVV icon" />
-                  <input type="text" name="cvv" placeholder="CVV" value={cardDetails.cvv} onChange={handleInputChange} required />
-                </div>
-              </div>
-            </>
-          )}
-
-          {paymentType === "fpx" && (
-            <>
-              <div className="form-group1">
-                <label>Account Number</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={accountIcon} alt="Account icon" />
-                  <input type="text" name="accountNumber" placeholder="Account Number" value={fpxDetails.accountNumber} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>Bank Name</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={bankIcon} alt="Bank icon" />
-                  <select className="bank-select" name="bankName" value={fpxDetails.bankName} onChange={handleInputChange} required>
-                    <option value="">Choose your bank</option>
-                    {bankOptions.map((bank) => (
-                      <option key={bank} value={bank}>
-                        {bank}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </>
-          )}
-
-          {paymentType === "applePay" && (
-            <>
-              <div className="form-group1">
-                <label>Card Number</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={applePayIcon} alt="Apple Pay icon" />
-                  <input type="text" name="cardNumber" placeholder="Card Number" value={applePayDetails.cardNumber} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>Card Holder Name</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={applePayIcon} alt="Apple Pay icon" />
-                  <input type="text" name="cardHolder" placeholder="Card Holder Name" value={applePayDetails.cardHolder} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>Expiry Date (MM/YY)</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={expiryIcon} alt="Expiry icon" />
-                  <input type="text" name="expiryDate" placeholder="MM/YY" value={applePayDetails.expiryDate} onChange={handleInputChange} required />
-                </div>
-              </div>
-
-              <div className="form-group1">
-                <label>CVV</label>
-                <div className="input-icon-wrapper78">
-                  <img className="input-icon1" src={cvvIcon} alt="CVV icon" />
-                  <input type="text" name="cvv" placeholder="CVV" value={applePayDetails.cvv} onChange={handleInputChange} required />
-                </div>
-              </div>
-            </>
-          )}
-
-          <button className="payment-button" type="submit">Proceed to Pay</button>
-        </form>
-      </div>
-
-      {isMethodOpen && (
-        <div className="payment-method-popup" role="presentation">
-          <button
-            type="button"
-            className="payment-method-backdrop"
-            aria-label="Close payment method selector"
-            onClick={() => setIsMethodOpen(false)}
+          </div>
+          <PaymentPanel
+            amountLabel={formatMoney(totalAmount)}
+            defaultEmail={email}
+            onPay={pay}
+            disabled={step >= 0}
           />
-          <div className="payment-method-menu" role="listbox" aria-label="Payment method options">
-            <button
-              type="button"
-              className="method-popup-close"
-              aria-label="Close payment method selector"
-              onClick={() => setIsMethodOpen(false)}
-            >
-              ×
-            </button>
+        </section>
 
-            <div className="method-popup-header">
-              <span className="payment-kicker">Payment selector</span>
-              <h3>Choose how you want to pay</h3>
-              <p>Pick a secure method. Your form will change instantly.</p>
+        <aside className="bf26-summary">
+          <div className="bf26-summary-card">
+            <span className="bf26-kicker">Your trip</span>
+            <Leg label="Outbound" flight={outboundFlight} />
+            <Leg label="Return" flight={returnFlight} />
+            <div className="bf26-summary-rows">
+              <p>
+                <span>
+                  <Users size={13} /> {people} {people === 1 ? "traveller" : "travellers"} ·{" "}
+                  {passengerDetails?.firstName} {passengerDetails?.lastName}
+                </span>
+              </p>
+              <p>
+                <span>
+                  <Armchair size={13} /> Seats {selectedSeats.length ? `(${selectedSeats.join(", ")})` : ""}
+                </span>
+                <strong>{formatMoney(seatsTotal)}</strong>
+              </p>
+              <p>
+                <span>
+                  <ShieldCheck size={13} /> {selectedInsurance?.name ? `${selectedInsurance.name} protection` : "No protection"}
+                </span>
+                <strong>{formatMoney(insurance)}</strong>
+              </p>
+              <p>
+                <span>Booking reference</span>
+                <strong className="bf26-mono">{bookingId}</strong>
+              </p>
             </div>
-
-            <div className="method-popup-grid">
-              {paymentMethods.map((method, index) => (
-                <button
-                  key={method.id}
-                  type="button"
-                  role="option"
-                  aria-selected={paymentType === method.id}
-                  className={`payment-method-item ${paymentType === method.id ? "active" : ""}`}
-                  onClick={() => {
-                    setPaymentType(method.id);
-                    setIsMethodOpen(false);
-                  }}
-                  style={{ animationDelay: `${index * 70}ms` }}
-                >
-                  <span className="method-card-shine" />
-                  <img src={method.icon} alt="" className="payment-icon" />
-                  <span>
-                    <strong>{method.label}</strong>
-                    <small>{method.subtitle}</small>
-                  </span>
-                  <i>{paymentType === method.id ? "Selected" : "Choose"}</i>
-                </button>
-              ))}
+            <div className="bf26-summary-total">
+              <span>Total to pay</span>
+              <strong>{formatMoney(totalAmount)}</strong>
             </div>
+            <p className="bf26-email-note">
+              <Mail size={15} />
+              <span>
+                Your e-ticket and boarding passes will be emailed to <strong>{email}</strong>
+              </span>
+            </p>
           </div>
-        </div>
-      )}
+        </aside>
+      </div>
+
+      {step >= 0 && <ProcessingOverlay steps={steps} current={step} />}
     </div>
   );
 };
