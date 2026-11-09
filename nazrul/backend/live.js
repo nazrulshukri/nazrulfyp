@@ -1,6 +1,6 @@
 // Live travel data for the Track page.
 //   GET /live/trains         KTM trains now (data.gov.my GTFS-Realtime, no key)
-//   GET /live/flights        aircraft over Malaysia now (OpenSky Network, no key)
+//   GET /live/flights        aircraft over Malaysia now (OpenSky, or adsb.lol as backup; no key)
 //   GET /live/flight-status  ?flight=MH370 (AviationStack, needs AVIATIONSTACK_KEY)
 const express = require("express");
 const GtfsRealtime = require("gtfs-realtime-bindings");
@@ -90,10 +90,39 @@ const loadTrains = cached(20_000, async () => {
   };
 });
 
-const loadFlights = cached(120_000, async () => {
+// adsb.lol is a free, keyless community ADS-B feed (ODbL). It is the backup
+// when OpenSky is slow or blocks the server (OpenSky refuses many cloud hosts,
+// including Vercel). Three 250 nm circles cover Peninsular and East Malaysia.
+const ADSB_POINTS = ["3.5/102/250", "2.5/110.5/250", "5.8/116.5/250"];
+const AIRLINES = {
+  MAS: "Malaysia Airlines", AXM: "AirAsia", XAX: "AirAsia X", MXD: "Batik Air Malaysia", FFM: "Firefly",
+  SIA: "Singapore Airlines", TGW: "Scoot", UAE: "Emirates", QTR: "Qatar Airways", ETD: "Etihad",
+  THA: "Thai Airways", AIQ: "Thai AirAsia", CPA: "Cathay Pacific", GIA: "Garuda Indonesia",
+  AWQ: "Indonesia AirAsia", BTK: "Batik Air", LNI: "Lion Air", VJC: "VietJet", HVN: "Vietnam Airlines",
+  CES: "China Eastern", CSN: "China Southern", CCA: "Air China", CXA: "Xiamen Air", KLM: "KLM",
+  BAW: "British Airways", THY: "Turkish Airlines", SVA: "Saudia", JAL: "Japan Airlines", ANA: "ANA",
+  KAL: "Korean Air", AAR: "Asiana", QFA: "Qantas", JST: "Jetstar", CEB: "Cebu Pacific",
+  PAL: "Philippine Airlines", AIC: "Air India", IGO: "IndiGo", ALK: "SriLankan", RBA: "Royal Brunei",
+  EVA: "EVA Air", CAL: "China Airlines", DLH: "Lufthansa", AFR: "Air France", FDX: "FedEx", UPS: "UPS",
+};
+const REG_COUNTRY = [
+  ["9M", "Malaysia"], ["9V", "Singapore"], ["PK", "Indonesia"], ["HS", "Thailand"], ["VH", "Australia"],
+  ["A6", "United Arab Emirates"], ["A7", "Qatar"], ["V8", "Brunei"], ["VN", "Vietnam"], ["RP", "Philippines"],
+  ["JA", "Japan"], ["HL", "South Korea"], ["VT", "India"], ["TC", "Turkey"], ["G-", "United Kingdom"],
+  ["B-", "China / Taiwan / Hong Kong"], ["N", "United States"],
+];
+function operatorFor(callsign, registration) {
+  const airline = AIRLINES[(callsign || "").slice(0, 3).toUpperCase()];
+  if (airline) return airline;
+  const reg = (registration || "").toUpperCase();
+  const hit = REG_COUNTRY.find(([prefix]) => reg.startsWith(prefix));
+  return hit ? hit[1] : "Aircraft";
+}
+
+async function loadOpenSky(ms) {
   const headers = {};
   if (process.env.OPENSKY_TOKEN) headers.Authorization = `Bearer ${process.env.OPENSKY_TOKEN}`;
-  const res = await fetchWithTimeout(OPENSKY_URL, { headers }, 12000);
+  const res = await fetchWithTimeout(OPENSKY_URL, { headers }, ms);
   if (res.status === 429) throw Object.assign(new Error("OpenSky rate limit reached"), { status: 429 });
   if (!res.ok) throw new Error(`OpenSky returned ${res.status}`);
   const data = await res.json();
@@ -103,7 +132,7 @@ const loadFlights = cached(120_000, async () => {
     .map((s) => ({
       icao24: s[0],
       callsign: (s[1] || "").trim(),
-      country: s[2],
+      country: AIRLINES[(s[1] || "").slice(0, 3)] || s[2],
       lng: s[5],
       lat: s[6],
       altitudeM: s[13] != null ? Math.round(s[13]) : s[7] != null ? Math.round(s[7]) : null,
@@ -112,6 +141,53 @@ const loadFlights = cached(120_000, async () => {
       climbing: s[11] > 1 ? "up" : s[11] < -1 ? "down" : "level",
     }));
   return { source: "OpenSky Network", fetchedAt: Date.now(), dataTime: data.time * 1000, flights };
+}
+
+async function loadAdsbLol(ms) {
+  const results = await Promise.allSettled(
+    ADSB_POINTS.map(async (point) => {
+      const res = await fetchWithTimeout(`https://api.adsb.lol/v2/point/${point}`, {}, ms);
+      if (!res.ok) throw new Error(`adsb.lol returned ${res.status}`);
+      return res.json();
+    }),
+  );
+  const ok = results.filter((r) => r.status === "fulfilled").map((r) => r.value);
+  if (!ok.length) throw new Error("adsb.lol unavailable");
+  const byHex = new Map();
+  for (const data of ok) {
+    for (const a of data.ac || []) {
+      if (a.lat == null || a.lon == null || a.alt_baro === "ground") continue;
+      const callsign = (a.flight || "").trim();
+      const rate = a.baro_rate ?? a.geom_rate ?? 0;
+      byHex.set(a.hex, {
+        icao24: a.hex,
+        callsign,
+        country: operatorFor(callsign, a.r),
+        lng: a.lon,
+        lat: a.lat,
+        altitudeM: typeof a.alt_baro === "number" ? Math.round(a.alt_baro * 0.3048) : null,
+        speedKmh: a.gs != null ? Math.round(a.gs * 1.852) : null,
+        heading: a.track ?? a.true_heading ?? 0,
+        climbing: rate > 200 ? "up" : rate < -200 ? "down" : "level",
+      });
+    }
+  }
+  const now = Math.max(...ok.map((d) => d.now || 0));
+  return { source: "adsb.lol", fetchedAt: Date.now(), dataTime: now || Date.now(), flights: [...byHex.values()] };
+}
+
+// Ask both at once: OpenSky if it answers quickly (it has the most aircraft),
+// otherwise adsb.lol. Keeps the whole request inside Vercel's 10 s limit.
+const loadFlights = cached(120_000, async () => {
+  const backup = loadAdsbLol(6000);
+  backup.catch(() => {}); // handled below; avoid an unhandled rejection
+  try {
+    const primary = await loadOpenSky(4500);
+    if (primary.flights.length) return primary;
+  } catch (error) {
+    console.warn("OpenSky unavailable, using adsb.lol:", error.message);
+  }
+  return backup;
 });
 
 router.get("/trains", async (req, res) => {

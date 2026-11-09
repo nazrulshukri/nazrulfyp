@@ -44,20 +44,42 @@ const SERVICE_COLORS = {
 
 /* ---------------------------------------------------------------- helpers */
 
+// Reads a JSON reply, turning "the server sent a web page" (an old backend
+// without these routes, or a host that doesn't run the API) into a clear message.
+async function getJson(url) {
+  let res;
+  try {
+    res = await fetch(url);
+  } catch {
+    throw new Error("Can't reach the server. Check your connection, or start the backend if you're running locally.");
+  }
+  const text = await res.text();
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    throw new Error(
+      res.status === 404 || /<html|<!doctype/i.test(text)
+        ? "The live data service isn't available on this server yet. If you're running locally, restart the backend (node server.js)."
+        : "The live data service sent an unexpected reply. Please try again shortly.",
+    );
+  }
+  if (!res.ok) throw new Error(body.message || "Live data is unavailable right now.");
+  return body;
+}
+
 function useLive(path, intervalMs) {
   const [state, setState] = useState({ data: null, error: "", loading: true });
   const load = useCallback(async () => {
     setState((s) => ({ ...s, loading: true }));
     try {
-      const res = await fetch(`${API_BASE}${path}`);
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message || "Live data is unavailable right now.");
+      const body = await getJson(`${API_BASE}${path}`);
       setState({ data: body, error: "", loading: false });
     } catch (error) {
       setState((s) => ({
         ...s,
         loading: false,
-        error: error.message === "Failed to fetch" ? "Can't reach the server. Is the backend running?" : error.message,
+        error: error.message,
       }));
     }
   }, [path]);
@@ -514,9 +536,7 @@ function FlightsTab() {
     if (!query) return;
     setStatus({ loading: true, error: "", data: null });
     try {
-      const res = await fetch(`${API_BASE}/live/flight-status?flight=${encodeURIComponent(query)}`);
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message);
+      const body = await getJson(`${API_BASE}/live/flight-status?flight=${encodeURIComponent(query)}`);
       setStatus({ loading: false, error: "", data: body });
       const onMap = flights.find((f) => f.callsign && f.callsign.endsWith(query.replace(/^\D+/, "")) && f.callsign.length > 3);
       if (body.results[0]?.live) setFocus([body.results[0].live.lat, body.results[0].live.lng]);
@@ -551,7 +571,7 @@ function FlightsTab() {
           .slice(0, 3)
           .map((r, i) => <FlightStatusCard key={`${r.flight}-${r.date}-${i}`} r={r} />)}
 
-      <LiveBar live={live} label={`${flights.length} aircraft over Malaysia`} source="OpenSky Network" refreshEvery="2 min" />
+      <LiveBar live={live} label={`${flights.length} aircraft over Malaysia`} source={live.data?.source || "OpenSky Network"} refreshEvery="2 min" />
       {live.error && <p className="bf26-auth-alert">{live.error}</p>}
       <div className="bf26-track-grid">
         <div className="bf26-map-card bf26-track-map">
@@ -603,7 +623,7 @@ function FlightsTab() {
             ))}
         </ul>
       </div>
-      <p className="bf26-note">Aircraft positions from the OpenSky Network (free tier, updated every couple of minutes).</p>
+      <p className="bf26-note">Aircraft positions from {live.data?.source || "the OpenSky Network"} (free, updated every couple of minutes).</p>
     </div>
   );
 }

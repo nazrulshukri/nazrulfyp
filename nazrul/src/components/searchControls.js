@@ -64,12 +64,27 @@ export function PlacePicker({
   const selected = options.find((o) => o.value === value);
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter((o) =>
-      [o.value, o.code, o.city, o.country, o.name]
-        .filter(Boolean)
-        .some((f) => f.toLowerCase().includes(q)),
-    );
+    // Long lists (worldwide airports) show their popular entries until the
+    // traveller types; short lists show everything.
+    if (!q) return options.some((o) => o.popular) ? options.filter((o) => o.popular) : options;
+    const score = (o) => {
+      const code = (o.code || "").toLowerCase();
+      const city = (o.city || "").toLowerCase();
+      if (code === q) return 0;
+      if (city.startsWith(q)) return 1;
+      if ((o.name || "").toLowerCase().startsWith(q)) return 2;
+      if ((o.country || "").toLowerCase().startsWith(q)) return 3;
+      return 4;
+    };
+    return options
+      .filter((o) =>
+        [o.value, o.code, o.city, o.country, o.name]
+          .filter(Boolean)
+          .some((f) => f.toLowerCase().includes(q)),
+      )
+      .map((o, i) => [score(o), i, o])
+      .sort((a, b) => a[0] - b[0] || a[1] - b[1])
+      .map(([, , o]) => o);
   }, [options, query]);
 
   useEffect(() => setActive(0), [query, open]);

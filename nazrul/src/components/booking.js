@@ -13,21 +13,10 @@ import {
 import { localDate, validateSearch } from "../lib/searchValidation";
 import { airportMeta } from "../lib/travelMeta";
 import { PlacePicker, DateRangeFields, TravellersPicker } from "./searchControls";
+import { WORLD_AIRPORTS } from "../lib/airports";
 
 // Values stay identical to the strings the results pages already understand.
-export const AIRPORTS = [
-  { value: "Kuala Lumpur International Airport (Malaysia)", code: "KUL", city: "Kuala Lumpur", name: "Kuala Lumpur International", country: "Malaysia", flag: "🇲🇾" },
-  { value: "Kota Kinabalu International Airport (Malaysia)", code: "BKI", city: "Kota Kinabalu", name: "Kota Kinabalu International", country: "Malaysia", flag: "🇲🇾" },
-  { value: "London Heathrow Airport (United Kingdom)", code: "LHR", city: "London", name: "Heathrow Airport", country: "United Kingdom", flag: "🇬🇧" },
-  { value: "Haneda International Airport (Japan)", code: "HND", city: "Tokyo", name: "Haneda International", country: "Japan", flag: "🇯🇵" },
-  { value: "Ngurah Rai International Airport (Bali)", code: "DPS", city: "Bali", name: "Ngurah Rai International", country: "Indonesia", flag: "🇮🇩" },
-  { value: "Changi Airport (Singapore)", code: "SIN", city: "Singapore", name: "Changi Airport", country: "Singapore", flag: "🇸🇬" },
-  { value: "Bangkok Suvarnabhumi Airport (Thailand)", code: "BKK", city: "Bangkok", name: "Suvarnabhumi Airport", country: "Thailand", flag: "🇹🇭" },
-  { value: "Charles de Gaulle Airport (France)", code: "CDG", city: "Paris", name: "Charles de Gaulle", country: "France", flag: "🇫🇷" },
-  { value: "Dubai International Airport (United Arab Emirates)", code: "DXB", city: "Dubai", name: "Dubai International", country: "United Arab Emirates", flag: "🇦🇪" },
-  { value: "Incheon International Airport (South Korea)", code: "ICN", city: "Seoul", name: "Incheon International", country: "South Korea", flag: "🇰🇷" },
-  { value: "Sydney Kingsford Smith Airport (Australia)", code: "SYD", city: "Sydney", name: "Kingsford Smith Airport", country: "Australia", flag: "🇦🇺" },
-];
+export const AIRPORTS = WORLD_AIRPORTS;
 const STATIONS = [
   { value: "KL Sentral", code: "KLS", name: "KL Sentral", city: "KL Sentral", country: "Kuala Lumpur" },
   { value: "KLIA", code: "KLIA", name: "KLIA Terminal 1", city: "KLIA", country: "Sepang" },

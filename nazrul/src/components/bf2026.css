@@ -7325,3 +7325,29 @@ select:-webkit-autofill {
     transition: none;
   }
 }
+
+/* More destinations: scrollable region filters and a "Show all" button. */
+.bf-home .bf-region-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-left: -4px;
+  padding: 4px;
+}
+.bf-home .bf-region-tabs::-webkit-scrollbar {
+  display: none;
+}
+.bf-home .bf-region-tabs button {
+  flex: none;
+}
+.bf26-dest-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+.bf26-dest-more .bf26-ghost {
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+}

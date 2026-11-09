@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Booking from "./booking";
 import Showcase from "./Showcase";
+import { airportByCode, flightTimeLabel } from "../lib/airports";
 import greece from "../img/assets/travel/Greece_hero.jpg";
 import plane from "../img/assets/4k-plane-beautiful-sunset-shawraxhzg2ibf4f.jpg";
 import hotelFallback from "../img/assets/naera-Hotel-and-Spa-by-Horizontal-Design-30.jpg";
@@ -155,6 +156,40 @@ const destinations = [
     flightTime: "2h 35m",
     highlights: ["Tunku Abdul Rahman Park", "Mount Kinabalu", "Water villages"],
   },
+
+  ...[
+    ["Paris", "France", "Europe", "CDG", "photo-1502602898657-3e91760cbb34", "CITY OF LIGHT", "Long lunches and golden evenings.", 3600, "Cafés, galleries and the Eiffel Tower lit up at night.", "Apr – Jun, Sep – Oct", ["Eiffel Tower", "The Louvre", "Montmartre"]],
+    ["Seoul", "South Korea", "Asia", "ICN", "photo-1517154421773-0529f29ea451", "NEON NIGHTS", "Palaces by day, street food by night.", 1500, "Royal palaces, K-culture and late-night markets.", "Apr – May, Sep – Nov", ["Gyeongbokgung Palace", "Bukchon Hanok Village", "Myeongdong"]],
+    ["Kyoto", "Japan", "Asia", "KIX", "photo-1493976040374-85c8e12f0c0e", "OLD JAPAN", "Lantern-lit lanes and temple bells.", 1950, "Thousands of shrines, tea houses and bamboo groves.", "Mar – May, Oct – Nov", ["Fushimi Inari", "Arashiyama bamboo grove", "Gion"]],
+    ["Bangkok", "Thailand", "Asia", "BKK", "photo-1508009603885-50cf7c579365", "STREET FOOD CAPITAL", "Tuk-tuks, temples and rooftop views.", 380, "Golden temples, floating markets and the best street food.", "Nov – Feb", ["Grand Palace", "Wat Arun", "Chatuchak market"]],
+    ["Singapore", "Singapore", "Asia", "SIN", "photo-1525625293386-3f8f99389edd", "GARDEN CITY", "A city in a garden, an hour away.", 250, "Supertrees, hawker centres and Marina Bay at night.", "Feb – Apr", ["Gardens by the Bay", "Marina Bay Sands", "Hawker food"]],
+    ["Maldives", "Maldives", "Asia", "MLE", "photo-1514282401047-d79a71a590e8", "OVERWATER", "Turquoise lagoons, nothing else.", 1350, "Overwater villas, reefs and sandbanks to yourself.", "Nov – Apr", ["Snorkelling with mantas", "Sandbank picnics", "Sunset cruises"]],
+    ["Mount Bromo", "Indonesia", "Asia", "SUB", "photo-1588668214407-6ea9a6d8c272", "SUNRISE ADVENTURE", "Volcano views above the clouds.", 520, "A smoking crater and a sea of sand at sunrise.", "Apr – Oct", ["Penanjakan sunrise", "Sea of Sand", "Madakaripura waterfall"]],
+    ["Dubai", "United Arab Emirates", "Middle East", "DXB", "photo-1512453979798-5ea266f8880c", "SKY HIGH", "Desert dunes and skyline sunsets.", 1900, "Record-breaking towers, souks and desert safaris.", "Nov – Mar", ["Burj Khalifa", "Desert safari", "Old Dubai souks"]],
+    ["Istanbul", "Turkey", "Europe", "IST", "photo-1524231757912-21f4fe3a7200", "TWO CONTINENTS", "Where East meets West.", 2600, "Grand bazaars, Bosphorus ferries and Ottoman mosques.", "Apr – May, Sep – Nov", ["Hagia Sophia", "Grand Bazaar", "Bosphorus cruise"]],
+    ["Santorini", "Greece", "Europe", "JTR", "photo-1570077188670-e3a8d69ac5ff", "AEGEAN BLUE", "White walls, blue domes, slow days.", 3900, "Cliff-top villages and the world's favourite sunset.", "May – Oct", ["Oia sunset", "Caldera boat trip", "Red Beach"]],
+    ["Rome", "Italy", "Europe", "FCO", "photo-1552832230-c0197dd311b5", "ETERNAL CITY", "Every street is a history lesson.", 3500, "Ancient ruins, piazzas and the best pasta of your life.", "Apr – Jun, Sep – Oct", ["Colosseum", "Vatican Museums", "Trevi Fountain"]],
+    ["Swiss Alps", "Switzerland", "Europe", "ZRH", "photo-1530122037265-a5f1f91d3b99", "MOUNTAIN AIR", "Waterfalls, peaks and fresh air.", 3700, "Alpine valleys, scenic trains and snowy summits.", "Jun – Sep, Dec – Mar", ["Lauterbrunnen valley", "Jungfraujoch", "Lake Lucerne"]],
+    ["Iceland", "Iceland", "Europe", "KEF", "photo-1504893524553-b855bce32c67", "WILD NORTH", "Canyons, glaciers and northern lights.", 5200, "Black-sand beaches, hot springs and the aurora.", "Jun – Aug, Sep – Mar for aurora", ["Golden Circle", "Blue Lagoon", "Northern lights"]],
+    ["Sydney", "Australia", "Oceania", "SYD", "photo-1506973035872-a4ec16b8e8d9", "HARBOUR LIFE", "Beaches and a world-famous harbour.", 1800, "Opera House views, coastal walks and Bondi surf.", "Sep – Nov, Mar – May", ["Sydney Opera House", "Bondi to Coogee walk", "Blue Mountains"]],
+    ["New York", "United States", "Americas", "JFK", "photo-1496442226666-8d4d0e62e6e9", "THE BIG APPLE", "The city that never sleeps.", 4800, "Broadway, Central Park and skyline views.", "Apr – Jun, Sep – Nov", ["Times Square", "Central Park", "Statue of Liberty"]],
+  ].map(([name, country, region, code, photoId, tag, description, from, blurb, bestTime, highlights]) => {
+    const airport = airportByCode(code);
+    return {
+      name,
+      country,
+      tag,
+      image: `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1200&q=75`,
+      region,
+      airport: airport.value,
+      description,
+      from,
+      blurb,
+      bestTime,
+      flightTime: flightTimeLabel(airportByCode("KUL").value, airport.value),
+      highlights,
+    };
+  }),
 ];
 
 function HeroImage({ slide, active }) {
@@ -173,6 +208,13 @@ function HeroImage({ slide, active }) {
 
 export default function MainContent() {
   const [region, setRegion] = useState("All destinations");
+  const [showAllDestinations, setShowAllDestinations] = useState(false);
+  const regionDestinations = destinations.filter(
+    (d) => region === "All destinations" || d.region === region,
+  );
+  const visibleDestinations = showAllDestinations
+    ? regionDestinations
+    : regionDestinations.slice(0, 8);
   const [preset, setPreset] = useState(null);
   const [mode, setMode] = useState("flight");
   const [autoplay, setAutoplay] = useState(true);
@@ -228,7 +270,7 @@ export default function MainContent() {
   const modeSlide = (m) => heroSlides.find((s) => s.mode === m);
   // "Endless escapes." showcase: destinations first, then ways to travel.
   const showcaseSlides = [
-    ...destinations.map((d) => ({
+    ...destinations.filter((d) => d.video).map((d) => ({
       id: d.name,
       title: d.name,
       tag: d.tag,
@@ -386,7 +428,7 @@ export default function MainContent() {
             </a>
           </div>
           <div className="bf-region-tabs" aria-label="Filter destinations">
-            {["All destinations", "Asia", "Europe", "Malaysia"].map((item) => (
+            {["All destinations", "Asia", "Europe", "Malaysia", "Middle East", "Oceania", "Americas"].map((item) => (
               <button
                 key={item}
                 aria-pressed={region === item}
@@ -398,11 +440,7 @@ export default function MainContent() {
             ))}
           </div>
           <div className="bf-destination-grid">
-            {destinations
-              .filter(
-                (d) => region === "All destinations" || d.region === region,
-              )
-              .map((d) => (
+            {visibleDestinations.map((d) => (
                 <button
                   className="bf-destination"
                   key={d.name}
@@ -419,19 +457,23 @@ export default function MainContent() {
                       alt={`${d.name}, ${d.country}`}
                       loading="lazy"
                     />
-                    <video
-                      className="bf26-card-video"
-                      data-src={d.video.preview}
-                      poster={d.image}
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      aria-hidden="true"
-                    />
-                    <b className="bf26-play-hint" aria-hidden="true">
-                      <Play size={12} fill="currentColor" /> Preview
-                    </b>
+                    {d.video && (
+                      <>
+                        <video
+                          className="bf26-card-video"
+                          data-src={d.video.preview}
+                          poster={d.image}
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                          aria-hidden="true"
+                        />
+                        <b className="bf26-play-hint" aria-hidden="true">
+                          <Play size={12} fill="currentColor" /> Preview
+                        </b>
+                      </>
+                    )}
                     <span>{d.tag}</span>
                     <i>
                       <ArrowUpRight size={20} />
@@ -451,6 +493,20 @@ export default function MainContent() {
                 </button>
               ))}
           </div>
+          {regionDestinations.length > 8 && (
+            <div className="bf26-dest-more">
+              <button
+                type="button"
+                className="bf26-ghost"
+                aria-expanded={showAllDestinations}
+                onClick={() => setShowAllDestinations((v) => !v)}
+              >
+                {showAllDestinations
+                  ? "Show fewer"
+                  : `Show all ${regionDestinations.length} destinations`}
+              </button>
+            </div>
+          )}
         </section>
 
         <section className="bf26-bento" aria-label="Ways to travel">
@@ -551,7 +607,11 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
     >
       <div className="bf26-dest-sheet">
         <div className="bf26-dest-media">
-          <video src={d.video.full} poster={d.image} autoPlay muted loop playsInline />
+          {d.video ? (
+            <video src={d.video.full} poster={d.image} autoPlay muted loop playsInline />
+          ) : (
+            <img src={d.image} alt="" />
+          )}
           <div className="bf26-dest-shade" />
           <button ref={closeRef} type="button" className="bf26-dest-close" onClick={onClose} aria-label="Close preview">
             <X size={20} />
@@ -602,7 +662,7 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
             <button type="button" className="bf26-primary bf26-cta" onClick={onPlan}>
               Search flights to {d.name} <ArrowRight size={17} />
             </button>
-            <small>Video: Mixkit free stock footage</small>
+            <small>{d.video ? "Video: Mixkit free stock footage" : "Photo: Unsplash"}</small>
           </div>
         </div>
       </div>
