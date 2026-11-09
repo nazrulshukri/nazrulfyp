@@ -27,6 +27,7 @@ yarn-error.log*
 # environment variables
 .env
 .env.*
+!backend/.env.example
 backend/.env
 nazrul/backend/.env
 backend/serviceAccountKey.json

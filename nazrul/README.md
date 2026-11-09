@@ -1,3 +1,27 @@
+# BookingFlex
+
+## Flexi AI assistant setup
+
+The browser sends chat history to the Express endpoint at `POST /api/chat`.
+Only the server calls Anthropic, so the API key is never included in the
+browser bundle.
+
+For local development, copy `backend/.env.example` to `backend/.env`, add an
+`ANTHROPIC_API_KEY`, then run the backend and React app in separate terminals:
+
+```bash
+cd backend && npm install && npm start
+cd .. && npm install && npm start
+```
+
+For Vercel, add `ANTHROPIC_API_KEY` in Project Settings → Environment Variables
+for Production and Preview, then redeploy. You can verify the setup at
+`/api/chat/health`; `configured` must be `true`. `ANTHROPIC_MODEL` is optional
+and lets you switch models without editing the UI.
+
+The assistant is intentionally limited to travel help. It cannot see live
+availability, make bookings, take payment details, or access private user data.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

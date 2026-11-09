@@ -6024,6 +6024,18 @@ select:-webkit-autofill {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
 }
+.bf26-chat-panel header small i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #a8b8b2;
+}
+.bf26-chat-panel header small i.is-online {
+  background: var(--bf26-lime);
+  box-shadow: 0 0 0 3px rgba(217, 239, 125, 0.14);
+}
 .bf26-chat-panel header button {
   width: 34px;
   height: 34px;
@@ -6128,25 +6140,28 @@ select:-webkit-autofill {
   border-color: var(--bf26-forest);
 }
 .bf26-chat-input {
+  position: relative;
   display: flex;
   gap: 8px;
   padding: 12px;
   border-top: 1px solid var(--bf26-line);
   background: var(--bf26-card);
 }
-.bf26-chat-input input {
+.bf26-chat-input textarea {
   flex: 1;
   min-width: 0;
-  height: 44px;
-  padding: 0 14px;
+  min-height: 44px;
+  max-height: 110px;
+  padding: 11px 14px;
   border: 1px solid var(--bf26-line);
   border-radius: 14px;
   background: #fafcf8;
   font: 400 14px var(--bf26-font);
   color: var(--bf26-ink);
   outline: 0;
+  resize: none;
 }
-.bf26-chat-input input:focus {
+.bf26-chat-input textarea:focus {
   border-color: var(--bf26-forest);
   box-shadow: 0 0 0 3px rgba(29, 74, 63, 0.1);
 }
@@ -6165,6 +6180,27 @@ select:-webkit-autofill {
   opacity: 0.5;
   cursor: default;
 }
+.bf26-chat-input button.is-stop {
+  background: #eef2ef !important;
+  color: var(--bf26-forest);
+}
+.bf26-chat-offline {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border: 1px solid #f1d5bf;
+  border-radius: 12px;
+  background: #fff7f2;
+  color: #8a3c17;
+  font-size: 12px;
+  box-shadow: 0 8px 24px rgba(40, 28, 20, 0.08);
+}
 .bf26-chat-note {
   margin: 0;
   padding: 0 12px 10px;
@@ -6173,7 +6209,7 @@ select:-webkit-autofill {
   text-align: center;
   background: var(--bf26-card);
 }
-.dark-mode .bf26-chat-input input {
+.dark-mode .bf26-chat-input textarea {
   background: #1b2c29;
   color-scheme: dark;
 }

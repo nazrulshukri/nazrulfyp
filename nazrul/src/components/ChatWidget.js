@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, Send, Sparkles, RotateCcw } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, RotateCcw, Square, WifiOff } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 
 const STORAGE_KEY = "bookingflexChat:v1";
@@ -56,6 +56,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState(loadHistory);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [online, setOnline] = useState(navigator.onLine);
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const abortRef = useRef(null);
@@ -80,6 +81,17 @@ export default function ChatWidget() {
   }, [open]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  useEffect(() => {
+    const connected = () => setOnline(true);
+    const disconnected = () => setOnline(false);
+    window.addEventListener("online", connected);
+    window.addEventListener("offline", disconnected);
+    return () => {
+      window.removeEventListener("online", connected);
+      window.removeEventListener("offline", disconnected);
+    };
+  }, []);
 
   async function send(text) {
     const question = text.trim();
@@ -128,6 +140,16 @@ export default function ChatWidget() {
     setBusy(false);
   }
 
+  function stop() {
+    abortRef.current?.abort();
+    setMessages((list) => list.map((message, index) =>
+      index === list.length - 1 && message.pending
+        ? { ...message, pending: false, content: message.content || "Reply stopped." }
+        : message,
+    ));
+    setBusy(false);
+  }
+
   return (
     <div className="bf26-chat">
       {open && (
@@ -138,7 +160,7 @@ export default function ChatWidget() {
             </span>
             <span>
               <strong>Flexi</strong>
-              <small>AI travel assistant</small>
+              <small><i className={online ? "is-online" : ""} />{online ? "Online · AI travel assistant" : "You are offline"}</small>
             </span>
             <button type="button" onClick={reset} aria-label="Start a new chat" title="New chat">
               <RotateCcw size={16} />
@@ -183,19 +205,35 @@ export default function ChatWidget() {
               send(input);
             }}
           >
-            <input
+            {!online && (
+              <div className="bf26-chat-offline"><WifiOff size={15} /> Reconnect to continue chatting.</div>
+            )}
+            <textarea
               ref={inputRef}
               value={input}
               maxLength={2000}
+              rows={1}
               placeholder="Ask about flights, hotels, trains…"
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send(input);
+                }
+              }}
               aria-label="Message Flexi"
             />
-            <button type="submit" disabled={busy || !input.trim()} aria-label="Send message">
-              <Send size={17} />
+            <button
+              type={busy ? "button" : "submit"}
+              onClick={busy ? stop : undefined}
+              disabled={!busy && (!online || !input.trim())}
+              aria-label={busy ? "Stop generating" : "Send message"}
+              className={busy ? "is-stop" : ""}
+            >
+              {busy ? <Square size={15} fill="currentColor" /> : <Send size={17} />}
             </button>
           </form>
-          <p className="bf26-chat-note">AI answers can be wrong. Fares shown on BookingFlex are samples.</p>
+          <p className="bf26-chat-note">Enter to send · Shift + Enter for a new line · AI can make mistakes</p>
         </section>
       )}
 

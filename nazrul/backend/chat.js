@@ -7,7 +7,10 @@ const AnthropicModule = require("@anthropic-ai/sdk");
 const Anthropic = AnthropicModule.default || AnthropicModule;
 const router = express.Router();
 
-const MODEL = "claude-opus-5-5";
+// Keep the model configurable so a retired or unavailable model does not
+// require a code deployment. This default is intentionally a broadly
+// available, fast model for a public support widget.
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5-20250929";
 const MAX_HISTORY = 20; // messages kept per request
 const MAX_CHARS = 2000; // per user message
 const RATE_LIMIT = { windowMs: 60_000, max: 12 }; // per IP, best effort
@@ -91,13 +94,13 @@ router.post("/", async (req, res) => {
   });
 
   try {
-    stream = getClient().beta.messages.stream({
+    // Use the stable Messages streaming API. The previous beta request used
+    // experimental fallback fields and a non-existent model, causing every
+    // production request to fail before the first token was returned.
+    stream = getClient().messages.stream({
       model: MODEL,
-      max_tokens: 4096, // short chat replies; caps cost on a public site
-      output_config: { effort: "low" }, // chat is latency-sensitive
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default", // re-run a declined request on Anthropic's recommended fallback model
-      cache_control: { type: "ephemeral" },
+      max_tokens: 900,
+      temperature: 0.35,
       system: SYSTEM_PROMPT,
       messages,
     });
@@ -121,6 +124,14 @@ router.post("/", async (req, res) => {
     send({ type: "error", message });
   }
   res.end();
+});
+
+router.get("/health", (_req, res) => {
+  res.json({
+    ok: true,
+    configured: Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN),
+    model: MODEL,
+  });
 });
 
 module.exports = router;
