@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
@@ -39,6 +40,7 @@
     "flatpickr": "^4.6.13",
     "font-awesome": "^4.7.0",
     "framer-motion": "^11.18.2",
+    "gtfs-realtime-bindings": "^1.1.1",
     "html2canvas": "^1.4.1",
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.2",

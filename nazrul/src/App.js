@@ -4,6 +4,7 @@ import Header from './components/header';
 import HariRayaPopup from './components/HariRayapopup';
 import MainContent from './components/body';
 import Footer from './components/footer';
+import ChatWidget from './components/ChatWidget';
 import About from './components/about';
 import Services from './components/services';
 import ReturnFlights from './components/return';
@@ -25,7 +26,8 @@ import FormPage from './components/fillform'
 import TrainPaymentMethod from './components/trainpayment'
 import TrainConfirmation from './components/trainconfirmation';
 import ForgotPassword from './components/forgotpassword';
-import FlightStatus from './components/flightstatus';
+import ResetPassword from './components/resetpassword';
+import TrackPage from './components/TrackPage';
 import TrainPage from './components/train';
 import Dashboard from './components/dashboard';
 import Profile from './components/profile';
@@ -82,7 +84,9 @@ function AppContent() {
           <Route path="/trainpayment" element={<TrainPaymentMethod />} />
           <Route path="/trainconfirmation" element={<TrainConfirmation />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
-          <Route path="/FlightStatus" element={<FlightStatus />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/track" element={<TrackPage />} />
+          <Route path="/FlightStatus" element={<TrackPage defaultTab="flights" />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile-maintenance" element={<ProfileMaintenance />} />
@@ -90,6 +94,7 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }
