@@ -38,6 +38,7 @@ export default function Header() {
         </NavLink>
         <NavLink to="/dashboard">My trips</NavLink>
         <NavLink to="/track">Track</NavLink>
+        <NavLink to="/about">About</NavLink>
         <NavLink to="/contact">Help centre</NavLink>
         <div className="bf26-cur-mobile">
           <CurrencyPicker />
