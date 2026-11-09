@@ -28,6 +28,7 @@ import { generateMockFlights } from "../mockdata/flights";
 import { generateMockReturnFlights1 } from "../mockdata/returnlondon";
 import { validateSearch, localDate } from "../lib/searchValidation";
 import { formatMoney } from "../lib/bookingStorage";
+import { fitFlightsToRoute } from "../lib/airports";
 import {
   airlineMeta,
   airportMeta,
@@ -139,15 +140,13 @@ export default function FlightResults({ returnLeg = false }) {
     )
       return [];
     if (returnLeg)
-      return generateMockReturnFlights1(
-        params.returnDate,
-        params.returnDate,
-        params.origin,
+      return fitFlightsToRoute(
+        generateMockReturnFlights1(params.returnDate, params.returnDate, params.origin, params.destination),
         params.destination,
+        params.origin,
       );
-    return generateMockFlights(
-      params.departureDate,
-      params.returnDate,
+    return fitFlightsToRoute(
+      generateMockFlights(params.departureDate, params.returnDate, params.origin, params.destination),
       params.origin,
       params.destination,
     );

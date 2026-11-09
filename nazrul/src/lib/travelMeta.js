@@ -1,3 +1,4 @@
+import { findAirport } from "./airports";
 // Display helpers shared by the flight, train and home pages.
 
 const AIRLINES = [
@@ -54,6 +55,8 @@ const AIRPORTS = [
 ];
 
 export function airportMeta(value = "") {
+  const known = findAirport(value);
+  if (known) return { code: known.code, city: known.city };
   const match = AIRPORTS.find(([pattern]) => pattern.test(value));
   if (match) return { code: match[1], city: match[2] };
   const city = value.replace(/ International Airport.*| Airport.*|\s*\(.*\)/g, "");
