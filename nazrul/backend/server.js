@@ -23,6 +23,7 @@ try {
 }
 const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymentEmail');
 const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
+const chatRouter = require('./chat');
 const liveRouter = require('./live');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
@@ -31,6 +32,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// AI travel assistant (streams replies; see chat.js).
+app.use('/chat', chatRouter);
 // Live trains, flights and flight status for the Track page (see live.js).
 app.use('/live', liveRouter);
 

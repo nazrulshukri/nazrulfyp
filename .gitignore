@@ -3,3 +3,4 @@ node_modules/
 nazrul/backend/serviceAccountkey.json
 nazrul/backend/serviceAccountKey.json
 nazrul/backend/serviceAccount*.json
+.claude/
