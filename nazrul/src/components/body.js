@@ -158,22 +158,22 @@ const destinations = [
   },
 
   ...[
-    ["Paris", "France", "Europe", "CDG", "photo-1502602898657-3e91760cbb34", "CITY OF LIGHT", "Long lunches and golden evenings.", 3600, "Cafés, galleries and the Eiffel Tower lit up at night.", "Apr – Jun, Sep – Oct", ["Eiffel Tower", "The Louvre", "Montmartre"]],
-    ["Seoul", "South Korea", "Asia", "ICN", "photo-1517154421773-0529f29ea451", "NEON NIGHTS", "Palaces by day, street food by night.", 1500, "Royal palaces, K-culture and late-night markets.", "Apr – May, Sep – Nov", ["Gyeongbokgung Palace", "Bukchon Hanok Village", "Myeongdong"]],
-    ["Kyoto", "Japan", "Asia", "KIX", "photo-1493976040374-85c8e12f0c0e", "OLD JAPAN", "Lantern-lit lanes and temple bells.", 1950, "Thousands of shrines, tea houses and bamboo groves.", "Mar – May, Oct – Nov", ["Fushimi Inari", "Arashiyama bamboo grove", "Gion"]],
-    ["Bangkok", "Thailand", "Asia", "BKK", "photo-1508009603885-50cf7c579365", "STREET FOOD CAPITAL", "Tuk-tuks, temples and rooftop views.", 380, "Golden temples, floating markets and the best street food.", "Nov – Feb", ["Grand Palace", "Wat Arun", "Chatuchak market"]],
-    ["Singapore", "Singapore", "Asia", "SIN", "photo-1525625293386-3f8f99389edd", "GARDEN CITY", "A city in a garden, an hour away.", 250, "Supertrees, hawker centres and Marina Bay at night.", "Feb – Apr", ["Gardens by the Bay", "Marina Bay Sands", "Hawker food"]],
-    ["Maldives", "Maldives", "Asia", "MLE", "photo-1514282401047-d79a71a590e8", "OVERWATER", "Turquoise lagoons, nothing else.", 1350, "Overwater villas, reefs and sandbanks to yourself.", "Nov – Apr", ["Snorkelling with mantas", "Sandbank picnics", "Sunset cruises"]],
-    ["Mount Bromo", "Indonesia", "Asia", "SUB", "photo-1588668214407-6ea9a6d8c272", "SUNRISE ADVENTURE", "Volcano views above the clouds.", 520, "A smoking crater and a sea of sand at sunrise.", "Apr – Oct", ["Penanjakan sunrise", "Sea of Sand", "Madakaripura waterfall"]],
-    ["Dubai", "United Arab Emirates", "Middle East", "DXB", "photo-1512453979798-5ea266f8880c", "SKY HIGH", "Desert dunes and skyline sunsets.", 1900, "Record-breaking towers, souks and desert safaris.", "Nov – Mar", ["Burj Khalifa", "Desert safari", "Old Dubai souks"]],
-    ["Istanbul", "Turkey", "Europe", "IST", "photo-1524231757912-21f4fe3a7200", "TWO CONTINENTS", "Where East meets West.", 2600, "Grand bazaars, Bosphorus ferries and Ottoman mosques.", "Apr – May, Sep – Nov", ["Hagia Sophia", "Grand Bazaar", "Bosphorus cruise"]],
-    ["Santorini", "Greece", "Europe", "JTR", "photo-1570077188670-e3a8d69ac5ff", "AEGEAN BLUE", "White walls, blue domes, slow days.", 3900, "Cliff-top villages and the world's favourite sunset.", "May – Oct", ["Oia sunset", "Caldera boat trip", "Red Beach"]],
-    ["Rome", "Italy", "Europe", "FCO", "photo-1552832230-c0197dd311b5", "ETERNAL CITY", "Every street is a history lesson.", 3500, "Ancient ruins, piazzas and the best pasta of your life.", "Apr – Jun, Sep – Oct", ["Colosseum", "Vatican Museums", "Trevi Fountain"]],
-    ["Swiss Alps", "Switzerland", "Europe", "ZRH", "photo-1530122037265-a5f1f91d3b99", "MOUNTAIN AIR", "Waterfalls, peaks and fresh air.", 3700, "Alpine valleys, scenic trains and snowy summits.", "Jun – Sep, Dec – Mar", ["Lauterbrunnen valley", "Jungfraujoch", "Lake Lucerne"]],
-    ["Iceland", "Iceland", "Europe", "KEF", "photo-1504893524553-b855bce32c67", "WILD NORTH", "Canyons, glaciers and northern lights.", 5200, "Black-sand beaches, hot springs and the aurora.", "Jun – Aug, Sep – Mar for aurora", ["Golden Circle", "Blue Lagoon", "Northern lights"]],
-    ["Sydney", "Australia", "Oceania", "SYD", "photo-1506973035872-a4ec16b8e8d9", "HARBOUR LIFE", "Beaches and a world-famous harbour.", 1800, "Opera House views, coastal walks and Bondi surf.", "Sep – Nov, Mar – May", ["Sydney Opera House", "Bondi to Coogee walk", "Blue Mountains"]],
-    ["New York", "United States", "Americas", "JFK", "photo-1496442226666-8d4d0e62e6e9", "THE BIG APPLE", "The city that never sleeps.", 4800, "Broadway, Central Park and skyline views.", "Apr – Jun, Sep – Nov", ["Times Square", "Central Park", "Statue of Liberty"]],
-  ].map(([name, country, region, code, photoId, tag, description, from, blurb, bestTime, highlights]) => {
+    ["Paris", "France", "Europe", "CDG", "photo-1502602898657-3e91760cbb34", "CITY OF LIGHT", "Long lunches and golden evenings.", 3600, "Cafés, galleries and the Eiffel Tower lit up at night.", "Apr – Jun, Sep – Oct", ["Eiffel Tower", "The Louvre", "Montmartre"], 27045],
+    ["Seoul", "South Korea", "Asia", "ICN", "photo-1517154421773-0529f29ea451", "NEON NIGHTS", "Palaces by day, street food by night.", 1500, "Royal palaces, K-culture and late-night markets.", "Apr – May, Sep – Nov", ["Gyeongbokgung Palace", "Bukchon Hanok Village", "Myeongdong"], 30146],
+    ["Kyoto", "Japan", "Asia", "KIX", "photo-1493976040374-85c8e12f0c0e", "OLD JAPAN", "Lantern-lit lanes and temple bells.", 1950, "Thousands of shrines, tea houses and bamboo groves.", "Mar – May, Oct – Nov", ["Fushimi Inari", "Arashiyama bamboo grove", "Gion"], 20164],
+    ["Bangkok", "Thailand", "Asia", "BKK", "photo-1508009603885-50cf7c579365", "STREET FOOD CAPITAL", "Tuk-tuks, temples and rooftop views.", 380, "Golden temples, floating markets and the best street food.", "Nov – Feb", ["Grand Palace", "Wat Arun", "Chatuchak market"], 25968],
+    ["Singapore", "Singapore", "Asia", "SIN", "photo-1525625293386-3f8f99389edd", "GARDEN CITY", "A city in a garden, an hour away.", 250, "Supertrees, hawker centres and Marina Bay at night.", "Feb – Apr", ["Gardens by the Bay", "Marina Bay Sands", "Hawker food"], 30998],
+    ["Maldives", "Maldives", "Asia", "MLE", "photo-1514282401047-d79a71a590e8", "OVERWATER", "Turquoise lagoons, nothing else.", 1350, "Overwater villas, reefs and sandbanks to yourself.", "Nov – Apr", ["Snorkelling with mantas", "Sandbank picnics", "Sunset cruises"], 21910],
+    ["Mount Bromo", "Indonesia", "Asia", "SUB", "photo-1588668214407-6ea9a6d8c272", "SUNRISE ADVENTURE", "Volcano views above the clouds.", 520, "A smoking crater and a sea of sand at sunrise.", "Apr – Oct", ["Penanjakan sunrise", "Sea of Sand", "Madakaripura waterfall"], 4429],
+    ["Dubai", "United Arab Emirates", "Middle East", "DXB", "photo-1512453979798-5ea266f8880c", "SKY HIGH", "Desert dunes and skyline sunsets.", 1900, "Record-breaking towers, souks and desert safaris.", "Nov – Mar", ["Burj Khalifa", "Desert safari", "Old Dubai souks"], 30991],
+    ["Istanbul", "Turkey", "Europe", "IST", "photo-1524231757912-21f4fe3a7200", "TWO CONTINENTS", "Where East meets West.", 2600, "Grand bazaars, Bosphorus ferries and Ottoman mosques.", "Apr – May, Sep – Nov", ["Hagia Sophia", "Grand Bazaar", "Bosphorus cruise"], 39186],
+    ["Santorini", "Greece", "Europe", "JTR", "photo-1570077188670-e3a8d69ac5ff", "AEGEAN BLUE", "White walls, blue domes, slow days.", 3900, "Cliff-top villages and the world's favourite sunset.", "May – Oct", ["Oia sunset", "Caldera boat trip", "Red Beach"], 7792],
+    ["Rome", "Italy", "Europe", "FCO", "photo-1552832230-c0197dd311b5", "ETERNAL CITY", "Every street is a history lesson.", 3500, "Ancient ruins, piazzas and the best pasta of your life.", "Apr – Jun, Sep – Oct", ["Colosseum", "Vatican Museums", "Trevi Fountain"], 28120],
+    ["Swiss Alps", "Switzerland", "Europe", "ZRH", "photo-1530122037265-a5f1f91d3b99", "MOUNTAIN AIR", "Waterfalls, peaks and fresh air.", 3700, "Alpine valleys, scenic trains and snowy summits.", "Jun – Sep, Dec – Mar", ["Lauterbrunnen valley", "Jungfraujoch", "Lake Lucerne"], 31939],
+    ["Iceland", "Iceland", "Europe", "KEF", "photo-1504893524553-b855bce32c67", "WILD NORTH", "Canyons, glaciers and northern lights.", 5200, "Black-sand beaches, hot springs and the aurora.", "Jun – Aug, Sep – Mar for aurora", ["Golden Circle", "Blue Lagoon", "Northern lights"], 8076],
+    ["Sydney", "Australia", "Oceania", "SYD", "photo-1506973035872-a4ec16b8e8d9", "HARBOUR LIFE", "Beaches and a world-famous harbour.", 1800, "Opera House views, coastal walks and Bondi surf.", "Sep – Nov, Mar – May", ["Sydney Opera House", "Bondi to Coogee walk", "Blue Mountains"], 11001],
+    ["New York", "United States", "Americas", "JFK", "photo-1496442226666-8d4d0e62e6e9", "THE BIG APPLE", "The city that never sleeps.", 4800, "Broadway, Central Park and skyline views.", "Apr – Jun, Sep – Nov", ["Times Square", "Central Park", "Statue of Liberty"], 4442],
+  ].map(([name, country, region, code, photoId, tag, description, from, blurb, bestTime, highlights, videoId]) => {
     const airport = airportByCode(code);
     return {
       name,
@@ -188,6 +188,7 @@ const destinations = [
       bestTime,
       flightTime: flightTimeLabel(airportByCode("KUL").value, airport.value),
       highlights,
+      video: mixkit(videoId),
     };
   }),
 ];
@@ -270,7 +271,7 @@ export default function MainContent() {
   const modeSlide = (m) => heroSlides.find((s) => s.mode === m);
   // "Endless escapes." showcase: destinations first, then ways to travel.
   const showcaseSlides = [
-    ...destinations.filter((d) => d.video).map((d) => ({
+    ...destinations.slice(0, 4).map((d) => ({
       id: d.name,
       title: d.name,
       tag: d.tag,
