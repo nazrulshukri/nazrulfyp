@@ -1,211 +1,119 @@
 import React, { useState } from "react";
-import "./signup.css";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider, facebookProvider } from "./firebase";
-import { useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaGoogle, FaFacebookF, FaEnvelope, FaLock } from "react-icons/fa";
+import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { API_BASE } from "../lib/apiConfig";
+import { saveSession, EMAIL_RE, passwordStrength, errorMessage } from "../lib/auth";
+import { AuthLayout, AuthField, GoogleButton, StrengthMeter } from "./AuthKit";
+import greece from "../img/assets/travel/Greece_hero.jpg";
 
 const Signup = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
-  
   const navigate = useNavigate();
-   const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5001";
- const handleGoogle = async () => {
-    setError(""); setSuccess(""); setLoading(true);
-    try {
-      const res = await signInWithPopup(auth, googleProvider);
+  const location = useLocation();
+  const redirectTo = location.state?.from || "/dashboard";
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [agree, setAgree] = useState(false);
+  const [touched, setTouched] = useState({});
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-      // ✅ get Firebase token here
-      const idToken = await res.user.getIdToken();
-
-      // ✅ send token to backend for verification + JWT
-      const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
-
-      localStorage.setItem("token", r.data.token);
-      localStorage.setItem("userEmail", res.user.email || "");
-
-      setSuccess("Signed in with Google!");
-      navigate("/dashboard");
-    } catch (e) {
-      setError(e?.message || "Google sign-in failed");
-    } finally {
-      setLoading(false);
-    }
+  const errors = {
+    name: form.name.trim().length < 2 && "Enter your name",
+    email: !EMAIL_RE.test(form.email.trim()) && "Enter a valid email address",
+    password: !passwordStrength(form.password).checks.length && "Use at least 8 characters",
+    confirm: form.confirm !== form.password && "Passwords don't match",
+    agree: !agree && "Please accept the terms to continue",
   };
+  const bind = (key) => ({
+    value: form[key],
+    onChange: (e) => setForm((f) => ({ ...f, [key]: e.target.value })),
+    onBlur: () => setTouched((t) => ({ ...t, [key]: true })),
+    error: touched[key] && errors[key],
+  });
 
-  const handleFacebook = async () => {
-    setError(""); setSuccess(""); setLoading(true);
-    try {
-      const res = await signInWithPopup(auth, facebookProvider);
-
-      const idToken = await res.user.getIdToken();
-      const r = await axios.post(`${baseURL}/auth/firebase`, { idToken });
-
-      localStorage.setItem("token", r.data.token);
-      localStorage.setItem("userEmail", res.user.email || "");
-
-      setSuccess("Signed in with Facebook!");
-      navigate("/dashboard");
-    } catch (e) {
-      setError(e?.message || "Facebook sign-in failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  async function submit(e) {
     e.preventDefault();
+    setTouched({ name: true, email: true, password: true, confirm: true, agree: true });
+    if (Object.values(errors).some(Boolean)) return;
     setError("");
-    setSuccess("");
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
     setLoading(true);
     try {
-      // ✅ Better: use env var. fallback to localhost.
-      const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5001";
-
-      const response = await axios.post(`${baseURL}/signup`, {
-        email: email.trim(),
-        password,
+      const { data } = await axios.post(`${API_BASE}/signup`, {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
       });
-
-      setSuccess(response.data?.message || "Signup successful!");
-      setLoading(false);
-
-      // small delay so user sees success
-      setTimeout(() => navigate("/signin"), 700);
+      saveSession(data);
+      navigate(redirectTo, { replace: true });
     } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Error signing up. Please try again.";
-      setError(msg);
+      if (err?.response?.status === 409) {
+        navigate("/signin", {
+          state: { prefillEmail: form.email.trim(), notice: err.response.data.message, from: location.state?.from },
+        });
+        return;
+      }
+      setError(errorMessage(err, "We couldn't create your account. Please try again."));
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="su-page">
-      <div className="su-overlay" />
-
-      <motion.div
-        className="su-card"
-        initial={{ opacity: 0, y: 18, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-      >
-        <div className="su-head">
-          <p className="su-badge">Create Account</p>
-          <h1 className="su-title">Sign up</h1>
-          <p className="su-subtitle">
-            Join Booking Flex and unlock a smooth booking experience.
-          </p>
-        </div>
-
-        <div className="su-social">
-        <button type="button" className="su-socialBtn fb" onClick={handleFacebook} disabled={loading}>
-  <FaFacebookF /> Continue with Facebook
-</button>
-
-<button type="button" className="su-socialBtn gg" onClick={handleGoogle} disabled={loading}>
-  <FaGoogle /> Continue with Google
-</button>
-          <div className="su-divider">
-            <span>OR</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="su-form">
-          <label className="su-field">
-            <span className="su-icon">
-              <FaEnvelope />
-            </span>
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </label>
-
-          <label className="su-field">
-            <span className="su-icon">
-              <FaLock />
-            </span>
-            <input
-              type="password"
-              placeholder="Password (min 6 chars)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-            />
-          </label>
-
-          <label className="su-field">
-            <span className="su-icon">
-              <FaLock />
-            </span>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-            />
-          </label>
-
-          <button className="su-btn" type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create account"}
-          </button>
-        </form>
-
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              className="su-alert error"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-            >
-              {error}
-            </motion.div>
-          )}
-          {success && (
-            <motion.div
-              className="su-alert success"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-            >
-              {success}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <p className="su-foot">
-          Already have an account? <Link to="/signin">Sign in</Link>
+    <AuthLayout
+      image={greece}
+      kicker="Join BookingFlex"
+      title="Less ordinary. More out there."
+      text="Create a free account to keep your tickets, vouchers and trips together."
+    >
+      <header className="bf26-auth-head">
+        <h1>Create your account</h1>
+        <p>
+          Already have one? <Link to="/signin" state={location.state}>Sign in</Link>
         </p>
-      </motion.div>
-    </div>
+      </header>
+
+      <GoogleButton onError={setError} redirectTo={redirectTo} />
+
+      <form className="bf26-auth-form" onSubmit={submit} noValidate>
+        <AuthField id="signup-name" label="Full name" icon={User} autoComplete="name" placeholder="As on your passport" {...bind("name")} />
+        <AuthField id="signup-email" label="Email" icon={Mail} type="email" autoComplete="email" placeholder="you@example.com" {...bind("email")} />
+        <AuthField
+          id="signup-password"
+          label="Password"
+          icon={Lock}
+          type="password"
+          autoComplete="new-password"
+          placeholder="At least 8 characters"
+          {...bind("password")}
+        />
+        <StrengthMeter password={form.password} />
+        <AuthField
+          id="signup-confirm"
+          label="Confirm password"
+          icon={Lock}
+          type="password"
+          autoComplete="new-password"
+          placeholder="Type it again"
+          {...bind("confirm")}
+        />
+        <label className={`bf26-auth-check ${touched.agree && errors.agree ? "has-error" : ""}`}>
+          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+          <span>
+            I agree to the BookingFlex terms and privacy policy.
+            {touched.agree && errors.agree && <small role="alert">{errors.agree}</small>}
+          </span>
+        </label>
+        {error && (
+          <p className="bf26-auth-alert" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="bf26-primary bf26-cta" disabled={loading}>
+          {loading ? <Loader2 size={17} className="bf26-spin" /> : null}
+          {loading ? "Creating account…" : "Create account"}
+          {!loading && <ArrowRight size={17} />}
+        </button>
+      </form>
+    </AuthLayout>
   );
 };
 

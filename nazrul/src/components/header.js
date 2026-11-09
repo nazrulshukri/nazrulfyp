@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ArrowUpRight, Globe2, Menu, Moon, Sun, X, Plane } from "lucide-react";
 import { useTheme } from "./themeprovider";
+import { clearSession } from "../lib/auth";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,7 +16,7 @@ export default function Header() {
       localStorage.setItem("userEmail", location.state.email);
   }, [location]);
   const logout = () => {
-    localStorage.removeItem("userEmail");
+    clearSession();
     navigate("/", { state: null });
   };
   return (
@@ -52,7 +53,7 @@ export default function Header() {
         {email ? (
           <>
             <Link className="bf-account" to="/profile">
-              {email.split("@")[0]}
+              {(localStorage.getItem("userName") || email.split("@")[0]).split(" ")[0]}
             </Link>
             <button className="bf-signin" onClick={logout}>
               Sign out
