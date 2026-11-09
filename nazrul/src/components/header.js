@@ -36,7 +36,7 @@ export default function Header() {
           Explore
         </NavLink>
         <NavLink to="/dashboard">My trips</NavLink>
-        <NavLink to="/flightstatus">Flight status</NavLink>
+        <NavLink to="/track">Track</NavLink>
         <NavLink to="/contact">Help centre</NavLink>
       </nav>
       <div className="bf-header-actions">

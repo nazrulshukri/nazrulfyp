@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, TrainFront, Users, Mail, ShieldCheck, Repeat } from "lucide-react";
 import PaymentPanel, { ProcessingOverlay } from "./PaymentPanel";
 import { BookingSteps } from "./flightresults";
-import { formatMoney } from "../lib/bookingStorage";
+import { formatMoney, saveBookingForUser } from "../lib/bookingStorage";
 import { formatDay } from "../lib/travelMeta";
 import { stationCode } from "../lib/trainNetwork";
 import "./trainpayment.css";
@@ -77,6 +77,8 @@ const TrainPaymentMethod = () => {
     }
     const done = { ...ticket, emailStatus };
     sessionStorage.setItem("lastTrainTicket", JSON.stringify(done));
+    const owner = localStorage.getItem("userEmail") || email;
+    if (owner) saveBookingForUser(owner, { ...done, kind: "train", bookingId: String(b._id || b.trainId || Date.now()) });
     setStep(3);
     await wait(500);
     navigate("/trainconfirmation", { state: { bookingDetails: done } });
