@@ -1,8 +1,9 @@
-// BookingFlex AI travel assistant: POST /chat streams Claude's reply as
-// Server-Sent Events. Needs ANTHROPIC_API_KEY in backend/.env (local) or in
-// the Vercel project's environment variables (live site).
+// BookingFlex travel assistant: POST /chat streams a reply as
+// Server-Sent Events. With ANTHROPIC_API_KEY (backend/.env locally, or the
+// Vercel env vars live) Claude answers; without it, free built-in answers.
 const express = require("express");
 const AnthropicModule = require("@anthropic-ai/sdk");
+const { quickAnswer } = require("./quickAnswers");
 
 const Anthropic = AnthropicModule.default || AnthropicModule;
 const router = express.Router();
@@ -63,13 +64,21 @@ function cleanHistory(raw) {
   return messages;
 }
 
+// Sends a built-in answer a few words at a time so it types out like the AI.
+async function streamQuickAnswer(messages, send, res) {
+  const words = quickAnswer(messages).split(/(?<=\s)/);
+  send({ type: "mode", mode: "quick" });
+  for (let i = 0; i < words.length && !res.writableEnded && !res.destroyed; i += 3) {
+    send({ type: "text", text: words.slice(i, i + 3).join("") });
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  send({ type: "done" });
+}
+
 router.post("/", async (req, res) => {
   const messages = cleanHistory(req.body && req.body.messages);
   if (!messages) {
     return res.status(400).json({ error: "Send a messages array ending with a user message." });
-  }
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
-    return res.status(503).json({ error: "The assistant isn't set up yet. Add ANTHROPIC_API_KEY to the server settings." });
   }
   const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
   if (rateLimited(ip)) {
@@ -84,12 +93,19 @@ router.post("/", async (req, res) => {
   });
   const send = (event) => res.write(`data: ${JSON.stringify(event)}\n\n`);
 
+  // No API key: answer for free from BookingFlex's built-in travel answers.
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
+    await streamQuickAnswer(messages, send, res);
+    return res.end();
+  }
+
   let stream;
   // Stop generating (and paying for) a reply if the browser disconnects.
   res.on("close", () => {
     if (stream && !res.writableFinished) stream.abort();
   });
 
+  let sentText = false;
   try {
     stream = getClient().beta.messages.stream({
       model: MODEL,
@@ -101,23 +117,28 @@ router.post("/", async (req, res) => {
       system: SYSTEM_PROMPT,
       messages,
     });
-    stream.on("text", (text) => send({ type: "text", text }));
+    stream.on("text", (text) => {
+      sentText = true;
+      send({ type: "text", text });
+    });
     const final = await stream.finalMessage();
     if (final.stop_reason === "refusal") {
       send({ type: "refusal", text: "Sorry, I can't help with that. Try asking me about flights, hotels, trains or your trip." });
     }
     send({ type: "done" });
   } catch (error) {
-    let message = "The assistant is unavailable right now. Please try again shortly.";
-    if (error instanceof Anthropic.AuthenticationError) {
-      message = "The assistant isn't set up yet (missing or invalid ANTHROPIC_API_KEY).";
-    } else if (error instanceof Anthropic.RateLimitError) {
-      message = "The assistant is busy right now. Please try again in a moment.";
-    } else if (error instanceof Anthropic.APIUserAbortError) {
+    if (error instanceof Anthropic.APIUserAbortError) return res.end();
+    if (error instanceof Anthropic.APIError) console.error(`Chat API error ${error.status}:`, error.message);
+    else console.error("Chat error:", error);
+    // Bad key, no credit or Claude unreachable: fall back to the free answers.
+    if (!sentText) {
+      await streamQuickAnswer(messages, send, res);
       return res.end();
     }
-    if (!(error instanceof Anthropic.APIError)) console.error("Chat error:", error);
-    else console.error(`Chat API error ${error.status}:`, error.message);
+    let message = "The assistant is unavailable right now. Please try again shortly.";
+    if (error instanceof Anthropic.RateLimitError) {
+      message = "The assistant is busy right now. Please try again in a moment.";
+    }
     send({ type: "error", message });
   }
   res.end();

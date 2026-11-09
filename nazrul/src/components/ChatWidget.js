@@ -56,6 +56,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState(loadHistory);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [quickMode, setQuickMode] = useState(false);
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const abortRef = useRef(null);
@@ -107,6 +108,7 @@ export default function ChatWidget() {
         apiMessages,
         (event) => {
           if (event.type === "text") update((m) => ({ ...m, content: m.content + event.text }));
+          else if (event.type === "mode") setQuickMode(event.mode === "quick");
           else if (event.type === "refusal") update((m) => ({ ...m, content: event.text }));
           else if (event.type === "error") update((m) => ({ ...m, content: event.message, error: true }));
         },
@@ -138,7 +140,7 @@ export default function ChatWidget() {
             </span>
             <span>
               <strong>Flexi</strong>
-              <small>AI travel assistant</small>
+              <small>{quickMode ? "Travel assistant · quick answers" : "AI travel assistant"}</small>
             </span>
             <button type="button" onClick={reset} aria-label="Start a new chat" title="New chat">
               <RotateCcw size={16} />
@@ -195,7 +197,7 @@ export default function ChatWidget() {
               <Send size={17} />
             </button>
           </form>
-          <p className="bf26-chat-note">AI answers can be wrong. Fares shown on BookingFlex are samples.</p>
+          <p className="bf26-chat-note">{quickMode ? "Quick answers cover common travel questions." : "AI answers can be wrong."} Fares shown on BookingFlex are samples.</p>
         </section>
       )}
 
