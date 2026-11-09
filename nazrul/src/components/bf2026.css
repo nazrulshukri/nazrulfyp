@@ -7022,3 +7022,306 @@ select:-webkit-autofill {
     display: none;
   }
 }
+
+/* ==========================================================================
+   "Endless escapes." showcase carousel (Showcase.js)
+   ========================================================================== */
+
+.bf26-show {
+  --card: min(1120px, 78vw);
+  --gap: 22px;
+  width: 100vw;
+  margin: 8px 0 72px calc(50% - 50vw);
+}
+.bf26-show-title {
+  margin: 0 auto 30px;
+  padding: 0 16px;
+  text-align: center;
+  font-family: var(--bf26-font);
+  font-size: clamp(34px, 5.2vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--bf26-ink);
+}
+.bf26-show-viewport {
+  position: relative;
+  overflow: hidden;
+}
+.bf26-show-track {
+  display: flex;
+  gap: var(--gap);
+  transform: translateX(calc(50vw - var(--card) / 2 - var(--i) * (var(--card) + var(--gap))));
+  transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.bf26-show-track.is-jumping,
+.bf26-show-track.is-jumping .bf26-show-card,
+.bf26-show-track.is-jumping .bf26-show-copy {
+  transition: none;
+}
+.bf26-show-card {
+  position: relative;
+  flex: none;
+  width: var(--card);
+  aspect-ratio: 2.15 / 1;
+  border-radius: 28px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #0d2420;
+}
+.bf26-show-card > img,
+.bf26-show-card > video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.bf26-show-card > img {
+  transform: scale(1.04);
+  transition: transform 6s ease-out;
+}
+.bf26-show-card.is-active > img {
+  transform: scale(1);
+}
+.bf26-show-card > video {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.bf26-show-card > video.is-ready {
+  opacity: 1;
+}
+.bf26-show-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(4, 20, 18, 0.18) 0%, transparent 28%, transparent 48%, rgba(4, 20, 18, 0.74) 100%);
+}
+.bf26-show-tag {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font: 700 11px/1 var(--bf26-font);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(10px);
+}
+.bf26-show-copy {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease 0.25s, transform 0.5s ease 0.25s;
+}
+.bf26-show-card.is-active .bf26-show-copy {
+  opacity: 1;
+  transform: none;
+}
+.bf26-show-pill {
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 24px;
+  font: 600 15px/1 var(--bf26-font);
+  color: #0f1a18 !important;
+  background: #fff !important;
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.bf26-show-pill:hover {
+  transform: scale(1.04);
+  background: #f1f4f2 !important;
+}
+.bf26-show-pill:focus-visible,
+.bf26-show-dots button:focus-visible,
+.bf26-show-play:focus-visible,
+.bf26-show-arrow:focus-visible {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 3px;
+}
+.bf26-show-copy p {
+  margin: 0;
+  max-width: 560px;
+  font: 400 17px/1.4 var(--bf26-font);
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+}
+.bf26-show-copy p strong {
+  font-weight: 700;
+  color: #fff;
+}
+.bf26-show-peek {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  padding: 0;
+  background: transparent !important;
+  cursor: pointer;
+}
+.bf26-show-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  width: 46px;
+  height: 46px;
+  margin-top: -23px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #0f1a18;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.2s ease;
+}
+.bf26-show-arrow.is-prev {
+  left: calc((100vw - var(--card)) / 2 - var(--gap) - 23px);
+}
+.bf26-show-arrow.is-next {
+  right: calc((100vw - var(--card)) / 2 - var(--gap) - 23px);
+}
+.bf26-show-viewport:hover .bf26-show-arrow,
+.bf26-show-arrow:focus-visible {
+  opacity: 1;
+}
+.bf26-show-arrow:hover {
+  transform: scale(1.06);
+}
+.bf26-show-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+}
+.bf26-show-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--bf26-soft);
+}
+.bf26-show-dots button {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bf26-muted) !important;
+  opacity: 0.45;
+  cursor: pointer;
+  transition: width 0.45s ease, opacity 0.3s ease;
+}
+.bf26-show-dots button:hover {
+  opacity: 0.8;
+}
+.bf26-show-dots button.is-active {
+  width: 46px;
+  opacity: 1;
+  background: color-mix(in srgb, var(--bf26-muted) 40%, transparent) !important;
+}
+.bf26-show-dots button.is-active:not(:has(i)) {
+  background: var(--bf26-ink) !important;
+}
+.bf26-show-dots i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--bf26-ink);
+  transform-origin: left center;
+  animation: bf26-show-fill linear forwards;
+}
+@keyframes bf26-show-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.bf26-show-play {
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--bf26-ink);
+  background: var(--bf26-soft) !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.bf26-show-play:hover {
+  transform: scale(1.06);
+}
+
+@media (max-width: 720px) {
+  .bf26-show {
+    --card: 86vw;
+    --gap: 12px;
+    margin-bottom: 48px;
+  }
+  .bf26-show-title {
+    margin-bottom: 20px;
+  }
+  .bf26-show-card {
+    aspect-ratio: 4 / 5;
+    border-radius: 22px;
+  }
+  .bf26-show-tag {
+    top: 16px;
+    left: 16px;
+  }
+  .bf26-show-copy {
+    left: 20px;
+    right: 20px;
+    bottom: 22px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .bf26-show-copy p {
+    font-size: 15px;
+  }
+  .bf26-show-arrow {
+    display: none;
+  }
+  .bf26-show-controls {
+    margin-top: 18px;
+  }
+  .bf26-show-dots {
+    height: 44px;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .bf26-show-dots button.is-active {
+    width: 32px;
+  }
+  .bf26-show-play {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bf26-show-track,
+  .bf26-show-card > img {
+    transition: none;
+  }
+}
