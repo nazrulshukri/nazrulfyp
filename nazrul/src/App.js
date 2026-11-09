@@ -26,7 +26,7 @@ import TrainPaymentMethod from './components/trainpayment'
 import TrainConfirmation from './components/trainconfirmation';
 import ForgotPassword from './components/forgotpassword';
 import ResetPassword from './components/resetpassword';
-import FlightStatus from './components/flightstatus';
+import TrackPage from './components/TrackPage';
 import TrainPage from './components/train';
 import Dashboard from './components/dashboard';
 import Profile from './components/profile';
@@ -84,7 +84,8 @@ function AppContent() {
           <Route path="/trainconfirmation" element={<TrainConfirmation />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/FlightStatus" element={<FlightStatus />} />
+          <Route path="/track" element={<TrackPage />} />
+          <Route path="/FlightStatus" element={<TrackPage defaultTab="flights" />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile-maintenance" element={<ProfileMaintenance />} />

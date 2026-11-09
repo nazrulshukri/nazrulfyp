@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BedDouble, CalendarDays, Users, Mail, ShieldCheck, MapPin } from "lucide-react";
 import PaymentPanel, { ProcessingOverlay } from "./PaymentPanel";
 import { BookingSteps } from "./flightresults";
-import { formatMoney } from "../lib/bookingStorage";
+import { formatMoney, saveBookingForUser } from "../lib/bookingStorage";
 import { formatDay } from "../lib/travelMeta";
 import "./hotelpaymentmethod.css";
 
@@ -84,6 +84,10 @@ const HotelPaymentMethod = () => {
     }
     const done = { ...paymentData, emailStatus };
     sessionStorage.setItem(HOTEL_PAYMENT_DRAFT_KEY, JSON.stringify(done));
+    const owner = localStorage.getItem("userEmail") || email;
+    if (owner) {
+      saveBookingForUser(owner, { ...done, kind: "hotel", bookingId: `HOTEL-${hotelName}-${checkInDate}`.replace(/\s+/g, "-") });
+    }
     setStep(3);
     await wait(500);
     navigate("/hotelpaymentdone", { state: { paymentData: done } });

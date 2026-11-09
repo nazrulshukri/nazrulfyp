@@ -23,12 +23,16 @@ try {
 }
 const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymentEmail');
 const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
+const liveRouter = require('./live');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Live trains, flights and flight status for the Track page (see live.js).
+app.use('/live', liveRouter);
 
 
 const loadImageAsBytes = async (imageUrl) => {
