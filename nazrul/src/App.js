@@ -4,6 +4,7 @@ import Header from './components/header';
 import HariRayaPopup from './components/HariRayapopup';
 import MainContent from './components/body';
 import Footer from './components/footer';
+import ChatWidget from './components/ChatWidget';
 import About from './components/about';
 import Services from './components/services';
 import ReturnFlights from './components/return';
@@ -90,6 +91,7 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }
