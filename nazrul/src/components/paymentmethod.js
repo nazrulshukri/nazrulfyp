@@ -102,8 +102,8 @@ const PaymentMethodPage = () => {
       emailStatus = "failed";
     }
 
-    const userEmail = email || localStorage.getItem("userEmail");
-    if (userEmail) saveBookingForUser(userEmail, { ...paymentData, emailStatus });
+    const userEmail = localStorage.getItem("userEmail") || email;
+    if (userEmail) saveBookingForUser(userEmail, { ...paymentData, kind: "flight", emailStatus });
 
     // "email" at the top level of route state is read by the header as a sign-in,
     // so the ticket keeps the address under "sentTo" instead.

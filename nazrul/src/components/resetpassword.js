@@ -1,47 +1,93 @@
+import React, { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { Lock, ArrowRight, Loader2 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { saveSession, passwordStrength, errorMessage } from "../lib/auth";
+import { AuthLayout, AuthField, StrengthMeter } from "./AuthKit";
+import london from "../img/assets/travel/london.jpg";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Use navigate if you want to redirect later
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(`${API_BASE}/forgot-password`, { email });
-      setMessage(response.data.message);
-      // Optionally navigate to another page after success
-      // navigate('/some-route');
-    } catch (error) {
-      setMessage('Error sending email. Please try again.');
-      console.error('Error sending email:', error); // Log the error for debugging
-    }
+const ResetPassword = () => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [touched, setTouched] = useState({});
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const errors = {
+    password: !passwordStrength(password).checks.length && "Use at least 8 characters",
+    confirm: confirm !== password && "Passwords don't match",
   };
 
+  async function submit(e) {
+    e.preventDefault();
+    setTouched({ password: true, confirm: true });
+    if (errors.password || errors.confirm) return;
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${API_BASE}/reset-password`, { token, password });
+      saveSession(data);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, "We couldn't update your password. Please try again."));
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="forgot-password-container">
-      <h3>Forgot Password</h3>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Send Reset Link
+    <AuthLayout
+      image={london}
+      kicker="Account help"
+      title="Choose a new password."
+      text="Pick something you haven't used before. You'll be signed in straight away."
+    >
+      <header className="bf26-auth-head">
+        <h1>Set a new password</h1>
+        <p>
+          Link expired? <Link to="/forgotpassword">Send a new one</Link>
+        </p>
+      </header>
+      <form className="bf26-auth-form" onSubmit={submit} noValidate>
+        <AuthField
+          id="reset-password"
+          label="New password"
+          icon={Lock}
+          type="password"
+          autoComplete="new-password"
+          placeholder="At least 8 characters"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+          error={touched.password && errors.password}
+        />
+        <StrengthMeter password={password} />
+        <AuthField
+          id="reset-confirm"
+          label="Confirm new password"
+          icon={Lock}
+          type="password"
+          autoComplete="new-password"
+          placeholder="Type it again"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+          error={touched.confirm && errors.confirm}
+        />
+        {error && (
+          <p className="bf26-auth-alert" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="bf26-primary bf26-cta" disabled={loading}>
+          {loading ? <Loader2 size={17} className="bf26-spin" /> : null}
+          {loading ? "Saving…" : "Save and sign in"}
+          {!loading && <ArrowRight size={17} />}
         </button>
       </form>
-      {message && <p>{message}</p>}
-    </div>
+    </AuthLayout>
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;
