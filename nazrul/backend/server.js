@@ -25,6 +25,7 @@ const { buildPaymentEmail, buildPaymentEmailText } = require('./templates/paymen
 const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
 const chatRouter = require('./chat');
 const liveRouter = require('./live');
+const ratesRouter = require('./rates');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -36,6 +37,8 @@ app.use(cors());
 app.use('/chat', chatRouter);
 // Live trains, flights and flight status for the Track page (see live.js).
 app.use('/live', liveRouter);
+// Exchange rates and visitor country for the currency picker (see rates.js).
+app.use('/rates', ratesRouter);
 
 
 const loadImageAsBytes = async (imageUrl) => {

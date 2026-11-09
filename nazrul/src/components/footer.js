@@ -1,4 +1,5 @@
 import React from "react";
+import { getCurrency } from "../lib/currency";
 import { Link } from "react-router-dom";
 import { Plane, ArrowUpRight } from "lucide-react";
 export default function Footer() {
@@ -45,7 +46,7 @@ export default function Footer() {
         <span>
           © {new Date().getFullYear()} BookingFlex. All rights reserved.
         </span>
-        <span>Made for the way you travel. &nbsp; EN · MYR</span>
+        <span>Made for the way you travel. &nbsp; EN · {getCurrency().code}</span>
       </div>
     </footer>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { formatPrice } from "../lib/currency";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -61,7 +62,7 @@ const Maps = ({ height = "calc(100vh - 275px)", width = "100%", markerText = "Ho
             <span>{hotelLocation.roomsAvailable} rooms left</span>
           )}
           {hotelLocation?.pricePerNight && (
-            <strong>MYR {hotelLocation.pricePerNight}<small>/night</small></strong>
+            <strong>{formatPrice(hotelLocation.pricePerNight, { whole: true })}<small>/night</small></strong>
           )}
         </div>
       </div>
@@ -85,7 +86,7 @@ const Maps = ({ height = "calc(100vh - 275px)", width = "100%", markerText = "Ho
                   {hotelLocation?.roomsAvailable && <span>{hotelLocation.roomsAvailable} rooms left</span>}
                 </div>
                 {hotelLocation?.pricePerNight && (
-                  <strong>MYR {hotelLocation.pricePerNight}<small>per night</small></strong>
+                  <strong>{formatPrice(hotelLocation.pricePerNight, { whole: true })}<small>per night</small></strong>
                 )}
               </div>
             </Popup>

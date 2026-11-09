@@ -1,3 +1,4 @@
+import { formatPrice } from "./currency";
 const BOOKINGS_KEY = "bookingflexBookings:v1";
 const PROFILE_KEY = "bookingflexProfile:v1";
 
@@ -89,12 +90,5 @@ export const formatFlightDate = (dateValue) => {
   }).format(date);
 };
 
-export const formatMoney = (amount) => {
-  const value = Number(amount);
-  if (!Number.isFinite(value)) return amount || "-";
-
-  return new Intl.NumberFormat("en-MY", {
-    style: "currency",
-    currency: "MYR",
-  }).format(value);
-};
+// Shows an MYR amount in the visitor's display currency (see lib/currency).
+export const formatMoney = (amount) => formatPrice(amount);

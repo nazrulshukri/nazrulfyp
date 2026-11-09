@@ -5,6 +5,7 @@ import HariRayaPopup from './components/HariRayapopup';
 import MainContent from './components/body';
 import Footer from './components/footer';
 import ChatWidget from './components/ChatWidget';
+import { initCurrency, useCurrency } from './lib/currency';
 import About from './components/about';
 import Services from './components/services';
 import ReturnFlights from './components/return';
@@ -52,6 +53,11 @@ function ScrollToTop() {
 
 function AppContent() {
   const { isDarkMode } = useTheme();
+  // Prices everywhere re-render in the new currency when it changes.
+  useCurrency();
+  useEffect(() => {
+    initCurrency();
+  }, []);
   const [showRaya, setShowRaya] = useState(false); // controls popup
 
   return (

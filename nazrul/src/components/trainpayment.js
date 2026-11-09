@@ -1,3 +1,4 @@
+import { chargeNote } from "../lib/currency";
 import { API_BASE } from "../lib/apiConfig";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -108,7 +109,7 @@ const TrainPaymentMethod = () => {
             </div>
           </div>
           <PaymentPanel
-            amountLabel={formatMoney(b.totalPrice)}
+            amountLabel={formatMoney(b.totalPrice)} amountNote={chargeNote(b.totalPrice)}
             defaultEmail={email}
             onPay={pay}
             disabled={step >= 0}

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { formatPrice } from "../lib/currency";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -36,7 +37,7 @@ import { BookingSteps } from "./flightresults";
 import { formatDay } from "../lib/travelMeta";
 
 const HOTEL_STEPS = ["Search", "Stay", "Guest details", "Payment"];
-const formatMYR = (value) => `MYR ${Math.round(Number(value || 0)).toLocaleString("en-MY")}`;
+const formatMYR = (value) => formatPrice(Math.round(Number(value || 0)), { whole: true });
 const AMENITY_ICONS = { WiFi: Wifi, Pool: Waves, Gym: Dumbbell, Parking: ParkingCircle, Spa: Sparkles };
 
 const nightsBetween = (start, end) => {

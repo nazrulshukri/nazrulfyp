@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import CurrencyPicker from "./CurrencyPicker";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { ArrowUpRight, Globe2, Menu, Moon, Sun, X, Plane } from "lucide-react";
+import { ArrowUpRight, Menu, Moon, Sun, X, Plane } from "lucide-react";
 import { useTheme } from "./themeprovider";
 import { clearSession } from "../lib/auth";
 
@@ -38,11 +39,14 @@ export default function Header() {
         <NavLink to="/dashboard">My trips</NavLink>
         <NavLink to="/track">Track</NavLink>
         <NavLink to="/contact">Help centre</NavLink>
+        <div className="bf26-cur-mobile">
+          <CurrencyPicker />
+        </div>
       </nav>
       <div className="bf-header-actions">
-        <span className="bf-locale">
-          <Globe2 size={16} /> EN · MYR
-        </span>
+        <div className="bf26-cur-desktop">
+          <CurrencyPicker />
+        </div>
         <button
           className="bf-icon-button"
           onClick={toggleTheme}

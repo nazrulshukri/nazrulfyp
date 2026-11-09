@@ -1,3 +1,4 @@
+import { chargeNote } from "../lib/currency";
 import { API_BASE } from "../lib/apiConfig";
 import axios from "axios";
 import React, { useState } from "react";
@@ -144,7 +145,7 @@ const PaymentMethodPage = () => {
             </div>
           </div>
           <PaymentPanel
-            amountLabel={formatMoney(totalAmount)}
+            amountLabel={formatMoney(totalAmount)} amountNote={chargeNote(totalAmount)}
             defaultEmail={email}
             onPay={pay}
             disabled={step >= 0}
