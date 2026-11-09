@@ -1,76 +1,87 @@
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import axios from "axios";
+import { Mail, ArrowLeft, Send, MailCheck, Loader2 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
-import React, { useState } from 'react';
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-import './forgtopassword.css'; // External CSS for custom styling
-import forgotPasswordImage from '../img/assets/Booking1.png'; // Importing image file
+import { EMAIL_RE, errorMessage } from "../lib/auth";
+import { AuthLayout, AuthField } from "./AuthKit";
+import london from "../img/assets/travel/london.jpg";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState(''); // State for storing email value
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || "");
+  const [touched, setTouched] = useState(false);
+  const [sent, setSent] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const invalid = !EMAIL_RE.test(email.trim()) && "Enter a valid email address";
 
-  const handleSubmit = async (e) => {
+  async function submit(e) {
     e.preventDefault();
-    console.log('Form submitted with email:', email); // Debugging line
+    setTouched(true);
+    if (invalid) return;
+    setError("");
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE}/forgotpassword`, { email });
-      toast.success(response.data.message, {
-        position: "top-center", // Corrected position as string
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.error('Error sending email. Please try again.', {
-        position: "top-center", // Corrected position as string
-        autoClose: 3000,
-      });
+      const { data } = await axios.post(`${API_BASE}/forgotpassword`, { email: email.trim() });
+      setSent(data.message);
+    } catch (err) {
+      setError(errorMessage(err, "We couldn't send the email. Please try again."));
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleEmailChange = (e) => {
-    console.log('Email being typed:', e.target.value); // Debugging line
-    setEmail(e.target.value); // Update email value on change
-  };
+  }
 
   return (
-    <div className="forgot-password-container">
-      <div className="form-card">
-        {/* Adding Image */}
-        <div className="image-container">
-          <img
-            src={forgotPasswordImage}
-            alt="Forgot Password"
-            className="forgot-password-image"
-          />
+    <AuthLayout
+      image={london}
+      kicker="Account help"
+      title="Back on track in a minute."
+      text="We'll email you a secure link to choose a new password."
+    >
+      <header className="bf26-auth-head">
+        <h1>Forgot your password?</h1>
+        <p>Enter the email you signed up with.</p>
+      </header>
+      {sent ? (
+        <div className="bf26-auth-done">
+          <MailCheck size={30} />
+          <h2>Check your inbox</h2>
+          <p>{sent} The link works for 1 hour. Look in your spam folder if it doesn't arrive.</p>
+          <Link className="bf26-primary bf26-cta" to="/signin" state={{ prefillEmail: email.trim() }}>
+            Back to sign in
+          </Link>
         </div>
-        <h3>Forgot Password</h3>
-        <p className="subtitle">
-          Enter your email address, and we'll send you a link to reset your password.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-  <div className="form-group">
-    <input
-      type="email"
-      className="form-control"
-      placeholder="Enter your email"
-      value={email}
-      onChange={handleEmailChange}
-      required
-    />
-  </div>
-  <button type="submit" className="btn1 btn-primary">
-    Send Reset Link
-  </button>
-
-
-</form>
-      </div>
-      {/* ToastContainer for notifications */}
-      <ToastContainer />
-    </div>
+      ) : (
+        <form className="bf26-auth-form" onSubmit={submit} noValidate>
+          <AuthField
+            id="forgot-email"
+            label="Email"
+            icon={Mail}
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => setTouched(true)}
+            error={touched && invalid}
+          />
+          {error && (
+            <p className="bf26-auth-alert" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="bf26-primary bf26-cta" disabled={loading}>
+            {loading ? <Loader2 size={17} className="bf26-spin" /> : <Send size={16} />}
+            {loading ? "Sending…" : "Send reset link"}
+          </button>
+          <Link className="bf26-auth-back" to="/signin">
+            <ArrowLeft size={15} /> Back to sign in
+          </Link>
+        </form>
+      )}
+    </AuthLayout>
   );
 };
 
 export default ForgotPassword;
-

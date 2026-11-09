@@ -25,6 +25,7 @@ import FormPage from './components/fillform'
 import TrainPaymentMethod from './components/trainpayment'
 import TrainConfirmation from './components/trainconfirmation';
 import ForgotPassword from './components/forgotpassword';
+import ResetPassword from './components/resetpassword';
 import FlightStatus from './components/flightstatus';
 import TrainPage from './components/train';
 import Dashboard from './components/dashboard';
@@ -82,6 +83,7 @@ function AppContent() {
           <Route path="/trainpayment" element={<TrainPaymentMethod />} />
           <Route path="/trainconfirmation" element={<TrainConfirmation />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/FlightStatus" element={<FlightStatus />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />

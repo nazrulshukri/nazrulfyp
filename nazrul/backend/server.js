@@ -104,6 +104,10 @@ const sendPersistenceSkipped = (res, resourceName, data) => {
 };
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+if (!process.env.JWT_SECRET) {
+  console.warn('JWT_SECRET is not set; using an insecure default. Add JWT_SECRET to backend/.env and Vercel.');
+}
+const SESSION_TTL = '7d';
 
 const getFirebaseCredential = () => {
   if (!admin) return null;
@@ -152,6 +156,7 @@ const firebaseAdminReady = initializeFirebaseAdmin();
 
 // User Schema
 const UserSchema = new mongoose.Schema({
+  name: { type: String, trim: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   resetToken: { type: String },
@@ -396,46 +401,61 @@ const createUserFolder = async (userId) => {
   }
 };
 
-// Signup route
+// ---------- Accounts ----------
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Older accounts may have been saved with capital letters, so match case-insensitively.
+const findUserByEmail = (email) =>
+  User.findOne({ email: new RegExp(`^${escapeRegex(email)}$`, 'i') });
+const publicUser = (user) => ({ email: user.email, name: user.name || '' });
+const issueSession = (user) => ({
+  token: jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: SESSION_TTL }),
+  user: publicUser(user),
+});
+
 app.post('/signup', requireMongoConnection, async (req, res) => {
-  const { email, password } = req.body;
+  const email = normalizeEmail(req.body.email);
+  const password = String(req.body.password || '');
+  const name = String(req.body.name || '').trim().slice(0, 80);
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
+  if (password.length < 8) return res.status(400).json({ message: 'Password must be at least 8 characters.' });
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    if (await findUserByEmail(email)) {
+      return res.status(409).json({ message: 'An account with this email already exists. Try signing in.' });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword });
-    await newUser.save();
-    await createUserFolder(newUser._id);
-
-    res.status(201).json({ message: 'User created successfully' });
+    const user = await User.create({ name, email, password: await bcrypt.hash(password, 10) });
+    await createUserFolder(user._id);
+    res.status(201).json({ message: 'Account created.', ...issueSession(user) });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Signup error:', err);
+    res.status(500).json({ message: 'Could not create your account. Please try again.' });
   }
 });
 
-// Signin route
 app.post('/signin', requireMongoConnection, async (req, res) => {
-  const { email, password } = req.body;
+  const email = normalizeEmail(req.body.email);
+  const password = String(req.body.password || '');
+  if (!email || !password) return res.status(400).json({ message: 'Enter your email and password.' });
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+    const user = await findUserByEmail(email);
+    const valid = user && user.password !== 'FIREBASE' && (await bcrypt.compare(password, user.password));
+    if (!valid) {
+      const hint = user && user.password === 'FIREBASE' ? ' This account uses Google sign-in.' : '';
+      return res.status(401).json({ message: `Incorrect email or password.${hint}` });
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
-
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ token, message: 'Sign-in successful' });
+    res.json({ message: 'Signed in.', ...issueSession(user) });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Signin error:', err);
+    res.status(500).json({ message: 'Could not sign you in. Please try again.' });
   }
 });
+
+// Where password-reset links point. Never taken from request headers, which
+// an attacker could forge to send someone a reset link to their own site.
+const appUrl = () =>
+  process.env.APP_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000');
 
 // POST route to save hotel booking data to MongoDB
 app.post('/save-hotel', async (req, res) => {
@@ -844,30 +864,57 @@ app.post('/process-payment', async (req, res) => {
 // // ✅ Correct Export
 // module.exports = { generatePDF };
 
-// Forgot password route
-app.post('/forgotpassword', requireMongoConnection, async (req, res) => {
-  const { email } = req.body;
+// Forgot password: always answers the same way so it doesn't reveal which emails have accounts.
+app.post(['/forgotpassword', '/forgot-password'], requireMongoConnection, async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  const reply = { message: 'If an account exists for that email, we’ve sent a link to reset your password.' };
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).send('User not found.');
+    const user = await findUserByEmail(email);
+    if (!user || user.password === 'FIREBASE') return res.json(reply);
 
-    const resetToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const resetToken = jwt.sign({ userId: user._id, purpose: 'reset' }, JWT_SECRET, { expiresIn: '1h' });
     user.resetToken = resetToken;
     user.resetTokenExpiration = Date.now() + 3600000;
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Password Reset Request',
-      text: `To reset your password, click the link: ${resetLink}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.send({ message: 'Password reset link sent to your email.' });
+    const resetLink = `${appUrl()}/reset-password/${resetToken}`;
+    await transporter.sendMail({
+      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: 'Reset your BookingFlex password',
+      text: `Hi${user.name ? ` ${user.name}` : ''},\n\nUse this link to choose a new password (valid for 1 hour):\n${resetLink}\n\nIf you didn't ask for this, you can ignore this email.`,
+      html: `<div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#133634">
+        <p style="font-size:22px;font-weight:800;margin:0 0 18px">booking<span style="color:#7aa33a;font-weight:400">flex.</span></p>
+        <h1 style="font-size:22px;margin:0 0 10px">Reset your password</h1>
+        <p style="font-size:15px;line-height:1.6;color:#2b4c47">Hi${user.name ? ` ${user.name}` : ''}, tap the button below to choose a new password. The link works for 1 hour.</p>
+        <p style="margin:24px 0"><a href="${resetLink}" style="background:#1d4a3f;color:#d9ef7d;padding:13px 22px;border-radius:12px;text-decoration:none;font-weight:700">Choose a new password</a></p>
+        <p style="font-size:13px;color:#6b7f7a">If you didn't ask for this, you can ignore this email.</p></div>`,
+    });
+    res.json(reply);
   } catch (error) {
-    res.status(500).send('Error sending email. Please try again.');
+    console.error('Forgot password error:', error);
+    res.status(500).json({ message: 'Could not send the reset email. Please try again.' });
+  }
+});
+
+app.post('/reset-password', requireMongoConnection, async (req, res) => {
+  const { token } = req.body;
+  const password = String(req.body.password || '');
+  if (password.length < 8) return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+  try {
+    const payload = jwt.verify(String(token || ''), JWT_SECRET);
+    const user = await User.findById(payload.userId);
+    if (!user || user.resetToken !== token || !user.resetTokenExpiration || user.resetTokenExpiration < Date.now()) {
+      throw new Error('stale');
+    }
+    user.password = await bcrypt.hash(password, 10);
+    user.resetToken = undefined;
+    user.resetTokenExpiration = undefined;
+    await user.save();
+    res.json({ message: 'Password updated.', ...issueSession(user) });
+  } catch (error) {
+    res.status(400).json({ message: 'This reset link is invalid or has expired. Request a new one.' });
   }
 });
 
@@ -1046,50 +1093,51 @@ app.post('/trainsubmit-payment', async (req, res) => {
   }
 });
 
-app.post("/auth/firebase", requireMongoConnection, async (req, res) => {
-  console.log("🔥 /auth/firebase endpoint called");
+// Google / Facebook sign-in through Firebase. Uses Firebase Admin when it is
+// configured, otherwise checks the ID token's signature against Google's
+// published keys (the method Firebase documents for third-party servers).
+const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || process.env.REACT_APP_FIREBASE_PROJECT_ID;
+const GOOGLE_CERTS_URL =
+  'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
+let googleCerts = { keys: null, expires: 0 };
 
+async function verifyFirebaseIdToken(idToken) {
+  if (firebaseAdminReady) return admin.auth().verifyIdToken(idToken);
+  if (!FIREBASE_PROJECT_ID) throw new Error('Firebase project id is not configured');
+  if (!googleCerts.keys || Date.now() > googleCerts.expires) {
+    const response = await fetch(GOOGLE_CERTS_URL);
+    const maxAge = Number((/max-age=(\d+)/.exec(response.headers.get('cache-control') || '') || [])[1] || 3600);
+    googleCerts = { keys: await response.json(), expires: Date.now() + maxAge * 1000 };
+  }
+  const decodedHeader = jwt.decode(idToken, { complete: true });
+  const cert = decodedHeader && googleCerts.keys[decodedHeader.header.kid];
+  if (!cert) throw new Error('Unknown signing key');
+  const payload = jwt.verify(idToken, cert, {
+    algorithms: ['RS256'],
+    audience: FIREBASE_PROJECT_ID,
+    issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
+  });
+  if (!payload.sub) throw new Error('Token has no subject');
+  return payload;
+}
+
+app.post('/auth/firebase', requireMongoConnection, async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ message: 'Missing ID token' });
   try {
-    if (!firebaseAdminReady) {
-      return res.status(503).json({
-        message: "Firebase Admin is not configured on the server.",
-      });
+    const decoded = await verifyFirebaseIdToken(idToken);
+    const email = normalizeEmail(decoded.email);
+    if (!email) return res.status(400).json({ message: 'Your Google account has no email address.' });
+    let user = await findUserByEmail(email);
+    if (!user) user = await User.create({ email, name: decoded.name || '', password: 'FIREBASE' });
+    else if (!user.name && decoded.name) {
+      user.name = decoded.name;
+      await user.save();
     }
-
-    const { idToken } = req.body;
-
-    if (!idToken) {
-      console.log("❌ No ID token received");
-      return res.status(400).json({ message: "Missing ID token" });
-    }
-
-    console.log("🔍 Verifying Firebase token...");
-
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    console.log("✅ Firebase token verified:", decoded.email);
-
-    const email = decoded.email;
-
-    // find or create user in Mongo
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      console.log("🆕 Creating new Mongo user for:", email);
-      user = await User.create({ email, password: "FIREBASE" });
-    } else {
-      console.log("👤 Existing Mongo user:", email);
-    }
-
-    // issue your JWT
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
-
-    console.log("🎟️ JWT issued for:", email);
-
-    res.json({ token });
-
+    res.json(issueSession(user));
   } catch (err) {
-    console.error("❌ Firebase authentication error:", err.message);
-    res.status(401).json({ message: "Invalid Firebase token" });
+    console.error('Firebase authentication error:', err.message);
+    res.status(401).json({ message: 'Google sign-in could not be verified. Please try again.' });
   }
 });
 

@@ -1,191 +1,101 @@
-import React, { useMemo, useState } from "react";
-import "animate.css";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {
-  MDBBtn,
-  MDBContainer,
-  MDBCard,
-  MDBCardBody,
-  MDBCardImage,
-  MDBRow,
-  MDBCol,
-  MDBIcon,
-  MDBInput,
-  MDBModal,
-  MDBModalDialog,
-  MDBModalContent,
-  MDBModalHeader,
-  MDBModalBody,
-} from "mdb-react-ui-kit";
-import { useNavigate, Link } from "react-router-dom";
-
-import bookingImage from "../img/assets/logo .png";
-import logoImage from "../img/assets/BOOKING (4).png";
-import "./signin.css";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { API_BASE } from "../lib/apiConfig";
+import { saveSession, EMAIL_RE, errorMessage } from "../lib/auth";
+import { AuthLayout, AuthField, GoogleButton } from "./AuthKit";
+import plane from "../img/assets/4k-plane-beautiful-sunset-shawraxhzg2ibf4f.jpg";
 
 const SignIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from || "/dashboard";
+  const [email, setEmail] = useState(location.state?.prefillEmail || "");
+  const [password, setPassword] = useState("");
+  const [touched, setTouched] = useState({});
+  const [error, setError] = useState(location.state?.notice || "");
+  const [loading, setLoading] = useState(false);
 
-  const baseURL = useMemo(
-    () => process.env.REACT_APP_API_URL || "http://localhost:5001",
-    []
-  );
-
-  const canLogin = email.trim() && password.trim() && !loading;
-
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-
-    try {
-      const response = await axios.post(`${baseURL}/signin`, {
-        email: email.trim(),
-        password,
-      });
-
-      setShowModal(true);
-      localStorage.setItem("userEmail", email.trim());
-
-      setTimeout(() => {
-        navigate("/dashboard", { state: { email: email.trim(), userData: response.data } });
-      }, 900);
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Error signing in. Please try again.";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+  const errors = {
+    email: !EMAIL_RE.test(email.trim()) && "Enter a valid email address",
+    password: !password && "Enter your password",
   };
 
+  async function submit(e) {
+    e.preventDefault();
+    setTouched({ email: true, password: true });
+    if (errors.email || errors.password) return;
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${API_BASE}/signin`, { email: email.trim(), password });
+      saveSession(data);
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, "We couldn't sign you in. Please try again."));
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="si-page">
-      <MDBContainer className="si-container">
-        <MDBCard className="si-card animate__animated animate__fadeIn">
-          <MDBRow className="g-0 si-row">
-            {/* LEFT PANEL */}
-            <MDBCol md="6" className="si-left">
-              <div className="si-leftInner">
-                <MDBCardImage src={bookingImage} alt="Booking" className="si-image" />
-                <div className="si-leftOverlay">
-                  <p className="si-leftBadge">
-                    <MDBIcon fas icon="shield-alt" /> Secure Login
-                  </p>
-                  <h2 className="si-leftTitle">Welcome back</h2>
-                  <p className="si-leftText">
-                    Sign in to manage flights, bookings, and offers with Booking Flex.
-                  </p>
-                </div>
-              </div>
-            </MDBCol>
+    <AuthLayout
+      image={plane}
+      kicker="Welcome back"
+      title="Your next trip starts here."
+      text="Sign in to see your bookings, download tickets and pick up where you left off."
+    >
+      <header className="bf26-auth-head">
+        <h1>Sign in</h1>
+        <p>
+          New to BookingFlex? <Link to="/signup">Create an account</Link>
+        </p>
+      </header>
 
-            {/* RIGHT PANEL */}
-            <MDBCol md="6" className="si-right">
-              <MDBCardBody className="si-body">
-                <div className="si-top">
-                  <img className="si-logo" src={logoImage} alt="Logo" />
-                  <div>
-                    <h1 className="si-title">Sign in</h1>
-                    <p className="si-subtitle">Access your Booking Flex account</p>
-                  </div>
-                </div>
+      <GoogleButton onError={setError} redirectTo={redirectTo} />
 
-                <div className="si-form">
-                  <MDBInput
-                    wrapperClass="mb-3"
-                    label="Email address"
-                    type="email"
-                    size="lg"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-
-                  <MDBInput
-                    wrapperClass="mb-3"
-                    label="Password"
-                    type="password"
-                    size="lg"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && canLogin && handleLogin()}
-                  />
-
-                  {error && <div className="si-alert">{error}</div>}
-
-                  <MDBBtn
-                    className="si-btn"
-                    color="dark"
-                    size="lg"
-                    onClick={handleLogin}
-                    disabled={!canLogin}
-                  >
-                    {loading ? "Logging in..." : "Login"}
-                  </MDBBtn>
-
-                  <div className="si-links">
-                    <Link className="si-link" to="/forgotpassword">
-                      Forgot password?
-                    </Link>
-                    <span className="si-dot">•</span>
-                    <Link className="si-link" to="/signup">
-                      Create an account
-                    </Link>
-                  </div>
-
-                  <div className="si-divider">
-                    <span>Or continue with</span>
-                  </div>
-
-                  <div className="si-social">
-                    <MDBBtn tag="a" color="none" className="si-socialBtn">
-                      <MDBIcon fab icon="facebook-f" />
-                    </MDBBtn>
-                    <MDBBtn tag="a" color="none" className="si-socialBtn">
-                      <MDBIcon fab icon="twitter" />
-                    </MDBBtn>
-                    <MDBBtn tag="a" color="none" className="si-socialBtn">
-                      <MDBIcon fab icon="google" />
-                    </MDBBtn>
-                    <MDBBtn tag="a" color="none" className="si-socialBtn">
-                      <MDBIcon fab icon="github" />
-                    </MDBBtn>
-                  </div>
-                </div>
-              </MDBCardBody>
-            </MDBCol>
-          </MDBRow>
-        </MDBCard>
-
-        {/* SUCCESS MODAL */}
-        <MDBModal show={showModal} setShow={setShowModal} tabIndex="-1">
-          <MDBModalDialog centered>
-            <MDBModalContent className="si-modal">
-              <MDBModalHeader className="si-modalHeader">
-                <h5 className="modal-title">✅ Login successful</h5>
-                <MDBBtn className="btn-close" onClick={() => setShowModal(false)} />
-              </MDBModalHeader>
-              <MDBModalBody className="si-modalBody">
-                Welcome to Booking Flex. Redirecting…
-              </MDBModalBody>
-            </MDBModalContent>
-          </MDBModalDialog>
-        </MDBModal>
-      </MDBContainer>
-    </div>
+      <form className="bf26-auth-form" onSubmit={submit} noValidate>
+        <AuthField
+          id="signin-email"
+          label="Email"
+          icon={Mail}
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+          error={touched.email && errors.email}
+        />
+        <AuthField
+          id="signin-password"
+          label="Password"
+          icon={Lock}
+          type="password"
+          autoComplete="current-password"
+          placeholder="Your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+          error={touched.password && errors.password}
+        />
+        <div className="bf26-auth-row">
+          <Link to="/forgotpassword" state={{ email: email.trim() }}>
+            Forgot password?
+          </Link>
+        </div>
+        {error && (
+          <p className="bf26-auth-alert" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="bf26-primary bf26-cta" disabled={loading}>
+          {loading ? <Loader2 size={17} className="bf26-spin" /> : null}
+          {loading ? "Signing in…" : "Sign in"}
+          {!loading && <ArrowRight size={17} />}
+        </button>
+      </form>
+    </AuthLayout>
   );
 };
 
