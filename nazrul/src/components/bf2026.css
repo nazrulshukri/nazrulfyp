@@ -7560,3 +7560,16 @@ select:-webkit-autofill {
     max-height: 300px;
   }
 }
+
+/* Header links stay on one line; tighter spacing on mid-size screens. */
+.bf-nav a {
+  white-space: nowrap;
+}
+@media (min-width: 761px) and (max-width: 940px) {
+  .bf-nav {
+    gap: 14px;
+  }
+  .bf-header-actions {
+    gap: 6px;
+  }
+}
