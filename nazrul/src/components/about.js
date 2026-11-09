@@ -32,7 +32,7 @@ import founderPhoto from "../img/assets/team/nazrul.jpg";
 // Add your profile links here. Any left empty are hidden on the page.
 const SOCIALS = [
   { label: "GitHub", icon: FaGithub, url: "https://github.com/nazrulshukri" },
-  { label: "LinkedIn", icon: FaLinkedinIn, url: "" },
+  { label: "LinkedIn", icon: FaLinkedinIn, url: "https://www.linkedin.com/in/muhd-nazrul/" },
   { label: "Facebook", icon: FaFacebookF, url: "" },
   { label: "Instagram", icon: FaInstagram, url: "" },
   { label: "X (Twitter)", icon: FaXTwitter, url: "" },
