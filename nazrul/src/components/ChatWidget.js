@@ -35,9 +35,15 @@ async function streamChat(messages, onEvent, signal) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "The assistant is unavailable right now.");
   }
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("text/event-stream")) {
+    throw new Error("The AI server route is not deployed correctly. Please check the Vercel /api/chat configuration.");
+  }
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let receivedText = false;
+  let completed = false;
   for (;;) {
     const { value, done } = await reader.read();
     if (done) break;
@@ -46,8 +52,16 @@ async function streamChat(messages, onEvent, signal) {
     buffer = parts.pop();
     for (const part of parts) {
       const line = part.split("\n").find((l) => l.startsWith("data: "));
-      if (line) onEvent(JSON.parse(line.slice(6)));
+      if (line) {
+        const event = JSON.parse(line.slice(6));
+        if (event.type === "text" || event.type === "refusal" || event.type === "error") receivedText = true;
+        if (event.type === "done") completed = true;
+        onEvent(event);
+      }
     }
+  }
+  if (!completed && !receivedText) {
+    throw new Error("The AI server closed the connection without a reply. Please try again.");
   }
 }
 

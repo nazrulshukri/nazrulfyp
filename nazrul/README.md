@@ -19,6 +19,10 @@ for Production and Preview, then redeploy. You can verify the setup at
 `/api/chat/health`; `configured` must be `true`. `ANTHROPIC_MODEL` is optional
 and lets you switch models without editing the UI.
 
+This repository's Vercel Root Directory is `nazrul/src`. Keep `src/api/index.js`
+and the `/api/(.*)` rewrite in `src/vercel.json`; otherwise Vercel will return
+the React `index.html` page for chat requests instead of the event stream.
+
 The assistant is intentionally limited to travel help. It cannot see live
 availability, make bookings, take payment details, or access private user data.
 
