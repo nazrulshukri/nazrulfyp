@@ -19,6 +19,7 @@ import {
   Play,
 } from "lucide-react";
 import Booking from "./booking";
+import Showcase from "./Showcase";
 import greece from "../img/assets/travel/Greece_hero.jpg";
 import plane from "../img/assets/4k-plane-beautiful-sunset-shawraxhzg2ibf4f.jpg";
 import hotelFallback from "../img/assets/naera-Hotel-and-Spa-by-Horizontal-Design-30.jpg";
@@ -221,6 +222,52 @@ export default function MainContent() {
     setPreset({ value: destination.airport, at: Date.now() });
     searchRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
+
+  const scrollToSearch = () =>
+    searchRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  const modeSlide = (m) => heroSlides.find((s) => s.mode === m);
+  // "Endless escapes." showcase: destinations first, then ways to travel.
+  const showcaseSlides = [
+    ...destinations.map((d) => ({
+      id: d.name,
+      title: d.name,
+      tag: d.tag,
+      caption: `${d.blurb} Flights from MYR ${d.from.toLocaleString("en-MY")}.`,
+      cta: `Fly to ${d.name}`,
+      image: d.image,
+      video: d.video.preview,
+      onSelect: () => choose(d),
+    })),
+    {
+      id: "vacation",
+      title: "Vacations",
+      tag: modeSlide("vacation").eyebrow,
+      caption: "Flight and hotel in one search, from the Greek islands to Bali.",
+      cta: "Build a trip",
+      image: modeSlide("vacation").image,
+      onSelect: () => { pick("vacation"); scrollToSearch(); },
+    },
+    {
+      id: "train",
+      title: "Trains",
+      tag: modeSlide("train").eyebrow,
+      caption: "ETS to Penang and Ipoh, KLIA Ekspres to the airport in 28 minutes.",
+      cta: "Find a train",
+      image: modeSlide("train").image,
+      fallback: modeSlide("train").fallback,
+      onSelect: () => { pick("train"); scrollToSearch(); },
+    },
+    {
+      id: "hotel",
+      title: "Hotels",
+      tag: modeSlide("hotel").eyebrow,
+      caption: "Resorts, city suites and hideaways, many with free cancellation.",
+      cta: "Find a stay",
+      image: modeSlide("hotel").image,
+      fallback: modeSlide("hotel").fallback,
+      onSelect: () => { pick("hotel"); scrollToSearch(); },
+    },
+  ];
 
   const Icon = slide.icon;
 
@@ -436,6 +483,8 @@ export default function MainContent() {
             );
           })}
         </section>
+
+        <Showcase title="Endless escapes." slides={showcaseSlides} />
 
         <section className="bf-member">
           <div className="bf-member-orbit">
