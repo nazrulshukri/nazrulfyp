@@ -1,3 +1,4 @@
+import { chargeNote } from "../lib/currency";
 import { API_BASE } from "../lib/apiConfig";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -116,7 +117,7 @@ const HotelPaymentMethod = () => {
               <p>Your voucher is issued as soon as payment is confirmed.</p>
             </div>
           </div>
-          <PaymentPanel amountLabel={formatMoney(price)} defaultEmail={email} onPay={pay} disabled={step >= 0} />
+          <PaymentPanel amountLabel={formatMoney(price)} amountNote={chargeNote(price)} defaultEmail={email} onPay={pay} disabled={step >= 0} />
         </section>
         <aside className="bf26-summary">
           <div className="bf26-summary-card">

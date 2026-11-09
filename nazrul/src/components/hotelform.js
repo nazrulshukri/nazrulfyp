@@ -1,4 +1,5 @@
 import { API_BASE } from "../lib/apiConfig";
+import { formatPrice } from "../lib/currency";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -25,7 +26,7 @@ const HOTEL_STEPS = ["Search", "Stay", "Guest details", "Payment"];
 const HOTEL_DRAFT_KEY = "hotelBookingDraft";
 const HOTEL_PAYMENT_DRAFT_KEY = "hotelPaymentDraft";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const formatMYR = (value) => `MYR ${Math.round(Number(value || 0)).toLocaleString("en-MY")}`;
+const formatMYR = (value) => formatPrice(Math.round(Number(value || 0)), { whole: true });
 
 const safeParse = (value, fallback) => {
   try {

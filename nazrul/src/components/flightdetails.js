@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { formatPrice } from "../lib/currency";
 import {
   Plane,
   User,
@@ -222,7 +223,7 @@ const SeatSelection = ({ setSelectedSeats, initialSelectedSeats = [], maxSeats =
               ? `${selected.length} of ${maxSeats} seat${maxSeats > 1 ? "s" : ""} chosen`
               : "Choose your seats"}
           </strong>
-          <small>MYR 20 per seat · or get one assigned free at check-in</small>
+          <small>{formatPrice(20, { whole: true })} per seat · or get one assigned free at check-in</small>
         </span>
         {selected.length > 0 && (
           <em>{selected.join(", ")}</em>
@@ -334,7 +335,7 @@ const InsuranceSelection = ({ setSelectedInsurance, initialSelectedInsurance = n
             <Icon size={22} />
             <strong>{option.name}</strong>
             <small>{option.description}</small>
-            <span>{option.price ? `MYR ${option.price}` : "Free"}</span>
+            <span>{option.price ? formatPrice(option.price, { whole: true }) : "Free"}</span>
           </button>
         );
       })}

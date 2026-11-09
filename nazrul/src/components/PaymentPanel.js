@@ -153,7 +153,7 @@ function CardPreview({ card, flipped }) {
  * Calls onPay({ method, label, detail }) once the chosen method's fields are valid.
  * Card numbers and CVVs never leave this component.
  */
-export default function PaymentPanel({ amountLabel, defaultEmail = "", onPay, disabled }) {
+export default function PaymentPanel({ amountLabel, amountNote, defaultEmail = "", onPay, disabled }) {
   const [method, setMethod] = useState("card");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
   const [flipped, setFlipped] = useState(false);
@@ -386,6 +386,7 @@ export default function PaymentPanel({ amountLabel, defaultEmail = "", onPay, di
       >
         <Lock size={17} /> {method === "applePay" ? "Pay with Apple Pay" : `Pay ${amountLabel}`}
       </button>
+      {amountNote && <p className="bf26-pay-note">{amountNote}</p>}
       <div className="bf26-pay-trust">
         <span>
           <ShieldCheck size={14} /> Encrypted checkout

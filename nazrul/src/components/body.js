@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { formatPrice } from "../lib/currency";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
@@ -275,7 +276,7 @@ export default function MainContent() {
       id: d.name,
       title: d.name,
       tag: d.tag,
-      caption: `${d.blurb} Flights from MYR ${d.from.toLocaleString("en-MY")}.`,
+      caption: `${d.blurb} Flights from ${formatPrice(d.from, { whole: true })}.`,
       cta: `Fly to ${d.name}`,
       image: d.image,
       video: d.video.preview,
@@ -487,7 +488,7 @@ export default function MainContent() {
                   <p>
                     <span>
                       {d.description}
-                      <em>Flights from MYR {d.from.toLocaleString("en-MY")}</em>
+                      <em>Flights from {formatPrice(d.from, { whole: true })}</em>
                     </span>
                     <ArrowRight size={16} />
                   </p>
@@ -648,7 +649,7 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
               <Clock size={18} />
               <span>
                 <small>Fares from</small>
-                <strong>MYR {d.from.toLocaleString("en-MY")}</strong>
+                <strong>{formatPrice(d.from, { whole: true })}</strong>
               </span>
             </div>
           </div>

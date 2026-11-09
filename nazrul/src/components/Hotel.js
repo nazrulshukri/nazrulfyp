@@ -1,4 +1,5 @@
 import { API_BASE } from "../lib/apiConfig";
+import { formatPrice } from "../lib/currency";
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { generateMockHotels } from '../mockdata/Hotel';
@@ -40,7 +41,7 @@ const amenityIcon = (name) => {
 const pricePin = (price) =>
   L.divIcon({
     className: 'bf26-price-pin-host',
-    html: `<span class="bf26-price-pin">MYR ${Number(price).toLocaleString('en-MY')}</span>`,
+    html: `<span class="bf26-price-pin">${formatPrice(price, { whole: true })}</span>`,
     iconSize: [86, 30],
     iconAnchor: [43, 30],
     popupAnchor: [0, -28],
@@ -76,7 +77,7 @@ const writeStorage = (key, value) => {
   window.localStorage.setItem(key, JSON.stringify(value));
 };
 
-const formatMYR = (value) => `MYR ${Number(value || 0).toLocaleString('en-MY')}`;
+const formatMYR = (value) => formatPrice(Number(value || 0), { whole: true });
 
 const getNightCount = (startDate, returnDate) => {
   const start = new Date(startDate);

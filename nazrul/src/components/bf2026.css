@@ -7351,3 +7351,212 @@ select:-webkit-autofill {
   font-size: 14px;
   cursor: pointer;
 }
+
+/* ==========================================================================
+   Currency picker (CurrencyPicker.js)
+   ========================================================================== */
+.bf26-cur {
+  position: relative;
+}
+.bf26-cur .bf26-cur-btn {
+  display: flex;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent !important;
+  color: inherit;
+  font: 600 12px/1 var(--bf26-font);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.bf26-cur .bf26-cur-btn:hover,
+.bf26-cur.is-open .bf26-cur-btn {
+  border-color: var(--bf26-line);
+  background: var(--bf26-soft) !important;
+}
+.bf26-cur .bf26-cur-btn:focus-visible {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 2px;
+}
+.bf26-cur-chev {
+  transition: transform 0.2s ease;
+}
+.bf26-cur.is-open .bf26-cur-chev {
+  transform: rotate(180deg);
+}
+.bf26-cur-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1200;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  padding: 10px;
+  border: 1px solid var(--bf26-line);
+  border-radius: 20px;
+  background: var(--bf26-card);
+  color: var(--bf26-ink);
+  box-shadow: var(--bf26-shadow-lg);
+  animation: bf26-cur-in 0.18s ease-out;
+}
+@keyframes bf26-cur-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+.bf26-cur-head {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px 12px;
+}
+.bf26-cur-head strong {
+  font-size: 15px;
+}
+.bf26-cur-head small,
+.bf26-cur-foot {
+  color: var(--bf26-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.bf26-cur-auto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--bf26-line);
+  border-radius: 14px;
+  background: var(--bf26-soft) !important;
+  color: var(--bf26-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.bf26-cur-auto span {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  font: 600 13px/1.3 var(--bf26-font);
+}
+.bf26-cur-auto small {
+  font-weight: 400;
+  color: var(--bf26-muted);
+}
+.bf26-cur-auto.is-on {
+  border-color: var(--bf26-forest);
+}
+.bf26-cur-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(360px, 55vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.bf26-cur-menu li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.bf26-cur-menu li:hover,
+.bf26-cur-menu li:focus-visible {
+  background: var(--bf26-soft);
+  outline: none;
+}
+.bf26-cur-menu li[aria-selected="true"] {
+  background: color-mix(in srgb, var(--bf26-lime) 35%, transparent);
+}
+.bf26-cur-flag {
+  font-size: 20px;
+  line-height: 1;
+}
+.bf26-cur-name {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.bf26-cur-name b {
+  font-size: 13px;
+}
+.bf26-cur-name small {
+  overflow: hidden;
+  color: var(--bf26-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bf26-cur-eg {
+  color: var(--bf26-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bf26-cur-tick {
+  color: var(--bf26-forest);
+}
+.app.dark-mode .bf26-cur-tick {
+  color: var(--bf26-lime);
+}
+.bf26-cur-foot {
+  margin: 8px 10px 2px;
+}
+.bf26-pay-note {
+  margin: 8px 0 0;
+  text-align: center;
+  color: var(--bf26-muted);
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  .bf26-cur .bf-locale {
+    display: flex;
+  }
+  .bf26-cur-lang {
+    display: none;
+  }
+}
+.bf-header-actions .bf-signin {
+  white-space: nowrap;
+}
+.bf26-cur-mobile {
+  display: none;
+}
+/* Phones: the picker moves into the menu (the header bar has no room). */
+@media (max-width: 760px) {
+  .bf26-cur-desktop {
+    display: none;
+  }
+  .bf-nav.is-open .bf26-cur-mobile {
+    display: block;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--bf26-line);
+  }
+  .bf26-cur-mobile .bf26-cur .bf26-cur-btn {
+    width: 100%;
+    height: 44px;
+    justify-content: flex-start;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  .bf26-cur-mobile .bf26-cur-lang {
+    display: inline;
+  }
+  .bf26-cur-mobile .bf26-cur-chev {
+    margin-left: auto;
+  }
+  .bf26-cur-mobile .bf26-cur-menu {
+    position: static;
+    width: auto;
+    max-width: none;
+    margin-top: 6px;
+    box-shadow: none;
+  }
+  .bf26-cur-mobile .bf26-cur-menu ul {
+    max-height: 300px;
+  }
+}
