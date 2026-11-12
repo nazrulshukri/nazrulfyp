@@ -732,3 +732,315 @@
     width: 140px;
   }
 }
+
+/* Structure (entity-relationship) view */
+.ad-er {
+  display: grid;
+  gap: 14px;
+}
+.ad-er-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--ad-muted);
+}
+.ad-er-legend span,
+.ad-er-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ad-er-legend b,
+.ad-er-badges b {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--ad-grid);
+  color: var(--ad-text-2);
+  font: 700 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ad-er-legend b.is-pk,
+.ad-er-badges b.is-pk {
+  background: var(--bf26-forest);
+  color: #fff;
+}
+.ad-er-legend b.is-uq,
+.ad-er-badges b.is-uq {
+  background: color-mix(in srgb, var(--ad-flight) 18%, transparent);
+  color: var(--ad-text);
+}
+.ad-er-legend b.is-fk,
+.ad-er-badges b.is-fk {
+  background: color-mix(in srgb, var(--ad-hotel) 18%, transparent);
+  color: var(--ad-text);
+}
+.app.dark-mode .ad-er-legend b.is-pk,
+.app.dark-mode .ad-er-badges b.is-pk {
+  background: var(--bf26-lime);
+  color: #0f2c26;
+}
+.ad-er-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 56px;
+  align-items: start;
+}
+.ad-er-col {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 18px;
+}
+.ad-er-col:nth-child(2) {
+  align-self: center;
+}
+.ad-er-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.ad-er-lines path {
+  fill: none;
+  stroke: var(--ad-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  transition: opacity 0.2s ease;
+}
+.ad-er-lines circle {
+  fill: var(--ad-muted);
+}
+.ad-er-lines .is-hot path {
+  stroke: var(--ad-series);
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+.ad-er-lines .is-hot circle {
+  fill: var(--ad-series);
+}
+.ad-er-lines .is-dim {
+  opacity: 0.2;
+}
+.ad-er-table {
+  border: 1px solid var(--ad-line);
+  border-radius: 16px;
+  background: var(--ad-surface);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ad-er-table.is-active {
+  border-color: var(--ad-series);
+  box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.45);
+}
+.ad-er-head {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--bf26-soft);
+  border-bottom: 1px solid var(--ad-line);
+}
+.ad-er-head strong {
+  font: 700 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.ad-er-head small {
+  font-size: 11px;
+  color: var(--ad-muted);
+}
+.ad-er-table ul {
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+.ad-er-table li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name badges" "type badges";
+  column-gap: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+.ad-er-table li.is-ref {
+  background: color-mix(in srgb, var(--ad-hotel) 7%, transparent);
+}
+.ad-er-name {
+  grid-area: name;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ad-er-type {
+  grid-area: type;
+  font-size: 11px;
+  color: var(--ad-muted);
+}
+.ad-er-badges {
+  grid-area: badges;
+  justify-self: end;
+  align-self: center;
+}
+.ad-er-badges i {
+  font-size: 10px;
+  font-style: normal;
+  color: var(--ad-muted);
+}
+.ad-er-empty {
+  padding: 12px;
+  font-size: 12px;
+}
+.ad-er-sub {
+  margin: 28px 0 12px;
+  font-size: 14px;
+  color: var(--ad-muted);
+}
+.ad-er-standalone {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.ad-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1100px) {
+  .ad-er-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 40px;
+  }
+}
+@media (max-width: 760px) {
+  .ad-er-board,
+  .ad-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .ad-er-lines {
+    display: none; /* the Relationships table explains the links on phones */
+  }
+}
+
+/* Prices */
+.ad-prices {
+  display: grid;
+  gap: 14px;
+}
+.ad-prices .ad-card-wide {
+  margin-top: 0;
+}
+.ad-tabs-sm {
+  margin-bottom: 14px;
+}
+.ad-tabs-sm button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+.ad-range {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-range li {
+  display: grid;
+  grid-template-columns: minmax(150px, 22%) 1fr minmax(110px, auto) minmax(150px, 22%);
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-top: 1px solid var(--ad-line);
+  font-size: 13px;
+}
+.ad-range li:first-child {
+  border-top: 0;
+}
+.ad-range-name {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  font-weight: 600;
+}
+.ad-range-name,
+.ad-range-name small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-range-name small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ad-muted);
+}
+.ad-range-track {
+  position: relative;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--ad-grid);
+}
+.ad-range-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 4px;
+  background: var(--ad-series);
+}
+.ad-range-val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ad-range-val small {
+  color: var(--ad-muted);
+}
+.ad-range-note {
+  font-size: 12px;
+}
+.ad-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--ad-text-2);
+}
+.ad-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ad-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.ad-pt {
+  stroke: var(--ad-surface);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: r 0.15s ease;
+}
+@media (max-width: 760px) {
+  .ad-range li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name val" "track track" "note note";
+    gap: 6px 10px;
+  }
+  .ad-range-name { grid-area: name; }
+  .ad-range-val { grid-area: val; }
+  .ad-range-track { grid-area: track; }
+  .ad-range-note { grid-area: note; }
+}

@@ -20,6 +20,8 @@ import { API_BASE } from "../lib/apiConfig";
 import { formatPrice } from "../lib/currency";
 import { authHeaders, useAdminRole } from "../lib/adminAccess";
 import AdminDatabase from "./AdminDatabase";
+import AdminPrices from "./AdminPrices";
+import AdminStructure from "./AdminStructure";
 import "./AdminDashboard.css";
 
 const RANGES = [
@@ -352,7 +354,9 @@ export default function AdminDashboard() {
         <div className="ad-tabs" role="tablist" aria-label="Admin sections">
           {[
             ["overview", "Overview"],
-            ["database", "Database"],
+            ["prices", "Prices"],
+            ["database", "Tables"],
+            ["structure", "Structure"],
           ].map(([id, label]) => (
             <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
               {label}
@@ -361,8 +365,8 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {tab === "database" && role === "super" ? (
-        <AdminDatabase />
+      {tab !== "overview" && role === "super" ? (
+        tab === "prices" ? <AdminPrices /> : tab === "structure" ? <AdminStructure /> : <AdminDatabase />
       ) : (
       <>
       {error && status !== 200 && <p className="ad-error">{error}</p>}
