@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ArrowUpRight, Menu, Moon, Sun, X, Plane } from "lucide-react";
 import { useTheme } from "./themeprovider";
 import { clearSession } from "../lib/auth";
+import { useAdminRole } from "../lib/adminAccess";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +12,8 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state?.email || localStorage.getItem("userEmail");
+  // Only admins see the Admin link; re-checked as they move around (e.g. after sign-in).
+  const adminRole = useAdminRole(`${email || ""}|${location.pathname}`);
   useEffect(() => {
     setMenuOpen(false);
     if (location.state?.email)
@@ -39,6 +42,7 @@ export default function Header() {
         <NavLink to="/dashboard">My trips</NavLink>
         <NavLink to="/track">Track</NavLink>
         <NavLink to="/about">About</NavLink>
+        {adminRole && <NavLink to="/admin">Admin</NavLink>}
         <NavLink to="/contact">Help centre</NavLink>
         <div className="bf26-cur-mobile">
           <CurrencyPicker />

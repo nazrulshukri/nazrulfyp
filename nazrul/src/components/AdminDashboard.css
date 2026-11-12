@@ -431,3 +431,111 @@
     padding: 0 10px;
   }
 }
+
+/* Team access (super admins) */
+.ad-team-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.ad-team-form input {
+  flex: 1 1 260px;
+  height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--ad-line);
+  border-radius: 999px;
+  background: var(--ad-surface);
+  color: var(--ad-text);
+  font: 400 15px var(--bf26-font);
+}
+.ad-team-form input:focus {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 1px;
+}
+.ad-team-form .ad-btn {
+  gap: 8px;
+  margin-top: 0;
+  border: 0;
+  cursor: pointer;
+}
+.ad-team-form .ad-btn:disabled {
+  opacity: 0.6;
+}
+.ad-note {
+  margin-bottom: 12px !important;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ad-good) 12%, transparent);
+}
+.ad-team-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-team-list li {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr) auto 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--ad-line);
+  font-size: 14px;
+}
+.ad-team-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+.ad-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bf26-soft);
+}
+.ad-role.is-super {
+  background: var(--bf26-forest);
+  color: #fff;
+}
+.app.dark-mode .ad-role.is-super {
+  background: var(--bf26-lime);
+  color: #0f2c26;
+}
+.ad-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ad-line);
+  border-radius: 10px;
+  background: transparent !important;
+  color: var(--ad-muted);
+  cursor: pointer;
+}
+.ad-icon-btn:hover {
+  color: var(--ad-critical);
+  border-color: var(--ad-critical);
+}
+@media (max-width: 620px) {
+  .ad-team-list li {
+    grid-template-columns: 1fr 40px;
+  }
+  .ad-team-list li .ad-role,
+  .ad-team-list li small {
+    grid-column: 1;
+  }
+  .ad-team-list li .ad-team-email {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .ad-team-list li > :last-child {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+}
