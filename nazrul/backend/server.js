@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config();
 require('dotenv').config({ path: path.join(__dirname, '.env') });
@@ -443,6 +444,78 @@ const issueSession = (user) => ({
   user: publicUser(user),
 });
 
+// Sign in with a one-time code sent by email. Works with any provider
+// (Gmail, Yahoo, Outlook/Hotmail, iCloud…) and also lets accounts created by
+// a booking, which have no password, get in by proving they own the email.
+const NO_PASSWORD = ['FIREBASE', 'EXTERNAL_PAYMENT_USER', 'EMAIL_CODE'];
+const LoginCodeSchema = new mongoose.Schema({
+  email: { type: String, required: true, lowercase: true, index: true },
+  codeHash: { type: String, required: true },
+  attempts: { type: Number, default: 0 },
+  expiresAt: { type: Date, required: true },
+}, { timestamps: true });
+LoginCodeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // MongoDB deletes expired codes
+const LoginCode = mongoose.models.LoginCode || mongoose.model('LoginCode', LoginCodeSchema);
+const hashCode = (email, code) => crypto.createHash('sha256').update(`${email}:${code}:${JWT_SECRET}`).digest('hex');
+
+app.post('/auth/email-code', requireMongoConnection, async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
+  try {
+    const recent = await LoginCode.find({ email, createdAt: { $gt: new Date(Date.now() - 60 * 60 * 1000) } }).sort({ createdAt: -1 }).lean();
+    if (recent[0] && Date.now() - new Date(recent[0].createdAt).getTime() < 45 * 1000) {
+      return res.status(429).json({ message: 'We just sent a code. Please wait a moment before asking for another.' });
+    }
+    if (recent.length >= 5) return res.status(429).json({ message: 'Too many codes requested. Try again in an hour.' });
+
+    const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+    await LoginCode.create({ email, codeHash: hashCode(email, code), expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+    await transporter.sendMail({
+      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `${code} is your BookingFlex sign-in code`,
+      text: `Your BookingFlex sign-in code is ${code}. It expires in 10 minutes. If you didn't ask for it, you can ignore this email.`,
+      html: `<p>Your BookingFlex sign-in code is</p><p style="font-size:28px;font-weight:700;letter-spacing:6px">${code}</p><p>It expires in 10 minutes. If you didn't ask for it, you can ignore this email.</p>`,
+    });
+    res.json({ sent: true, message: `We sent a 6-digit code to ${email}.` });
+  } catch (err) {
+    console.error('Email code error:', err.message);
+    res.status(502).json({ message: "We couldn't send the code right now. Please try again." });
+  }
+});
+
+app.post('/auth/email-code/verify', requireMongoConnection, async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  const code = String(req.body.code || '').replace(/\D/g, '');
+  const name = String(req.body.name || '').trim().slice(0, 80);
+  if (!EMAIL_RE.test(email) || code.length !== 6) return res.status(400).json({ message: 'Enter the 6-digit code from the email.' });
+  try {
+    const entry = await LoginCode.findOne({ email, expiresAt: { $gt: new Date() } }).sort({ createdAt: -1 });
+    if (!entry) return res.status(400).json({ message: 'That code has expired. Ask for a new one.' });
+    if (entry.attempts >= 5) return res.status(429).json({ message: 'Too many wrong tries. Ask for a new code.' });
+    const expected = Buffer.from(entry.codeHash, 'hex');
+    const given = Buffer.from(hashCode(email, code), 'hex');
+    if (!crypto.timingSafeEqual(expected, given)) {
+      entry.attempts += 1;
+      await entry.save();
+      return res.status(400).json({ message: "That code isn't right. Check the email and try again." });
+    }
+    await LoginCode.deleteMany({ email });
+    let user = await findUserByEmail(email);
+    if (!user) {
+      user = await User.create({ email, name, password: 'EMAIL_CODE' });
+      await createUserFolder(user._id);
+    } else if (name && !user.name) {
+      user.name = name;
+      await user.save();
+    }
+    res.json({ message: 'Signed in.', ...issueSession(user) });
+  } catch (err) {
+    console.error('Email code verify error:', err.message);
+    res.status(500).json({ message: 'Could not sign you in. Please try again.' });
+  }
+});
+
 app.post('/signup', requireMongoConnection, async (req, res) => {
   const email = normalizeEmail(req.body.email);
   const password = String(req.body.password || '');
@@ -450,8 +523,14 @@ app.post('/signup', requireMongoConnection, async (req, res) => {
   if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
   if (password.length < 8) return res.status(400).json({ message: 'Password must be at least 8 characters.' });
   try {
-    if (await findUserByEmail(email)) {
-      return res.status(409).json({ message: 'An account with this email already exists. Try signing in.' });
+    const existing = await findUserByEmail(email);
+    if (existing) {
+      const placeholder = NO_PASSWORD.includes(existing.password) && existing.password !== 'FIREBASE';
+      return res.status(409).json({
+        message: placeholder
+          ? 'This email already has a BookingFlex account without a password. Use "Email me a sign-in code" to get in.'
+          : 'An account with this email already exists. Try signing in.',
+      });
     }
     const user = await User.create({ name, email, password: await bcrypt.hash(password, 10) });
     await createUserFolder(user._id);
@@ -468,9 +547,15 @@ app.post('/signin', requireMongoConnection, async (req, res) => {
   if (!email || !password) return res.status(400).json({ message: 'Enter your email and password.' });
   try {
     const user = await findUserByEmail(email);
-    const valid = user && user.password !== 'FIREBASE' && (await bcrypt.compare(password, user.password));
+    const noPassword = user && NO_PASSWORD.includes(user.password);
+    const valid = user && !noPassword && (await bcrypt.compare(password, user.password));
     if (!valid) {
-      const hint = user && user.password === 'FIREBASE' ? ' This account uses Google sign-in.' : '';
+      const hint =
+        user && user.password === 'FIREBASE'
+          ? ' This account uses Google sign-in.'
+          : noPassword
+            ? ' This account has no password yet: use "Email me a sign-in code" instead.'
+            : '';
       return res.status(401).json({ message: `Incorrect email or password.${hint}` });
     }
     res.json({ message: 'Signed in.', ...issueSession(user) });

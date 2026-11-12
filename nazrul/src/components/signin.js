@@ -5,7 +5,7 @@ import axios from "axios";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 import { saveSession, EMAIL_RE, errorMessage } from "../lib/auth";
-import { AuthLayout, AuthField, GoogleButton } from "./AuthKit";
+import { AuthLayout, AuthField, GoogleButton, EmailCodeSignIn } from "./AuthKit";
 import plane from "../img/assets/4k-plane-beautiful-sunset-shawraxhzg2ibf4f.jpg";
 
 const SignIn = () => {
@@ -96,6 +96,7 @@ const SignIn = () => {
           {!loading && <ArrowRight size={17} />}
         </button>
       </form>
+      <EmailCodeSignIn initialEmail={email.trim()} redirectTo={redirectTo} />
     </AuthLayout>
   );
 };

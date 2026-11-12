@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { t } from "../lib/i18n";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Eye, EyeOff, Plane, Check, Ticket, BedDouble, TrainFront } from "lucide-react";
-import { signInWithPopup } from "firebase/auth";
+import { Eye, EyeOff, Plane, Check, Ticket, BedDouble, TrainFront, Mail, User, Loader2 } from "lucide-react";
+import { OAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { API_BASE } from "../lib/apiConfig";
-import { saveSession, passwordStrength, errorMessage } from "../lib/auth";
+import { saveSession, passwordStrength, errorMessage, EMAIL_RE } from "../lib/auth";
 
 export function AuthLayout({ image, kicker, title, text, children }) {
   return (
@@ -109,35 +109,178 @@ function GoogleMark() {
   );
 }
 
-/** "Continue with Google". Hidden when Firebase isn't configured for this build. */
+// Extra Firebase sign-in providers, switched on per build with
+// REACT_APP_AUTH_PROVIDERS="microsoft,yahoo,apple" once each is enabled in
+// the Firebase console (Authentication → Sign-in method).
+const EXTRA_PROVIDERS = {
+  microsoft: { id: "microsoft.com", label: "Continue with Microsoft", hint: "Outlook, Hotmail, Live", mark: "🟦" },
+  yahoo: { id: "yahoo.com", label: "Continue with Yahoo", hint: "Yahoo Mail", mark: "🟪" },
+  apple: { id: "apple.com", label: "Continue with Apple", hint: "iCloud, Apple ID", mark: "" },
+};
+const enabledExtras = () =>
+  String(process.env.REACT_APP_AUTH_PROVIDERS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter((k) => EXTRA_PROVIDERS[k]);
+
+/**
+ * "Continue with Google" plus any extra providers. Hidden when Firebase
+ * isn't configured for this build.
+ */
 export function GoogleButton({ onError, redirectTo }) {
   const navigate = useNavigate();
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(null);
   if (!auth) return null;
-  async function go() {
+  async function go(key) {
     onError("");
-    setBusy(true);
+    setBusy(key);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      let provider = googleProvider;
+      if (key !== "google") {
+        provider = new OAuthProvider(EXTRA_PROVIDERS[key].id);
+        provider.addScope("email");
+        if (key === "apple") provider.addScope("name");
+      }
+      const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
       const { data } = await axios.post(`${API_BASE}/auth/firebase`, { idToken });
       saveSession(data);
       navigate(redirectTo, { replace: true });
     } catch (err) {
       if (err?.code === "auth/popup-closed-by-user" || err?.code === "auth/cancelled-popup-request") return;
-      onError(errorMessage(err, "Google sign-in didn't work. Please try again."));
+      const name = key === "google" ? "Google" : EXTRA_PROVIDERS[key].label.replace("Continue with ", "");
+      const why =
+        err?.code === "auth/operation-not-allowed"
+          ? ` ${name} sign-in isn't switched on in Firebase yet.`
+          : err?.code === "auth/unauthorized-domain"
+            ? " This website isn't on Firebase's authorised domains list yet."
+            : err?.code === "auth/account-exists-with-different-credential"
+              ? " This email already uses another sign-in method. Try Google or a sign-in code."
+              : "";
+      onError(why ? `${name} sign-in didn't work.${why}` : errorMessage(err, `${name} sign-in didn't work. Please try again.`));
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
   return (
     <>
-      <button type="button" className="bf26-auth-google" onClick={go} disabled={busy}>
-        <GoogleMark /> {busy ? "Connecting…" : "Continue with Google"}
-      </button>
+      <div className="bf26-auth-providers">
+        <button type="button" className="bf26-auth-google" onClick={() => go("google")} disabled={Boolean(busy)}>
+          <GoogleMark /> {busy === "google" ? "Connecting…" : "Continue with Google"}
+        </button>
+        {enabledExtras().map((key) => (
+          <button key={key} type="button" className={`bf26-auth-google is-${key}`} onClick={() => go(key)} disabled={Boolean(busy)} title={EXTRA_PROVIDERS[key].hint}>
+            {key === "apple" ? <span className="bf26-apple" aria-hidden="true"></span> : <span aria-hidden="true">{EXTRA_PROVIDERS[key].mark}</span>}{" "}
+            {busy === key ? "Connecting…" : EXTRA_PROVIDERS[key].label}
+          </button>
+        ))}
+      </div>
       <div className="bf26-auth-or">
         <span>{t("or with email")}</span>
       </div>
     </>
+  );
+}
+
+/**
+ * Sign in with a 6-digit code sent to any email address (Gmail, Yahoo,
+ * Outlook, Hotmail, iCloud…). New emails get an account automatically.
+ */
+export function EmailCodeSignIn({ initialEmail = "", redirectTo, askName = false }) {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState(initialEmail);
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [step, setStep] = useState("email");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  async function send(e) {
+    if (e) e.preventDefault();
+    if (!EMAIL_RE.test(email.trim())) return setMsg({ error: true, text: "Enter a valid email address." });
+    setBusy(true);
+    setMsg(null);
+    try {
+      const { data } = await axios.post(`${API_BASE}/auth/email-code`, { email: email.trim() });
+      setStep("code");
+      setMsg({ text: `${data.message} Check your inbox (and spam folder).` });
+    } catch (err) {
+      setMsg({ error: true, text: errorMessage(err, "We couldn't send the code. Please try again.") });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function verify(e) {
+    e.preventDefault();
+    setBusy(true);
+    setMsg(null);
+    try {
+      const { data } = await axios.post(`${API_BASE}/auth/email-code/verify`, { email: email.trim(), code, name: name.trim() });
+      saveSession(data);
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      setMsg({ error: true, text: errorMessage(err, "That code didn't work. Please try again.") });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button type="button" className="bf26-auth-codebtn" onClick={() => setOpen(true)}>
+        <Mail size={16} /> Email me a sign-in code instead
+        <small>Works with Gmail, Yahoo, Outlook, Hotmail, iCloud and any other email</small>
+      </button>
+    );
+  }
+
+  return (
+    <div className="bf26-auth-code">
+      {step === "email" ? (
+        <form onSubmit={send} noValidate>
+          <AuthField id="code-email" label="Email" icon={Mail} type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          {askName && (
+            <AuthField id="code-name" label="Your name (optional)" icon={User} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
+          )}
+          <button type="submit" className="bf26-primary bf26-cta" disabled={busy}>
+            {busy ? <Loader2 size={17} className="bf26-spin" /> : <Mail size={17} />} Send my code
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={verify} noValidate>
+          <label className="bf26-auth-otp">
+            <span>6-digit code sent to {email.trim()}</span>
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]*"
+              maxLength={6}
+              placeholder="••••••"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              autoFocus
+            />
+          </label>
+          <button type="submit" className="bf26-primary bf26-cta" disabled={busy || code.length !== 6}>
+            {busy ? <Loader2 size={17} className="bf26-spin" /> : null} Sign in
+          </button>
+          <div className="bf26-auth-row">
+            <button type="button" className="bf26-auth-linkbtn" onClick={() => send()} disabled={busy}>
+              Send a new code
+            </button>
+            <button type="button" className="bf26-auth-linkbtn" onClick={() => { setStep("email"); setCode(""); setMsg(null); }}>
+              Use a different email
+            </button>
+          </div>
+        </form>
+      )}
+      {msg && (
+        <p className={msg.error ? "bf26-auth-alert" : "bf26-auth-note"} role={msg.error ? "alert" : "status"}>
+          {msg.text}
+        </p>
+      )}
+    </div>
   );
 }
