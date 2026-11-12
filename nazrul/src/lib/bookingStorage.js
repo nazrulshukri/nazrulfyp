@@ -1,4 +1,5 @@
 import { formatPrice } from "./currency";
+import { recordOrder } from "./orders";
 const BOOKINGS_KEY = "bookingflexBookings:v1";
 const PROFILE_KEY = "bookingflexProfile:v1";
 
@@ -33,6 +34,8 @@ export const saveBookingForUser = (email, booking) => {
   const updated = [nextBooking, ...withoutDuplicate];
   allBookings[email] = updated;
   localStorage.setItem(BOOKINGS_KEY, JSON.stringify(allBookings));
+  // Also keep it on the server for My trips on other devices and the admin dashboard.
+  recordOrder(email, nextBooking);
   return updated;
 };
 
