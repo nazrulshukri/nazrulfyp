@@ -43,6 +43,16 @@ app.use(cors());
 // Last line of defence: log a stray async error instead of letting it stop
 // the whole server (which would break sign-in for everyone).
 process.on('unhandledRejection', (error) => console.error('Unhandled error:', error));
+// Every route waits for the database first (Vercel cold starts can receive a
+// request before the connection is ready).
+app.use(async (req, res, next) => {
+  try {
+    await ensureDb();
+  } catch {
+    /* routes report the database state themselves */
+  }
+  next();
+});
 app.use('/social', express.json({ limit: '1mb' }), socialPublicRouter, socialRouter);
 app.use(express.json());
 
@@ -105,21 +115,30 @@ const MONGODB_URI = process.env.MONGODB_URI
   || process.env.MONGO_URL
   || process.env.DATABASE_URL;
 
-const mongoConnecting = MONGODB_URI
-  ? mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error(`MongoDB connection failed: ${err.message}`))
-  : Promise.resolve();
-if (!MONGODB_URI) console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
-
-// On serverless hosts (Vercel) a cold start can receive a request before the
-// database connects, so give the connection a few seconds to finish first.
-app.use(async (req, res, next) => {
-  if (MONGODB_URI && mongoose.connection.readyState !== 1) {
-    await Promise.race([mongoConnecting, new Promise((r) => setTimeout(r, 5000))]);
+// One shared connection attempt at a time; if it fails or the connection
+// drops, the next request tries again (instead of staying broken until the
+// server restarts). Atlas free clusters can take a few seconds to answer.
+let mongoPending = null;
+function ensureDb(timeoutMs = 8000) {
+  if (!MONGODB_URI) return Promise.resolve(false);
+  const state = mongoose.connection.readyState; // 0 off, 1 on, 2 connecting, 3 closing
+  if (state === 1) return Promise.resolve(true);
+  if (!mongoPending) {
+    mongoPending = (state === 2
+      ? mongoose.connection.asPromise()
+      : mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: timeoutMs, maxPoolSize: 10 }))
+      .then(() => console.log('Connected to MongoDB'))
+      .catch((err) => console.error(`MongoDB connection failed: ${err.message}`))
+      .finally(() => {
+        mongoPending = null;
+      });
   }
-  next();
-});
+  return Promise.race([mongoPending, new Promise((r) => setTimeout(r, timeoutMs))]).then(
+    () => mongoose.connection.readyState === 1,
+  );
+}
+ensureDb();
+if (!MONGODB_URI) console.warn('MongoDB not configured. Add MONGODB_URI to backend/.env.');
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
