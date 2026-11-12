@@ -585,9 +585,9 @@ app.post('/signin', requireMongoConnection, async (req, res) => {
     if (!valid) {
       const hint =
         user && user.password === 'FIREBASE'
-          ? ' This account uses Google sign-in.'
+          ? ' This account was made with Google: use "Continue with Google", or "Forgot password?" to add a password.'
           : noPassword
-            ? ' This account has no password yet: use "Email me a sign-in code" instead.'
+            ? ' This account has no password yet: use "Email me a sign-in code", or "Forgot password?" to add one.'
             : '';
       return res.status(401).json({ message: `Incorrect email or password.${hint}` });
     }
@@ -1020,7 +1020,10 @@ app.post(['/forgotpassword', '/forgot-password'], requireMongoConnection, async 
   if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
   try {
     const user = await findUserByEmail(email);
-    if (!user || user.password === 'FIREBASE') return res.json(reply);
+    // Accounts made with Google, by a booking or by a sign-in code have no
+    // password yet; the reset email lets them add one (they still prove they
+    // own the email by opening the link).
+    if (!user) return res.json(reply);
 
     const resetToken = jwt.sign({ userId: user._id, purpose: 'reset' }, JWT_SECRET, { expiresIn: '1h' });
     user.resetToken = resetToken;

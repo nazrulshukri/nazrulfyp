@@ -314,7 +314,8 @@ export default function AdminDashboard() {
           <p>{error}</p>
           {status === 403 && email && (
             <p className="ad-muted">
-              You're signed in as <b>{email}</b>. Add it to <code>ADMIN_EMAILS</code> on the server to get access.
+              You're signed in as <b>{email}</b>. To make it the owner account, add it to <code>SUPER_ADMIN_EMAILS</code> in the server
+              settings (Vercel → Settings → Environment Variables) and redeploy. A super admin can also add you from Admin → Team access.
             </p>
           )}
           {status === 401 && (
