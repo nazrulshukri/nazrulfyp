@@ -35,11 +35,15 @@ function readUser(req) {
   }
 }
 
+// Tolerates values pasted with quotes, brackets, "mailto:" or a leading
+// "SUPER_ADMIN_EMAILS=" (easy to do in the Vercel settings box).
 const listFrom = (value) =>
   (value || "")
-    .split(/[,\s]+/)
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+    .replace(/["'`]/g, "")
+    .replace(/^\s*[A-Z_]+\s*=/i, "")
+    .split(/[,;\s]+/)
+    .map((e) => e.replace(/^mailto:/i, "").replace(/["'`<>[\]()]/g, "").trim().toLowerCase())
+    .filter((e) => e.includes("@"));
 const superAdminEmails = () => listFrom(process.env.SUPER_ADMIN_EMAILS);
 const configuredAdminEmails = () => listFrom(process.env.ADMIN_EMAILS);
 
@@ -68,8 +72,14 @@ const requireRole = (needed) => async (req, res, next) => {
   try {
     const role = await roleFor(user.email);
     if (!role || (needed === "super" && role !== "super")) {
+      // Say which setting is missing (never the values) so a wrong or
+      // not-yet-deployed SUPER_ADMIN_EMAILS is easy to spot.
+      const hint = !superAdminEmails().length
+        ? "SUPER_ADMIN_EMAILS isn't set on this deployment. Add it in Vercel, then redeploy."
+        : `${user.email} isn't in SUPER_ADMIN_EMAILS or ADMIN_EMAILS on this deployment.`;
       return res.status(403).json({
         message: needed === "super" ? "Only a super admin can manage admins." : "This account isn't an admin.",
+        hint,
       });
     }
     req.user = { ...user, role };
