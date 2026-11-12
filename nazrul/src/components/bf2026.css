@@ -7722,3 +7722,13 @@ select:-webkit-autofill {
   background: color-mix(in srgb, var(--bf26-lime) 35%, transparent);
   font-size: 13px;
 }
+
+/* Page background matches the theme (seen when scrolling past the edges). */
+html[data-theme="light"],
+html[data-theme="light"] body {
+  background: #f5f7f3;
+}
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background: #0f1714;
+}

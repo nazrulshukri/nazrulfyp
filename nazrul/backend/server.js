@@ -63,20 +63,30 @@ const loadImageAsBytes = async (imageUrl) => {
   return await response.arrayBuffer();
 };
 
+// Email. EMAIL_USER / EMAIL_PASS log in to the mail account that sends.
+// EMAIL_HOST / EMAIL_PORT pick any SMTP provider (Gmail, Outlook, Zoho,
+// Brevo, your own domain…); without them Gmail is used.
+// EMAIL_FROM sets what travellers see, e.g. "BookingFlex <tickets@yourdomain.com>",
+// and EMAIL_REPLY_TO where their replies go.
 // Set EMAIL_DRY_RUN=true to build emails without sending them (useful for testing).
+const smtpPort = Number(process.env.EMAIL_PORT) || 587;
 const transporter = process.env.EMAIL_DRY_RUN === 'true'
   ? nodemailer.createTransport({ jsonTransport: true })
-  : nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  : nodemailer.createTransport(
+    process.env.EMAIL_HOST
+      ? {
+        host: process.env.EMAIL_HOST,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      }
+      : { service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } },
+  );
+const MAIL_FROM = process.env.EMAIL_FROM || `BookingFlex <${process.env.EMAIL_USER}>`;
+const MAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || undefined;
 
 // Lets other routers (e.g. friend invites in social.js) send email.
-app.locals.sendMail = (options) =>
-  transporter.sendMail({ from: `BookingFlex <${process.env.EMAIL_USER}>`, ...options });
+app.locals.sendMail = (options) => transporter.sendMail({ from: MAIL_FROM, replyTo: MAIL_REPLY_TO, ...options });
 
 // Debugging
 transporter.verify((error, success) => {
@@ -471,7 +481,8 @@ app.post('/auth/email-code', requireMongoConnection, async (req, res) => {
     const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
     await LoginCode.create({ email, codeHash: hashCode(email, code), expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
     await transporter.sendMail({
-      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: email,
       subject: `${code} is your BookingFlex sign-in code`,
       text: `Your BookingFlex sign-in code is ${code}. It expires in 10 minutes. If you didn't ask for it, you can ignore this email.`,
@@ -621,7 +632,8 @@ app.post('/submit-payment', async (req, res) => {
     // Boarding-pass style email with the PDF e-ticket attached.
     const mail = await buildTicketEmail('flight', req.body);
     await transporter.sendMail({
-      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: email,
       subject: mail.subject,
       html: mail.html,
@@ -653,7 +665,8 @@ app.post('/send-ticket', async (req, res) => {
   try {
     const mail = await buildTicketEmail(kind, booking);
     await transporter.sendMail({
-      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: email,
       subject: mail.subject,
       html: mail.html,
@@ -994,7 +1007,8 @@ app.post(['/forgotpassword', '/forgot-password'], requireMongoConnection, async 
 
     const resetLink = `${appUrl()}/reset-password/${resetToken}`;
     await transporter.sendMail({
-      from: `BookingFlex <${process.env.EMAIL_USER}>`,
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: user.email,
       subject: 'Reset your BookingFlex password',
       text: `Hi${user.name ? ` ${user.name}` : ''},\n\nUse this link to choose a new password (valid for 1 hour):\n${resetLink}\n\nIf you didn't ask for this, you can ignore this email.`,
@@ -1044,7 +1058,8 @@ app.post('/send-flight-ticket', async (req, res) => {
 
     // Create email content with flight ticket details
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: MAIL_FROM,
+      replyTo: MAIL_REPLY_TO,
       to: email,
       subject: 'Your Flight Ticket',
       text: `Thank you for booking with us! Here are your flight ticket details:

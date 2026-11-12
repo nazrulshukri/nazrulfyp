@@ -1,99 +1,109 @@
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-in-out;
+/* Glass dialog (modal.js). Uses the BookingFlex 2026 theme tokens, so it
+   follows the light/dark switch. */
+.bf26-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(8, 24, 21, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: bf26-dialog-fade 0.18s ease-out;
+}
+.bf26-dialog {
+  --tone: #d97706;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(440px, 100%);
+  padding: 30px 28px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--bf26-ink, #133634);
+  text-align: center;
+  box-shadow: 0 30px 80px -24px rgba(6, 28, 24, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  font-family: var(--bf26-font, Inter, sans-serif);
+  animation: bf26-dialog-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.app.dark-mode .bf26-dialog {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(22, 34, 31, 0.72);
+  color: #eef4ef;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.app.dark-mode .bf26-dialog-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.bf26-dialog.is-error {
+  --tone: #dc2626;
+}
+.bf26-dialog.is-success {
+  --tone: #16a34a;
+}
+.bf26-dialog.is-info {
+  --tone: #2563eb;
+}
+.bf26-dialog-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+  color: var(--tone);
+}
+.bf26-dialog h2 {
+  margin: 4px 0 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+.bf26-dialog p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: inherit;
+  opacity: 0.82;
+}
+.bf26-dialog-btn {
+  min-width: 140px;
+  height: 46px;
+  margin-top: 10px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bf26-forest, #1d4a3f) !important;
+  color: #fff;
+  font: 600 15px var(--bf26-font, Inter, sans-serif);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.app.dark-mode .bf26-dialog-btn {
+  background: var(--bf26-lime, #d9ef7d) !important;
+  color: #0f2c26;
+}
+.bf26-dialog-btn:hover {
+  transform: translateY(-1px);
+}
+.bf26-dialog-btn:focus-visible {
+  outline: 3px solid var(--bf26-lime, #d9ef7d);
+  outline-offset: 3px;
+}
+@keyframes bf26-dialog-fade {
+  from { opacity: 0; }
+}
+@keyframes bf26-dialog-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bf26-dialog,
+  .bf26-dialog-overlay {
+    animation: none;
   }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  .modal-content1 {
-    background: #ffffff;
-    width: 90%;
-    max-width: 420px;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-    position: relative;
-    text-align: center;
-    animation: slideDown 0.4s ease;
-  }
-  
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .modal-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .modal-icon {
-    color: #FF6B6B;
-    font-size: 2em;
-  }
-  
-  .modal-header h2 {
-    margin: 0;
-    font-size: 1.5em;
-    color: #333;
-  }
-  
-  .modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 1.5em;
-    color: #999;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-  
-  .modal-close:hover {
-    color: #FF6B6B;
-  }
-  
-  .modal-body {
-    padding: 20px 0;
-    font-size: 1.1em;
-    color: #555;
-  }
-  
-  .modal-footer {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .modal-button {
-    background: #FF6B6B;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .modal-button:hover {
-    background: #FF5A5A;
-  }
-  
+}
