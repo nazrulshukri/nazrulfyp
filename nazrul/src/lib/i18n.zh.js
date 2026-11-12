@@ -1,6 +1,7 @@
 // 简体中文. Keys are the English text shown on the site.
 const zh = {
   // Header, footer, menus
+  "News & deals": "新闻与优惠",
   Explore: "探索",
   "My trips": "我的行程",
   Track: "追踪",

@@ -31,6 +31,7 @@ const { ordersRouter, adminRouter } = require('./orders');
 const adminDbRouter = require('./admindb');
 const { socialRouter, socialPublicRouter } = require('./social');
 const { messagingRouter } = require('./messaging');
+const { newsRouter } = require('./news');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -67,6 +68,8 @@ app.use('/rates', ratesRouter);
 app.use('/orders', ordersRouter);
 // Chat and voice/video call signalling between friends (see messaging.js).
 app.use('/messages', messagingRouter);
+// News, vouchers and live travel headlines (see news.js).
+app.use('/news', newsRouter);
 app.use('/admin/db', adminDbRouter);
 app.use('/admin', adminRouter);
 

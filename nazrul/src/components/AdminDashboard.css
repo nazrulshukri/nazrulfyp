@@ -1221,3 +1221,117 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* News manager (AdminNews.js) */
+.ad-news {
+  display: grid;
+  gap: 14px;
+}
+.ad-news .ad-card-wide {
+  margin-top: 0;
+}
+.ad-news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.ad-news-grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ad-text-2);
+}
+.ad-news-grid input,
+.ad-news-grid select,
+.ad-news-grid textarea {
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--ad-line);
+  border-radius: 12px;
+  background: var(--ad-surface);
+  color: var(--ad-text);
+  font: 400 14px var(--bf26-font);
+}
+.ad-news-grid input:focus,
+.ad-news-grid select:focus,
+.ad-news-grid textarea:focus {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 1px;
+}
+.ad-span-2 {
+  grid-column: span 2;
+}
+.ad-span-3 {
+  grid-column: span 3;
+}
+.ad-news-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.ad-news-spacer {
+  flex: 1;
+}
+.ad-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.ad-btn-ghost {
+  border: 1px solid var(--ad-line) !important;
+  background: var(--ad-surface) !important;
+  color: var(--ad-text) !important;
+}
+.ad-news-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-news-list li {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr) repeat(3, 38px);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--ad-line);
+}
+.ad-news-kind {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bf26-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ad-news-kind.is-voucher {
+  background: color-mix(in srgb, var(--bf26-lime) 55%, transparent);
+}
+.ad-news-title {
+  display: grid;
+  min-width: 0;
+}
+.ad-news-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .ad-news-grid {
+    grid-template-columns: 1fr;
+  }
+  .ad-span-2,
+  .ad-span-3 {
+    grid-column: auto;
+  }
+  .ad-news-list li {
+    grid-template-columns: minmax(0, 1fr) repeat(3, 38px);
+  }
+  .ad-news-kind {
+    grid-column: 1 / -1;
+  }
+}
