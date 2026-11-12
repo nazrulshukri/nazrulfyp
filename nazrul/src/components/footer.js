@@ -1,4 +1,5 @@
 import React from "react";
+import { currentLanguage, t } from "../lib/i18n";
 import { getCurrency } from "../lib/currency";
 import { Link } from "react-router-dom";
 import { Plane, ArrowUpRight } from "lucide-react";
@@ -15,38 +16,40 @@ export default function Footer() {
             <i />
           </Link>
           <p>
-            A world of possibilities.
-            <br />A simpler way to get there.
+            {t("A world of possibilities.")}
+            <br />{t("A simpler way to get there.")}
           </p>
         </div>
         <div>
-          <h3>Discover</h3>
-          <Link to="/">Explore destinations</Link>
-          <Link to="/about">About BookingFlex</Link>
-          <Link to="/flightstatus">Flight status</Link>
+          <h3>{t("Discover")}</h3>
+          <Link to="/">{t("Explore destinations")}</Link>
+          <Link to="/about">{t("About BookingFlex")}</Link>
+          <Link to="/flightstatus">{t("Flight status")}</Link>
         </div>
         <div>
-          <h3>Your journey</h3>
-          <Link to="/dashboard">My trips</Link>
-          <Link to="/services">Check-in</Link>
+          <h3>{t("Your journey")}</h3>
+          <Link to="/dashboard">{t("My trips")}</Link>
+          <Link to="/services">{t("Check-in")}</Link>
           <Link to="/contact">
-            Contact & support <ArrowUpRight size={13} />
+            {t("Contact & support")} <ArrowUpRight size={13} />
           </Link>
         </div>
         <div className="bf-footer-message">
-          <span>WHEREVER YOU GO,</span>
+          <span>{t("WHEREVER YOU GO,")}</span>
           <strong>
-            make it
+            {t("make it")}
             <br />
-            memorable.
+            {t("memorable.")}
           </strong>
         </div>
       </div>
       <div className="bf-footer-bottom">
         <span>
-          © {new Date().getFullYear()} BookingFlex. All rights reserved.
+          {t("© {year} BookingFlex. All rights reserved.", { year: new Date().getFullYear() })}
         </span>
-        <span>Made for the way you travel. &nbsp; EN · {getCurrency().code}</span>
+        <span>
+          {t("Made for the way you travel.")} &nbsp; {currentLanguage().short} · {getCurrency().code}
+        </span>
       </div>
     </footer>
   );

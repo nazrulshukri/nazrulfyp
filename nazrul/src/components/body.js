@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { t } from "../lib/i18n";
 import { formatPrice } from "../lib/currency";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
@@ -276,8 +277,8 @@ export default function MainContent() {
       id: d.name,
       title: d.name,
       tag: d.tag,
-      caption: `${d.blurb} Flights from ${formatPrice(d.from, { whole: true })}.`,
-      cta: `Fly to ${d.name}`,
+      caption: `${t(d.blurb)} ${t("Flights from {price}", { price: formatPrice(d.from, { whole: true }) })}.`,
+      cta: t("Fly to {name}", { name: d.name }),
       image: d.image,
       video: d.video.preview,
       onSelect: () => choose(d),
@@ -285,18 +286,18 @@ export default function MainContent() {
     {
       id: "vacation",
       title: "Vacations",
-      tag: modeSlide("vacation").eyebrow,
-      caption: "Flight and hotel in one search, from the Greek islands to Bali.",
-      cta: "Build a trip",
+      tag: t(modeSlide("vacation").eyebrow),
+      caption: t("Flight and hotel in one search, from the Greek islands to Bali."),
+      cta: t("Build a trip"),
       image: modeSlide("vacation").image,
       onSelect: () => { pick("vacation"); scrollToSearch(); },
     },
     {
       id: "train",
       title: "Trains",
-      tag: modeSlide("train").eyebrow,
-      caption: "ETS to Penang and Ipoh, KLIA Ekspres to the airport in 28 minutes.",
-      cta: "Find a train",
+      tag: t(modeSlide("train").eyebrow),
+      caption: t("ETS to Penang and Ipoh, KLIA Ekspres to the airport in 28 minutes."),
+      cta: t("Find a train"),
       image: modeSlide("train").image,
       fallback: modeSlide("train").fallback,
       onSelect: () => { pick("train"); scrollToSearch(); },
@@ -304,9 +305,9 @@ export default function MainContent() {
     {
       id: "hotel",
       title: "Hotels",
-      tag: modeSlide("hotel").eyebrow,
-      caption: "Resorts, city suites and hideaways, many with free cancellation.",
-      cta: "Find a stay",
+      tag: t(modeSlide("hotel").eyebrow),
+      caption: t("Resorts, city suites and hideaways, many with free cancellation."),
+      cta: t("Find a stay"),
       image: modeSlide("hotel").image,
       fallback: modeSlide("hotel").fallback,
       onSelect: () => { pick("hotel"); scrollToSearch(); },
@@ -317,13 +318,13 @@ export default function MainContent() {
 
   return (
     <div className="bf-home">
-      <section className="bf26-hero" aria-label="Choose how you travel">
+      <section className="bf26-hero" aria-label={t("Choose how you travel")}>
         {heroSlides.map((s) => (
           <HeroImage key={s.mode} slide={s} active={s.mode === mode} />
         ))}
         <div className="bf26-hero-shade" />
 
-        <div className="bf26-hero-switch" role="tablist" aria-label="Travel type">
+        <div className="bf26-hero-switch" role="tablist" aria-label={t("Travel type")}>
           {heroSlides.map((s) => {
             const TabIcon = s.icon;
             return (
@@ -335,7 +336,7 @@ export default function MainContent() {
                 onClick={() => pick(s.mode)}
               >
                 <TabIcon size={17} />
-                <span>{s.label}</span>
+                <span>{t(s.label)}</span>
               </button>
             );
           })}
@@ -343,27 +344,27 @@ export default function MainContent() {
 
         <div className="bf26-hero-copy" key={mode}>
           <span className="bf-eyebrow">
-            <span /> {slide.eyebrow}
+            <span /> {t(slide.eyebrow)}
           </span>
           <h1>
-            {slide.title[0]}
+            {t(slide.title[0])}
             <br />
-            <em>{slide.title[1]}</em>
+            <em>{t(slide.title[1])}</em>
           </h1>
-          <p>{slide.copy}</p>
+          <p>{t(slide.copy)}</p>
           <a className="bf-hero-link" href="#destinations">
-            Find your inspiration <ArrowUpRight size={19} />
+            {t("Find your inspiration")} <ArrowUpRight size={19} />
           </a>
         </div>
 
         <div className="bf26-hero-note" key={`note-${mode}`}>
           <span>
-            <MapPin size={15} /> {slide.noteLabel}
+            <MapPin size={15} /> {t(slide.noteLabel)}
           </span>
           <strong>
-            <Icon size={20} /> {slide.note}
+            <Icon size={20} /> {t(slide.note)}
           </strong>
-          <small>{slide.detail}</small>
+          <small>{t(slide.detail)}</small>
         </div>
 
         <div className="bf26-hero-progress" aria-hidden="true">
@@ -395,22 +396,22 @@ export default function MainContent() {
           <div>
             <Compass />
             <span>
-              <strong>Your trip, all together</strong>
-              <small>Flights, stays, holidays and rail in one place</small>
+              <strong>{t("Your trip, all together")}</strong>
+              <small>{t("Flights, stays, holidays and rail in one place")}</small>
             </span>
           </div>
           <div>
             <SlidersHorizontal />
             <span>
-              <strong>Find what fits you</strong>
-              <small>Compare options at your own pace</small>
+              <strong>{t("Find what fits you")}</strong>
+              <small>{t("Compare options at your own pace")}</small>
             </span>
           </div>
           <div>
             <Route />
             <span>
-              <strong>From take-off to check-in</strong>
-              <small>A simpler way to plan your journey</small>
+              <strong>{t("From take-off to check-in")}</strong>
+              <small>{t("A simpler way to plan your journey")}</small>
             </span>
           </div>
         </div>
@@ -418,18 +419,18 @@ export default function MainContent() {
         <section className="bf-destinations" id="destinations">
           <div className="bf-section-heading">
             <div>
-              <span className="bf-kicker">FOLLOW YOUR CURIOSITY</span>
-              <h2>Where will you go next?</h2>
+              <span className="bf-kicker">{t("FOLLOW YOUR CURIOSITY")}</span>
+              <h2>{t("Where will you go next?")}</h2>
               <p>
                 Big city energy or a little peace and quiet. Make it your kind
                 of trip.
               </p>
             </div>
             <a href="#trip-search">
-              Build your trip <ArrowUpRight size={17} />
+              {t("Build your trip")} <ArrowUpRight size={17} />
             </a>
           </div>
-          <div className="bf-region-tabs" aria-label="Filter destinations">
+          <div className="bf-region-tabs" aria-label={t("Filter destinations")}>
             {["All destinations", "Asia", "Europe", "Malaysia", "Middle East", "Oceania", "Americas"].map((item) => (
               <button
                 key={item}
@@ -437,7 +438,7 @@ export default function MainContent() {
                 className={region === item ? "active" : ""}
                 onClick={() => setRegion(item)}
               >
-                {item}
+                {t(item)}
               </button>
             ))}
           </div>
@@ -451,7 +452,7 @@ export default function MainContent() {
                   onMouseLeave={(e) => playCard(e.currentTarget, false)}
                   onFocus={(e) => playCard(e.currentTarget, true)}
                   onBlur={(e) => playCard(e.currentTarget, false)}
-                  aria-label={`Preview ${d.name}`}
+                  aria-label={t("Preview {name}", { name: d.name })}
                 >
                   <div className="bf-destination-image">
                     <img
@@ -472,11 +473,11 @@ export default function MainContent() {
                           aria-hidden="true"
                         />
                         <b className="bf26-play-hint" aria-hidden="true">
-                          <Play size={12} fill="currentColor" /> Preview
+                          <Play size={12} fill="currentColor" /> {t("Preview")}
                         </b>
                       </>
                     )}
-                    <span>{d.tag}</span>
+                    <span>{t(d.tag)}</span>
                     <i>
                       <ArrowUpRight size={20} />
                     </i>
@@ -487,8 +488,8 @@ export default function MainContent() {
                   </div>
                   <p>
                     <span>
-                      {d.description}
-                      <em>Flights from {formatPrice(d.from, { whole: true })}</em>
+                      {t(d.description)}
+                      <em>{t("Flights from {price}", { price: formatPrice(d.from, { whole: true }) })}</em>
                     </span>
                     <ArrowRight size={16} />
                   </p>
@@ -504,14 +505,14 @@ export default function MainContent() {
                 onClick={() => setShowAllDestinations((v) => !v)}
               >
                 {showAllDestinations
-                  ? "Show fewer"
-                  : `Show all ${regionDestinations.length} destinations`}
+                  ? t("Show fewer")
+                  : t("Show all {count} destinations", { count: regionDestinations.length })}
               </button>
             </div>
           )}
         </section>
 
-        <section className="bf26-bento" aria-label="Ways to travel">
+        <section className="bf26-bento" aria-label={t("Ways to travel")}>
           {heroSlides.map((s) => {
             const TileIcon = s.icon;
             return (
@@ -531,10 +532,10 @@ export default function MainContent() {
                   <TileIcon size={20} />
                 </span>
                 <span className="bf26-tile-copy">
-                  <small>{s.eyebrow}</small>
-                  <strong>{s.label}</strong>
+                  <small>{t(s.eyebrow)}</small>
+                  <strong>{t(s.label)}</strong>
                   <em>
-                    Search {s.label.toLowerCase()} <ArrowUpRight size={15} />
+                    {t("Search {mode}", { mode: t(s.label).toLowerCase() })} <ArrowUpRight size={15} />
                   </em>
                 </span>
               </button>
@@ -542,7 +543,7 @@ export default function MainContent() {
           })}
         </section>
 
-        <Showcase title="Endless escapes." slides={showcaseSlides} />
+        <Showcase title={t("Endless escapes.")} slides={showcaseSlides} />
 
         <section className="bf-member">
           <div className="bf-member-orbit">
@@ -550,24 +551,24 @@ export default function MainContent() {
           </div>
           <div>
             <span className="bf-kicker">
-              <Sparkles size={12} /> A LITTLE MORE FLEXIBILITY
+              <Sparkles size={12} /> {t("A LITTLE MORE FLEXIBILITY")}
             </span>
             <h2>
-              Good journeys start with
+              {t("Good journeys start with")}
               <br />
-              everything in one place.
+              {t("everything in one place.")}
             </h2>
-            <p>Keep your bookings close and your next adventure closer.</p>
+            <p>{t("Keep your bookings close and your next adventure closer.")}</p>
           </div>
           <Link className="bf-primary" to="/signup">
-            Create an account <ArrowUpRight size={18} />
+            {t("Create an account")} <ArrowUpRight size={18} />
           </Link>
         </section>
         <div className="bf-bottom-note">
-          <span>PLAN WITH CONFIDENCE</span>
-          <p>Explore your options. Find your rhythm. Travel your way.</p>
+          <span>{t("PLAN WITH CONFIDENCE")}</span>
+          <p>{t("Explore your options. Find your rhythm. Travel your way.")}</p>
           <Link to="/about">
-            Meet BookingFlex <ArrowUpRight size={16} />
+            {t("Meet BookingFlex")} <ArrowUpRight size={16} />
           </Link>
         </div>
       </div>
@@ -615,12 +616,12 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
             <img src={d.image} alt="" />
           )}
           <div className="bf26-dest-shade" />
-          <button ref={closeRef} type="button" className="bf26-dest-close" onClick={onClose} aria-label="Close preview">
+          <button ref={closeRef} type="button" className="bf26-dest-close" onClick={onClose} aria-label={t("Close preview")}>
             <X size={20} />
           </button>
           <div className="bf26-dest-title">
             <span className="bf-eyebrow">
-              <span /> {d.tag}
+              <span /> {t(d.tag)}
             </span>
             <h2>{d.name}</h2>
             <p>
@@ -629,26 +630,26 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
           </div>
         </div>
         <div className="bf26-dest-body">
-          <p className="bf26-dest-blurb">{d.blurb}</p>
+          <p className="bf26-dest-blurb">{t(d.blurb)}</p>
           <div className="bf26-dest-facts">
             <div>
               <Plane size={18} />
               <span>
-                <small>Flight from KUL</small>
+                <small>{t("Flight from KUL")}</small>
                 <strong>{d.flightTime}</strong>
               </span>
             </div>
             <div>
               <SunIcon size={18} />
               <span>
-                <small>Best time to go</small>
+                <small>{t("Best time to go")}</small>
                 <strong>{d.bestTime}</strong>
               </span>
             </div>
             <div>
               <Clock size={18} />
               <span>
-                <small>Fares from</small>
+                <small>{t("Fares from")}</small>
                 <strong>{formatPrice(d.from, { whole: true })}</strong>
               </span>
             </div>
@@ -662,9 +663,9 @@ function DestinationPreview({ destination: d, onClose, onPlan }) {
           </ul>
           <div className="bf26-dest-actions">
             <button type="button" className="bf26-primary bf26-cta" onClick={onPlan}>
-              Search flights to {d.name} <ArrowRight size={17} />
+              {t("Search flights to {name}", { name: d.name })} <ArrowRight size={17} />
             </button>
-            <small>{d.video ? "Video: Mixkit free stock footage" : "Photo: Unsplash"}</small>
+            <small>{t(d.video ? "Video: Mixkit free stock footage" : "Photo: Unsplash")}</small>
           </div>
         </div>
       </div>

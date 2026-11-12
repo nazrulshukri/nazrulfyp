@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { LANGUAGES, currentLanguage, dateLocale, setLanguage, t, useLanguage } from "../lib/i18n";
 import { Check, ChevronDown, Globe2, LocateFixed } from "lucide-react";
 import {
   CURRENCIES,
@@ -11,6 +12,8 @@ import {
 /** Header button that shows and changes the display currency. */
 export default function CurrencyPicker({ compact = false }) {
   const { code, chosen, live, updated } = useCurrency();
+  useLanguage();
+  const lang = currentLanguage();
   const [open, setOpen] = useState(false);
   const wrap = useRef(null);
   const listRef = useRef(null);
@@ -37,10 +40,10 @@ export default function CurrencyPicker({ compact = false }) {
         className="bf-locale bf26-cur-btn"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={`Currency: ${current.name}. Change currency`}
+        aria-label={`${t("Language and currency")}: ${lang.label}, ${current.code}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <Globe2 size={16} /> {!compact && <span className="bf26-cur-lang">EN · </span>}
+        <Globe2 size={16} /> {!compact && <span className="bf26-cur-lang">{lang.short} · </span>}
         {current.code}
         <ChevronDown size={14} className="bf26-cur-chev" />
       </button>
@@ -48,11 +51,30 @@ export default function CurrencyPicker({ compact = false }) {
       {open && (
         <div className="bf26-cur-menu">
           <div className="bf26-cur-head">
-            <strong>Currency</strong>
+            <strong>{t("Language")}</strong>
+          </div>
+          <div className="bf26-lang" role="group" aria-label={t("Language")}>
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                lang={l.code === "zh" ? "zh-Hans" : l.code}
+                aria-pressed={l.code === lang.code}
+                className={l.code === lang.code ? "is-on" : ""}
+                onClick={() => setLanguage(l.code)}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+          <div className="bf26-cur-head">
+            <strong>{t("Currency")}</strong>
             <small>
-              Prices are converted from MYR
-              {live && updated ? ` · rates from ${new Date(updated).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}.
-              You're always charged in MYR.
+              {t("Prices are converted from MYR")}
+              {live && updated
+                ? t(" · rates from {date}", { date: new Date(updated).toLocaleDateString(dateLocale(), { day: "numeric", month: "short" }) })
+                : ""}
+              . {t("You're always charged in MYR.")}
             </small>
           </div>
           <button
@@ -65,12 +87,12 @@ export default function CurrencyPicker({ compact = false }) {
           >
             <LocateFixed size={16} />
             <span>
-              Match my location
-              <small>{chosen ? "Pick the currency for where you are" : `On · showing ${current.code}`}</small>
+              {t("Match my location")}
+              <small>{chosen ? t("Pick the currency for where you are") : t("On · showing {code}", { code: current.code })}</small>
             </span>
             {!chosen && <Check size={16} />}
           </button>
-          <ul role="listbox" aria-label="Currencies" ref={listRef}>
+          <ul role="listbox" aria-label={t("Currencies")} ref={listRef}>
             {CURRENCIES.map((c) => (
               <li
                 key={c.code}
@@ -99,7 +121,7 @@ export default function CurrencyPicker({ compact = false }) {
               </li>
             ))}
           </ul>
-          <p className="bf26-cur-foot">Example: RM 100 in each currency</p>
+          <p className="bf26-cur-foot">{t("Example: RM 100 in each currency")}</p>
         </div>
       )}
     </div>

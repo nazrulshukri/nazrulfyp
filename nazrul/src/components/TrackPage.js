@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { dateLocale, t } from "../lib/i18n";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MapContainer, TileLayer, CircleMarker, Marker, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -127,7 +128,7 @@ function LiveBar({ live, label, source, refreshEvery }) {
         Updated {ago(live.data?.fetchedAt, now)} · refreshes every {refreshEvery} · {source}
       </small>
       <button type="button" className="bf26-ghost" onClick={live.reload} disabled={live.loading}>
-        <RefreshCw size={14} className={live.loading ? "bf26-spin" : ""} /> Refresh
+        <RefreshCw size={14} className={live.loading ? "bf26-spin" : ""} /> {t("Refresh")}
       </button>
     </div>
   );
@@ -263,14 +264,14 @@ function BookingCard({ item, now }) {
       </header>
       <div className="bf26-track-meta">
         <span>
-          <small>Reference</small>
+          <small>{t("Reference")}</small>
           <b className="bf26-mono-lg">{item.ref}</b>
         </span>
         <span>
           <small>{item.kind === "hotel" ? "Check-in" : "Departs"}</small>
           <b>
-            {item.start.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ·{" "}
-            {item.start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+            {item.start.toLocaleDateString(dateLocale(), { weekday: "short", day: "numeric", month: "short" })} ·{" "}
+            {item.start.toLocaleTimeString(dateLocale(), { hour: "2-digit", minute: "2-digit" })}
           </b>
         </span>
         <span>
@@ -285,7 +286,7 @@ function BookingCard({ item, now }) {
             <span>{label}</span>
             <small>
               {at
-                ? `${at.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} ${at.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`
+                ? `${at.toLocaleDateString(dateLocale(), { day: "numeric", month: "short" })} ${at.toLocaleTimeString(dateLocale(), { hour: "2-digit", minute: "2-digit" })}`
                 : ""}
             </small>
           </li>
@@ -327,7 +328,7 @@ function BookingsTab() {
   return (
     <div className="bf26-track-bookings">
       <form className="bf26-track-lookup" onSubmit={lookup}>
-        <label htmlFor="track-ref">Track a booking by reference</label>
+        <label htmlFor="track-ref">{t("Track a booking by reference")}</label>
         <div>
           <Search size={17} />
           <input
@@ -338,10 +339,10 @@ function BookingsTab() {
             onChange={(e) => setQuery(e.target.value.toUpperCase())}
           />
           <button type="submit" className="bf26-primary">
-            Track
+            {t("Track")}
           </button>
         </div>
-        <small>The 6-letter reference is on your ticket, voucher and confirmation email.</small>
+        <small>{t("The 6-letter reference is on your ticket, voucher and confirmation email.")}</small>
       </form>
       {found !== undefined &&
         (found ? (
@@ -351,25 +352,25 @@ function BookingsTab() {
         ))}
 
       <div className="bf26-section-title">
-        <h2>Your trips</h2>
+        <h2>{t("Your trips")}</h2>
         <span>{session ? `${mine.length} booking${mine.length === 1 ? "" : "s"}` : ""}</span>
       </div>
       {!session ? (
         <div className="bf26-empty-card">
           <LogIn size={26} />
-          <h2>Sign in to see all your bookings</h2>
+          <h2>{t("Sign in to see all your bookings")}</h2>
           <p>Flights, trains and hotels you book while signed in appear here with live status.</p>
           <Link to="/signin" state={{ from: "/track" }} className="bf26-primary">
-            Sign in
+            {t("Sign in")}
           </Link>
         </div>
       ) : mine.length === 0 ? (
         <div className="bf26-empty-card">
           <Ticket size={26} />
-          <h2>No bookings yet</h2>
-          <p>Book a flight, train or hotel and you'll be able to track it here.</p>
+          <h2>{t("No bookings yet")}</h2>
+          <p>{t("Book a flight, train or hotel and you'll be able to track it here.")}</p>
           <Link to="/" className="bf26-primary">
-            Find a trip
+            {t("Find a trip")}
           </Link>
         </div>
       ) : (
@@ -389,7 +390,7 @@ function TrainsTab() {
   const live = useLive("/live/trains", 30000);
   const [focus, setFocus] = useState(null);
   const trains = live.data?.trains || [];
-  const services = [...new Set(trains.map((t) => t.service))];
+  const services = [...new Set(trains.map((train) => train.service))];
   return (
     <div className="bf26-track-live">
       <LiveBar live={live} label={`${trains.length} KTM trains running now`} source="data.gov.my" refreshEvery="30s" />
@@ -400,17 +401,17 @@ function TrainsTab() {
             <MapContainer center={[4.0, 101.6]} zoom={6} scrollWheelZoom style={{ height: "100%", width: "100%" }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
               <FlyTo target={focus} />
-              {trains.map((t) => (
+              {trains.map((train) => (
                 <CircleMarker
-                  key={t.id}
-                  center={[t.lat, t.lng]}
+                  key={train.id}
+                  center={[train.lat, train.lng]}
                   radius={8}
-                  pathOptions={{ color: "#fff", weight: 2.5, fillColor: SERVICE_COLORS[t.service] || "#1d4a3f", fillOpacity: 1 }}
+                  pathOptions={{ color: "#fff", weight: 2.5, fillColor: SERVICE_COLORS[train.service] || "#1d4a3f", fillOpacity: 1 }}
                 >
                   <Tooltip>
-                    <strong>{t.label}</strong> · {t.service}
+                    <strong>{train.label}</strong> · {train.service}
                     <br />
-                    {t.speedKmh != null ? `${t.speedKmh} km/h` : "Speed unknown"}
+                    {train.speedKmh != null ? `${train.speedKmh} km/h` : "Speed unknown"}
                   </Tooltip>
                 </CircleMarker>
               ))}
@@ -427,26 +428,26 @@ function TrainsTab() {
         <ul className="bf26-track-feed">
           {live.loading && !trains.length && (
             <li className="bf26-track-empty">
-              <Loader2 size={18} className="bf26-spin" /> Loading live trains…
+              <Loader2 size={18} className="bf26-spin" /> {t("Loading live trains…")}
             </li>
           )}
           {!live.loading && !trains.length && !live.error && (
             <li className="bf26-track-empty">No trains are reporting right now (late at night, for example).</li>
           )}
-          {trains.map((t) => (
-            <li key={t.id}>
-              <button type="button" onClick={() => setFocus([t.lat, t.lng])}>
-                <span className="bf26-rail-badge" style={{ "--line": SERVICE_COLORS[t.service] || "#1d4a3f", width: 38, height: 38 }}>
+          {trains.map((train) => (
+            <li key={train.id}>
+              <button type="button" onClick={() => setFocus([train.lat, train.lng])}>
+                <span className="bf26-rail-badge" style={{ "--line": SERVICE_COLORS[train.service] || "#1d4a3f", width: 38, height: 38 }}>
                   <TrainFront size={17} />
                 </span>
                 <span>
-                  <strong>{t.label}</strong>
+                  <strong>{train.label}</strong>
                   <small>
-                    {t.service} · {t.description}
+                    {train.service} · {train.description}
                   </small>
                 </span>
                 <span className="bf26-track-num">
-                  <Gauge size={13} /> {t.speedKmh ?? "—"} km/h
+                  <Gauge size={13} /> {train.speedKmh ?? "—"} km/h
                 </span>
               </button>
             </li>
@@ -471,7 +472,7 @@ const planeIcon = (heading, highlight) =>
     iconAnchor: [12, 12],
   });
 
-const hhmm = (iso) => (iso ? new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC" : "—");
+const hhmm = (iso) => (iso ? new Date(iso).toLocaleTimeString(dateLocale(), { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC" : "—");
 
 function FlightStatusCard({ r }) {
   return (
@@ -500,7 +501,7 @@ function FlightStatusCard({ r }) {
             <strong>{leg.iata}</strong>
             <span>{leg.airport}</span>
             <dl>
-              <dt>Scheduled</dt>
+              <dt>{t("Scheduled")}</dt>
               <dd>{hhmm(leg.scheduled)}</dd>
               <dt>{leg.actual ? "Actual" : "Estimated"}</dt>
               <dd>{hhmm(leg.actual || leg.estimated)}</dd>
@@ -549,7 +550,7 @@ function FlightsTab() {
   return (
     <div className="bf26-track-live">
       <form className="bf26-track-lookup" onSubmit={check}>
-        <label htmlFor="track-flight">Flight status by number</label>
+        <label htmlFor="track-flight">{t("Flight status by number")}</label>
         <div>
           <Plane size={17} />
           <input id="track-flight" placeholder="e.g. MH1 or AK6100" value={number} onChange={(e) => setNumber(e.target.value.toUpperCase())} maxLength={8} />
@@ -594,7 +595,7 @@ function FlightsTab() {
         <ul className="bf26-track-feed">
           {live.loading && !flights.length && (
             <li className="bf26-track-empty">
-              <Loader2 size={18} className="bf26-spin" /> Loading live flights…
+              <Loader2 size={18} className="bf26-spin" /> {t("Loading live flights…")}
             </li>
           )}
           {flights
@@ -638,10 +639,10 @@ export default function TrackPage({ defaultTab = "bookings" }) {
       <header className="bf26-route bf26-track-hero">
         <div className="bf26-route-main">
           <span className="bf26-kicker">
-            <Radio size={14} /> Live tracking
+            <Radio size={14} /> {t("Live tracking")}
           </span>
-          <h1 className="bf26-hotel-city">Track your trip</h1>
-          <p className="bf26-track-sub">Your bookings, KTM trains and flights over Malaysia, as they happen.</p>
+          <h1 className="bf26-hotel-city">{t("Track your trip")}</h1>
+          <p className="bf26-track-sub">{t("Your bookings, KTM trains and flights over Malaysia, as they happen.")}</p>
         </div>
       </header>
       <nav className="bf26-stay-tabs bf26-track-tabs" aria-label="Tracker">

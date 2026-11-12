@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { t } from "../lib/i18n";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
@@ -61,38 +62,38 @@ const Signup = () => {
     <AuthLayout
       image={greece}
       kicker="Join BookingFlex"
-      title="Less ordinary. More out there."
+      title={t("Less ordinary. More out there.")}
       text="Create a free account to keep your tickets, vouchers and trips together."
     >
       <header className="bf26-auth-head">
-        <h1>Create your account</h1>
+        <h1>{t("Create your account")}</h1>
         <p>
-          Already have one? <Link to="/signin" state={location.state}>Sign in</Link>
+          {t("Already have one?")} <Link to="/signin" state={location.state}>{t("Sign in")}</Link>
         </p>
       </header>
 
       <GoogleButton onError={setError} redirectTo={redirectTo} />
 
       <form className="bf26-auth-form" onSubmit={submit} noValidate>
-        <AuthField id="signup-name" label="Full name" icon={User} autoComplete="name" placeholder="As on your passport" {...bind("name")} />
-        <AuthField id="signup-email" label="Email" icon={Mail} type="email" autoComplete="email" placeholder="you@example.com" {...bind("email")} />
+        <AuthField id="signup-name" label={t("Full name")} icon={User} autoComplete="name" placeholder={t("As on your passport")} {...bind("name")} />
+        <AuthField id="signup-email" label={t("Email")} icon={Mail} type="email" autoComplete="email" placeholder="you@example.com" {...bind("email")} />
         <AuthField
           id="signup-password"
-          label="Password"
+          label={t("Password")}
           icon={Lock}
           type="password"
           autoComplete="new-password"
-          placeholder="At least 8 characters"
+          placeholder={t("At least 8 characters")}
           {...bind("password")}
         />
         <StrengthMeter password={form.password} />
         <AuthField
           id="signup-confirm"
-          label="Confirm password"
+          label={t("Confirm password")}
           icon={Lock}
           type="password"
           autoComplete="new-password"
-          placeholder="Type it again"
+          placeholder={t("Type it again")}
           {...bind("confirm")}
         />
         <label className={`bf26-auth-check ${touched.agree && errors.agree ? "has-error" : ""}`}>

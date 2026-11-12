@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { t } from "../lib/i18n";
 import { MessageCircle, X, Send, Sparkles, RotateCcw } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 
@@ -133,19 +134,19 @@ export default function ChatWidget() {
   return (
     <div className="bf26-chat">
       {open && (
-        <section className="bf26-chat-panel" role="dialog" aria-label="BookingFlex travel assistant">
+        <section className="bf26-chat-panel" role="dialog" aria-label={t("BookingFlex travel assistant")}>
           <header>
             <span className="bf26-chat-avatar">
               <Sparkles size={18} />
             </span>
             <span>
-              <strong>Flexi</strong>
-              <small>{quickMode ? "Travel assistant · quick answers" : "AI travel assistant"}</small>
+              <strong>{t("Flexi")}</strong>
+              <small>{t(quickMode ? "Travel assistant · quick answers" : "AI travel assistant")}</small>
             </span>
-            <button type="button" onClick={reset} aria-label="Start a new chat" title="New chat">
+            <button type="button" onClick={reset} aria-label={t("Start a new chat")} title={t("New chat")}>
               <RotateCcw size={16} />
             </button>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close chat">
+            <button type="button" onClick={() => setOpen(false)} aria-label={t("Close chat")}>
               <X size={18} />
             </button>
           </header>
@@ -157,21 +158,21 @@ export default function ChatWidget() {
                 className={`bf26-chat-msg is-${m.role} ${m.error ? "is-error" : ""} ${m.pending && !m.content ? "is-typing" : ""}`}
               >
                 {m.pending && !m.content ? (
-                  <span className="bf26-chat-dots" aria-label="Flexi is typing">
+                  <span className="bf26-chat-dots" aria-label={t("Flexi is typing")}>
                     <i />
                     <i />
                     <i />
                   </span>
                 ) : (
-                  m.content
+                  m.role === "assistant" && m.content === GREETING.content ? t(GREETING.content) : m.content
                 )}
               </div>
             ))}
             {messages.length === 1 && (
               <div className="bf26-chat-suggest">
                 {SUGGESTIONS.map((s) => (
-                  <button key={s} type="button" onClick={() => send(s)}>
-                    {s}
+                  <button key={s} type="button" onClick={() => send(t(s))}>
+                    {t(s)}
                   </button>
                 ))}
               </div>
@@ -189,15 +190,18 @@ export default function ChatWidget() {
               ref={inputRef}
               value={input}
               maxLength={2000}
-              placeholder="Ask about flights, hotels, trains…"
+              placeholder={t("Ask about flights, hotels, trains…")}
               onChange={(e) => setInput(e.target.value)}
-              aria-label="Message Flexi"
+              aria-label={t("Message Flexi")}
             />
-            <button type="submit" disabled={busy || !input.trim()} aria-label="Send message">
+            <button type="submit" disabled={busy || !input.trim()} aria-label={t("Send message")}>
               <Send size={17} />
             </button>
           </form>
-          <p className="bf26-chat-note">{quickMode ? "Quick answers cover common travel questions." : "AI answers can be wrong."} Fares shown on BookingFlex are samples.</p>
+          <p className="bf26-chat-note">
+            {t(quickMode ? "Quick answers cover common travel questions." : "AI answers can be wrong.")}{" "}
+            {t("Fares shown on BookingFlex are samples.")}
+          </p>
         </section>
       )}
 
@@ -209,7 +213,7 @@ export default function ChatWidget() {
         aria-expanded={open}
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
-        {!open && <span>Ask Flexi</span>}
+        {!open && <span>{t("Ask Flexi")}</span>}
       </button>
     </div>
   );

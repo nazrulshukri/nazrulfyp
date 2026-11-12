@@ -7573,3 +7573,40 @@ select:-webkit-autofill {
     gap: 6px;
   }
 }
+
+/* Language switch inside the language & currency menu */
+.bf26-lang {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0 10px 10px;
+}
+.bf26-lang button {
+  height: 40px;
+  padding: 0 6px;
+  white-space: nowrap;
+  font-size: 12px !important;
+  border: 1px solid var(--bf26-line);
+  border-radius: 12px;
+  background: var(--bf26-card) !important;
+  color: var(--bf26-ink);
+  font: 600 13px/1 var(--bf26-font);
+  cursor: pointer;
+}
+.bf26-lang button:hover {
+  border-color: var(--bf26-forest);
+}
+.bf26-lang button.is-on {
+  border-color: var(--bf26-forest);
+  background: var(--bf26-forest) !important;
+  color: #fff;
+}
+.app.dark-mode .bf26-lang button.is-on {
+  border-color: var(--bf26-lime);
+  background: var(--bf26-lime) !important;
+  color: #0f2c26;
+}
+.bf26-lang button:focus-visible {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 2px;
+}

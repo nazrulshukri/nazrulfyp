@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { t } from "../lib/i18n";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Eye, EyeOff, Plane, Check, Ticket, BedDouble, TrainFront } from "lucide-react";
@@ -12,7 +13,7 @@ export function AuthLayout({ image, kicker, title, text, children }) {
     <div className="bf26-page bf26-auth">
       <div className="bf26-auth-card">
         <aside className="bf26-auth-side" style={{ "--auth-img": `url(${image})` }}>
-          <Link to="/" className="bf26-auth-brand" aria-label="BookingFlex home">
+          <Link to="/" className="bf26-auth-brand" aria-label={t("BookingFlex home")}>
             <span>
               <Plane size={18} />
             </span>
@@ -26,13 +27,13 @@ export function AuthLayout({ image, kicker, title, text, children }) {
             <p>{text}</p>
             <ul>
               <li>
-                <Ticket size={15} /> Tickets and vouchers in one place
+                <Ticket size={15} /> {t("Tickets and vouchers in one place")}
               </li>
               <li>
-                <BedDouble size={15} /> Flights, stays and vacations
+                <BedDouble size={15} /> {t("Flights, stays and vacations")}
               </li>
               <li>
-                <TrainFront size={15} /> Rail across Malaysia
+                <TrainFront size={15} /> {t("Rail across Malaysia")}
               </li>
             </ul>
           </div>
@@ -135,7 +136,7 @@ export function GoogleButton({ onError, redirectTo }) {
         <GoogleMark /> {busy ? "Connecting…" : "Continue with Google"}
       </button>
       <div className="bf26-auth-or">
-        <span>or with email</span>
+        <span>{t("or with email")}</span>
       </div>
     </>
   );

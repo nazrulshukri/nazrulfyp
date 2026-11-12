@@ -7,6 +7,7 @@ import Footer from './components/footer';
 import ChatWidget from './components/ChatWidget';
 import AdminDashboard from './components/AdminDashboard';
 import { initCurrency, useCurrency } from './lib/currency';
+import { useLanguage } from './lib/i18n';
 import About from './components/about';
 import Services from './components/services';
 import ReturnFlights from './components/return';
@@ -56,6 +57,7 @@ function AppContent() {
   const { isDarkMode } = useTheme();
   // Prices everywhere re-render in the new currency when it changes.
   useCurrency();
+  useLanguage(); // all text re-renders in the chosen language
   useEffect(() => {
     initCurrency();
   }, []);

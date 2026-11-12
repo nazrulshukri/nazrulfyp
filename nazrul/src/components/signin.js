@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { t } from "../lib/i18n";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
@@ -42,13 +43,13 @@ const SignIn = () => {
     <AuthLayout
       image={plane}
       kicker="Welcome back"
-      title="Your next trip starts here."
+      title={t("Your next trip starts here.")}
       text="Sign in to see your bookings, download tickets and pick up where you left off."
     >
       <header className="bf26-auth-head">
-        <h1>Sign in</h1>
+        <h1>{t("Sign in")}</h1>
         <p>
-          New to BookingFlex? <Link to="/signup">Create an account</Link>
+          {t("New to BookingFlex?")} <Link to="/signup">{t("Create an account")}</Link>
         </p>
       </header>
 
@@ -57,7 +58,7 @@ const SignIn = () => {
       <form className="bf26-auth-form" onSubmit={submit} noValidate>
         <AuthField
           id="signin-email"
-          label="Email"
+          label={t("Email")}
           icon={Mail}
           type="email"
           autoComplete="email"
@@ -69,11 +70,11 @@ const SignIn = () => {
         />
         <AuthField
           id="signin-password"
-          label="Password"
+          label={t("Password")}
           icon={Lock}
           type="password"
           autoComplete="current-password"
-          placeholder="Your password"
+          placeholder={t("Your password")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() => setTouched((t) => ({ ...t, password: true }))}
@@ -81,7 +82,7 @@ const SignIn = () => {
         />
         <div className="bf26-auth-row">
           <Link to="/forgotpassword" state={{ email: email.trim() }}>
-            Forgot password?
+            {t("Forgot password?")}
           </Link>
         </div>
         {error && (

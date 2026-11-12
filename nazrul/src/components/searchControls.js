@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { dateLocale, t } from "../lib/i18n";
 import {
   ChevronLeft,
   ChevronRight,
@@ -152,7 +153,7 @@ export function PlacePicker({
         <div className="bf26-pop bf26-place-pop" role="listbox" id={listId}>
           <div className="bf26-pop-head">
             <Search size={14} />
-            <span>{query ? `${results.length} matches` : kind === "station" ? "Popular stations" : kind === "city" ? "Popular cities" : "Popular airports"}</span>
+            <span>{query ? t("{count} matches", { count: results.length }) : t(kind === "station" ? "Popular stations" : kind === "city" ? "Popular cities" : "Popular airports")}</span>
           </div>
           <div className="bf26-place-list">
             {results.map((o, i) => (
@@ -181,7 +182,7 @@ export function PlacePicker({
             ))}
             {results.length === 0 && (
               <div className="bf26-place-empty">
-                No matches for “{query}”. Press Enter to search it anyway.
+                {t("No matches for “{query}”. Press Enter to search it anyway.", { query })}
               </div>
             )}
           </div>
@@ -211,7 +212,7 @@ function monthGrid(year, month) {
 
 const fmtField = (s) =>
   s
-    ? parse(s).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+    ? parse(s).toLocaleDateString(dateLocale(), { weekday: "short", day: "numeric", month: "short" })
     : "";
 
 export function DateRangeFields({
@@ -269,7 +270,7 @@ export function DateRangeFields({
     >
       <span>{label}</span>
       <strong className={value ? "" : "is-empty"}>
-        <CalendarDays size={16} /> {value ? fmtField(value) : "Add date"}
+        <CalendarDays size={16} /> {value ? fmtField(value) : t("Add date")}
       </strong>
       <small>{hint}</small>
     </button>
@@ -280,7 +281,7 @@ export function DateRangeFields({
       {field("start", labels[0], hints[0], start)}
       {range && field("end", labels[1], hints[1], end)}
       {open && (
-        <div className="bf26-pop bf26-cal-pop" role="dialog" aria-label="Choose dates">
+        <div className="bf26-pop bf26-cal-pop" role="dialog" aria-label={t("Choose dates")}>
           <div className="bf26-cal-top">
             <div className="bf26-cal-tabs">
               <button
@@ -289,7 +290,7 @@ export function DateRangeFields({
                 onClick={() => setOpen("start")}
               >
                 <small>{labels[0]}</small>
-                {start ? fmtField(start) : "Add date"}
+                {start ? fmtField(start) : t("Add date")}
               </button>
               {range && (
                 <button
@@ -298,14 +299,14 @@ export function DateRangeFields({
                   onClick={() => setOpen("end")}
                 >
                   <small>{labels[1]}</small>
-                  {end ? fmtField(end) : "Add date"}
+                  {end ? fmtField(end) : t("Add date")}
                 </button>
               )}
             </div>
             <div className="bf26-cal-nav">
               <button
                 type="button"
-                aria-label="Previous month"
+                aria-label={t("Previous month")}
                 disabled={!canPrev}
                 onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
               >
@@ -313,7 +314,7 @@ export function DateRangeFields({
               </button>
               <button
                 type="button"
-                aria-label="Next month"
+                aria-label={t("Next month")}
                 onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
               >
                 <ChevronRight size={18} />
@@ -323,10 +324,10 @@ export function DateRangeFields({
           <div className="bf26-cal-months" onMouseLeave={() => setHover(null)}>
             {months.map((m, mi) => (
               <div className={`bf26-cal-month ${mi ? "is-second" : ""}`} key={m.toISOString()}>
-                <h4>{m.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</h4>
+                <h4>{m.toLocaleDateString(dateLocale(), { month: "long", year: "numeric" })}</h4>
                 <div className="bf26-cal-grid">
                   {WEEK.map((w) => (
-                    <i key={w}>{w}</i>
+                    <i key={w}>{t(w)}</i>
                   ))}
                   {monthGrid(m.getFullYear(), m.getMonth()).map((day, i) => {
                     if (!day) return <span key={`e${i}`} />;
@@ -367,7 +368,7 @@ export function DateRangeFields({
           <div className="bf26-cal-foot">
             <span>
               {range && start && end
-                ? `${fmtField(start)} → ${fmtField(end)} · ${nights} ${nightsLabel ? (nights === 1 ? "night" : "nights") : nights === 1 ? "day" : "days"}`
+                ? `${fmtField(start)} → ${fmtField(end)} · ${nights} ${t(nightsLabel ? (nights === 1 ? "night" : "nights") : nights === 1 ? "day" : "days")}`
                 : open === "end"
                   ? `Now choose your ${labels[1].toLowerCase()} date`
                   : `Choose your ${labels[0].toLowerCase()} date`}
@@ -375,11 +376,11 @@ export function DateRangeFields({
             <div>
               {(start || end) && (
                 <button type="button" className="bf26-link" onClick={() => onChange("", "")}>
-                  Clear
+                  {t("Clear")}
                 </button>
               )}
               <button type="button" className="bf26-cal-done" onClick={() => setOpen(null)}>
-                Done
+                {t("Done")}
               </button>
             </div>
           </div>
@@ -411,9 +412,9 @@ export function TravellersPicker({ value, onChange, noun = "traveller" }) {
   };
   const step = (key, delta) => onChange((v) => ({ ...v, [key]: v[key] + delta }));
   const summary = [
-    `${value.adults} adult${value.adults > 1 ? "s" : ""}`,
-    value.children && `${value.children} child${value.children > 1 ? "ren" : ""}`,
-    value.infants && `${value.infants} infant${value.infants > 1 ? "s" : ""}`,
+    `${value.adults} ${t(value.adults > 1 ? "adults" : "adult")}`,
+    value.children && `${value.children} ${t(value.children > 1 ? "children" : "child")}`,
+    value.infants && `${value.infants} ${t(value.infants > 1 ? "infants" : "infant")}`,
   ]
     .filter(Boolean)
     .join(", ");
@@ -429,18 +430,17 @@ export function TravellersPicker({ value, onChange, noun = "traveller" }) {
         <Users size={17} />
         <span>
           <strong>
-            {total} {noun}
-            {total > 1 ? "s" : ""}
+            {total} {t(total > 1 ? `${noun}s` : noun)}
           </strong>
           <small>{summary}</small>
         </span>
         <ChevronRight size={16} className="bf26-trav-chev" />
       </button>
       {open && (
-        <div className="bf26-pop bf26-trav-pop" role="dialog" aria-label="Travellers">
+        <div className="bf26-pop bf26-trav-pop" role="dialog" aria-label={t("Travellers")}>
           <div className="bf26-trav-head">
-            <strong>Who’s coming?</strong>
-            <button type="button" aria-label="Close" onClick={() => setOpen(false)}>
+            <strong>{t("Who’s coming?")}</strong>
+            <button type="button" aria-label={t("Close")} onClick={() => setOpen(false)}>
               <X size={16} />
             </button>
           </div>
@@ -452,8 +452,8 @@ export function TravellersPicker({ value, onChange, noun = "traveller" }) {
                   <Icon size={19} />
                 </span>
                 <span className="bf26-trav-label">
-                  <strong>{label}</strong>
-                  <small>{sub}</small>
+                  <strong>{t(label)}</strong>
+                  <small>{t(sub)}</small>
                 </span>
                 <div className="bf26-stepper">
                   <button
@@ -464,7 +464,7 @@ export function TravellersPicker({ value, onChange, noun = "traveller" }) {
                   >
                     <Minus size={15} />
                   </button>
-                  <output aria-live="polite" aria-label={label}>
+                  <output aria-live="polite" aria-label={t(label)}>
                     {value[key]}
                   </output>
                   <button
@@ -480,10 +480,10 @@ export function TravellersPicker({ value, onChange, noun = "traveller" }) {
             );
           })}
           <p className="bf26-trav-note">
-            Up to 9 travellers. Each infant travels on an adult’s lap.
+            {t("Up to 9 travellers. Each infant travels on an adult’s lap.")}
           </p>
           <button type="button" className="bf26-cal-done bf26-trav-done" onClick={() => setOpen(false)}>
-            Done
+            {t("Done")}
           </button>
         </div>
       )}
