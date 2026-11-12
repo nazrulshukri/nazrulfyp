@@ -22,6 +22,7 @@ import { authHeaders, useAdminRole } from "../lib/adminAccess";
 import AdminDatabase from "./AdminDatabase";
 import AdminPrices from "./AdminPrices";
 import AdminStructure from "./AdminStructure";
+import AdminArchitecture from "./AdminArchitecture";
 import "./AdminDashboard.css";
 
 const RANGES = [
@@ -357,6 +358,7 @@ export default function AdminDashboard() {
             ["prices", "Prices"],
             ["database", "Tables"],
             ["structure", "Structure"],
+            ["architecture", "Architecture"],
           ].map(([id, label]) => (
             <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
               {label}
@@ -366,7 +368,15 @@ export default function AdminDashboard() {
       )}
 
       {tab !== "overview" && role === "super" ? (
-        tab === "prices" ? <AdminPrices /> : tab === "structure" ? <AdminStructure /> : <AdminDatabase />
+        tab === "prices" ? (
+          <AdminPrices />
+        ) : tab === "structure" ? (
+          <AdminStructure />
+        ) : tab === "architecture" ? (
+          <AdminArchitecture />
+        ) : (
+          <AdminDatabase />
+        )
       ) : (
       <>
       {error && status !== 200 && <p className="ad-error">{error}</p>}
