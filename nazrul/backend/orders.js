@@ -90,6 +90,50 @@ ordersRouter.get("/mine", requireUser, async (req, res) => {
 
 const dayKey = (d) => d.toISOString().slice(0, 10);
 
+// Payments saved by the older booking flow, before orders existed. They
+// have no date field, so their creation time comes from the record id.
+// The old flow still writes these alongside orders, so only records from
+// before the first order are counted (30 minutes earlier, because the old
+// flight record is written at the traveller-details step, before payment).
+async function legacyOrders(since) {
+  const db = mongoose.connection.db;
+  const sinceId = mongoose.Types.ObjectId.createFromTime(Math.floor(since / 1000));
+  const first = await Order.findOne().sort({ createdAt: 1 }).select("createdAt").lean();
+  const range = { $gte: sinceId };
+  if (first) range.$lt = mongoose.Types.ObjectId.createFromTime(Math.floor(first.createdAt / 1000) - 30 * 60);
+  const read = async (name) => {
+    try {
+      return await db.collection(name).find({ _id: range }).toArray();
+    } catch {
+      return [];
+    }
+  };
+  const [flights, trains] = await Promise.all([read("payments"), read("paymenttrains")]);
+  const at = (d) => d._id.getTimestamp();
+  return [
+    ...flights.map((p) => ({
+      reference: `OLD-${String(p._id).slice(-6).toUpperCase()}`,
+      kind: "flight",
+      title: "Flight booking",
+      amountMyr: Number(p.amount) || 0,
+      paymentMethod: p.paymentMethod,
+      status: "confirmed",
+      createdAt: at(p),
+      legacy: true,
+    })),
+    ...trains.map((p) => ({
+      reference: `OLD-${String(p._id).slice(-6).toUpperCase()}`,
+      kind: "train",
+      title: p.origin && p.destination ? `${p.origin} → ${p.destination}` : "Train booking",
+      amountMyr: Number(p.totalPrice) || 0,
+      paymentMethod: p.paymentMethod,
+      status: "confirmed",
+      createdAt: at(p),
+      legacy: true,
+    })),
+  ];
+}
+
 adminRouter.get("/summary", requireAdmin, async (req, res) => {
   if (!dbReady()) return res.status(503).json({ message: "The database isn't connected." });
   const days = Math.min(365, Math.max(7, Number(req.query.days) || 30));
@@ -98,13 +142,18 @@ adminRouter.get("/summary", requireAdmin, async (req, res) => {
   since.setUTCDate(since.getUTCDate() - (days - 1));
   try {
     const User = mongoose.models.User;
-    const [orders, totalUsers, newUsers, recent] = await Promise.all([
+    const [newOrders, legacy, totalUsers, newUsers, recentNew] = await Promise.all([
       Order.find({ createdAt: { $gte: since } }).lean(),
+      legacyOrders(since),
       User ? User.estimatedDocumentCount() : 0,
       // Users have no createdAt; their ObjectId carries the creation time.
       User ? User.countDocuments({ _id: { $gte: mongoose.Types.ObjectId.createFromTime(Math.floor(since / 1000)) } }) : 0,
       Order.find().sort({ createdAt: -1 }).limit(10).lean(),
     ]);
+    const orders = [...newOrders, ...legacy];
+    const recent = [...recentNew, ...legacy]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10);
 
     const live = orders.filter((o) => o.status !== "cancelled");
     const revenue = live.reduce((s, o) => s + o.amountMyr, 0);
@@ -159,6 +208,7 @@ adminRouter.get("/summary", requireAdmin, async (req, res) => {
         amountMyr: o.amountMyr,
         status: o.status,
         createdAt: o.createdAt,
+        legacy: Boolean(o.legacy),
       })),
     });
   } catch (error) {

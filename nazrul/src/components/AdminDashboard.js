@@ -19,9 +19,15 @@ import {
 import { API_BASE } from "../lib/apiConfig";
 import { formatPrice } from "../lib/currency";
 import { authHeaders, useAdminRole } from "../lib/adminAccess";
+import AdminDatabase from "./AdminDatabase";
 import "./AdminDashboard.css";
 
-const RANGES = [7, 30, 90];
+const RANGES = [
+  [7, "7 days"],
+  [30, "30 days"],
+  [90, "90 days"],
+  [365, "1 year"],
+];
 const KINDS = {
   flight: { label: "Flights", icon: Plane },
   hotel: { label: "Hotels", icon: BedDouble },
@@ -74,7 +80,8 @@ function RevenueChart({ daily }) {
     return () => ro.disconnect();
   }, []);
   const pad = { l: 56, r: 16, t: 16, b: 28 };
-  const max = Math.max(1, ...daily.map((d) => d.revenue));
+  // At least RM 100 on the axis so an empty chart still has sensible labels.
+  const max = Math.max(100, ...daily.map((d) => d.revenue));
   const nice = (() => {
     const step = 10 ** Math.floor(Math.log10(max));
     return Math.ceil(max / step) * step;
@@ -276,6 +283,7 @@ export default function AdminDashboard() {
   const [days, setDays] = useState(30);
   const [{ loading, error, status, data }, reload] = useSummary(days);
   const role = useAdminRole("dashboard");
+  const [tab, setTab] = useState("overview");
   const email = useMemo(() => {
     try {
       return localStorage.getItem("userEmail");
@@ -329,9 +337,9 @@ export default function AdminDashboard() {
         </div>
         <div className="ad-filters" role="group" aria-label="Time range">
           <CalendarRange size={16} aria-hidden="true" />
-          {RANGES.map((r) => (
+          {RANGES.map(([r, label]) => (
             <button key={r} type="button" aria-pressed={days === r} className={days === r ? "is-on" : ""} onClick={() => setDays(r)}>
-              {r} days
+              {label}
             </button>
           ))}
           <button type="button" className="ad-refresh" onClick={reload} aria-label="Refresh">
@@ -340,6 +348,23 @@ export default function AdminDashboard() {
         </div>
       </header>
 
+      {role === "super" && (
+        <div className="ad-tabs" role="tablist" aria-label="Admin sections">
+          {[
+            ["overview", "Overview"],
+            ["database", "Database"],
+          ].map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {tab === "database" && role === "super" ? (
+        <AdminDatabase />
+      ) : (
+      <>
       {error && status !== 200 && <p className="ad-error">{error}</p>}
 
       <section className="ad-tiles" aria-label="Totals">
@@ -438,7 +463,10 @@ export default function AdminDashboard() {
                       const K = KINDS[o.kind];
                       return (
                         <tr key={o.reference}>
-                          <td className="ad-mono">{o.reference}</td>
+                          <td className="ad-mono">
+                            {o.reference}
+                            {o.legacy && <span className="ad-tag">older flow</span>}
+                          </td>
                           <td>
                             <span className="ad-kind">
                               <i style={{ background: `var(--ad-${o.kind})` }} />
@@ -466,6 +494,8 @@ export default function AdminDashboard() {
       )}
 
       {role === "super" && status === 200 && <TeamAccess />}
+      </>
+      )}
     </div>
   );
 }
