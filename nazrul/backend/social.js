@@ -22,6 +22,14 @@ const mongoose = require("mongoose");
 const { requireUser } = require("./authz");
 
 const router = express.Router();
+
+// Express 4 doesn't catch errors thrown by async handlers; without this an
+// unexpected database error would crash the whole server.
+for (const method of ["get", "post", "put", "delete"]) {
+  const original = router[method].bind(router);
+  router[method] = (path, ...handlers) =>
+    original(path, ...handlers.map((h) => (req, res, next) => Promise.resolve(h(req, res, next)).catch(next)));
+}
 const dbReady = () => mongoose.connection.readyState === 1;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_IMAGE = 450 * 1024; // characters of a data URL, ~330 KB image
@@ -117,13 +125,22 @@ const listOf = (arr, keys, max = 10) =>
     .filter((row) => Object.values(row).some(Boolean));
 
 async function myProfile(email) {
-  let p = await Profile.findOne({ email }).lean();
-  if (!p) {
-    const User = mongoose.models.User;
-    const user = User ? await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") }).lean() : null;
-    p = (await Profile.create({ email, name: (user && user.name) || email.split("@")[0] })).toObject();
+  const existing = await Profile.findOne({ email }).lean();
+  if (existing) return existing;
+  const User = mongoose.models.User;
+  const user = User ? await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") }).lean() : null;
+  // The dashboard makes several requests at once, so two may try to create
+  // the profile together: an upsert makes that safe.
+  try {
+    return await Profile.findOneAndUpdate(
+      { email },
+      { $setOnInsert: { email, name: (user && user.name) || email.split("@")[0] } },
+      { upsert: true, new: true },
+    ).lean();
+  } catch (error) {
+    if (error && error.code === 11000) return Profile.findOne({ email }).lean();
+    throw error;
   }
-  return p;
 }
 
 async function friendEmails(email) {
@@ -450,10 +467,18 @@ router.post("/trips/:id/deposits", async (req, res) => {
   res.json({ trip: tripOut(t) });
 });
 
+// Any error in a /social route: log it and answer with a message.
+// eslint-disable-next-line no-unused-vars
+router.use((error, req, res, next) => {
+  console.error("Social route error:", error);
+  if (!res.headersSent) res.status(500).json({ message: "Something went wrong. Please try again." });
+});
+
 // Invite details can be read before signing in, so this router is mounted
 // separately without requireUser.
 const publicRouter = express.Router();
-publicRouter.get("/invites/:token", async (req, res) => {
+publicRouter.get("/invites/:token", async (req, res, next) => {
+  try {
   if (!dbReady()) return res.status(503).json({ message: "The database isn't connected." });
   const inv = await Invite.findOne({ token: req.params.token }).lean();
   if (!inv) return res.status(404).json({ message: "This invite link isn't valid." });
@@ -465,6 +490,9 @@ publicRouter.get("/invites/:token", async (req, res) => {
       profession: p && p.profession,
     },
   });
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = { socialRouter: router, socialPublicRouter: publicRouter, Profile, Friend, Post, Trip, Invite };
