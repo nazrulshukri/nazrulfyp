@@ -1,0 +1,470 @@
+// Social dashboard: profiles, friends and invites, posts, and trip plans with
+// savings. Every route needs a signed-in user (session token).
+//   GET  /social/me                     my profile (+ counts)
+//   PUT  /social/me                     update my profile
+//   GET  /social/people/:email          someone's profile (friends see more)
+//   GET  /social/friends                friends, incoming and outgoing requests
+//   POST /social/friends                { email } send a request, or an email invite
+//   POST /social/friends/:email/accept  accept a request
+//   DELETE /social/friends/:email       decline, cancel or unfriend
+//   POST /social/invites                create a shareable invite link
+//   GET  /social/invites/:token         who invited you (no sign-in needed)
+//   POST /social/invites/:token/accept  become friends with the inviter
+//   GET  /social/feed                   my posts and my friends' posts
+//   POST /social/posts                  { text, image } new post
+//   DELETE /social/posts/:id            delete my post
+//   POST /social/posts/:id/like         like / unlike
+//   GET|POST /social/trips, PUT|DELETE /social/trips/:id
+//   POST /social/trips/:id/deposits     { amount, note } add savings
+const express = require("express");
+const crypto = require("crypto");
+const mongoose = require("mongoose");
+const { requireUser } = require("./authz");
+
+const router = express.Router();
+const dbReady = () => mongoose.connection.readyState === 1;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_IMAGE = 450 * 1024; // characters of a data URL, ~330 KB image
+
+const RELATIONSHIPS = ["", "single", "in a relationship", "engaged", "married", "divorced", "widowed", "prefer not to say"];
+const VISIBILITY = ["public", "friends", "private"];
+
+const ProfileSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    name: { type: String, trim: true, maxlength: 80 },
+    avatar: {
+      kind: { type: String, enum: ["character", "photo"], default: "character" },
+      character: { type: String, default: "traveller" },
+      photo: String,
+    },
+    cover: { type: String, default: "forest" },
+    profession: { type: String, trim: true, maxlength: 80 },
+    age: { type: Number, min: 13, max: 120 },
+    phone: { type: String, trim: true, maxlength: 30 },
+    location: { type: String, trim: true, maxlength: 80 },
+    bio: { type: String, trim: true, maxlength: 400 },
+    mood: { emoji: String, text: { type: String, maxlength: 80 } },
+    relationship: { type: String, enum: RELATIONSHIPS, default: "" },
+    interests: [{ type: String, maxlength: 30 }],
+    experience: [{ title: String, company: String, from: String, to: String }],
+    education: [{ school: String, course: String, year: String }],
+    certificates: [{ name: String, issuer: String, year: String }],
+    visibility: {
+      phone: { type: String, enum: VISIBILITY, default: "friends" },
+      age: { type: String, enum: VISIBILITY, default: "friends" },
+      relationship: { type: String, enum: VISIBILITY, default: "friends" },
+    },
+  },
+  { timestamps: true },
+);
+const FriendSchema = new mongoose.Schema(
+  {
+    from: { type: String, required: true, lowercase: true, index: true },
+    to: { type: String, required: true, lowercase: true, index: true },
+    status: { type: String, enum: ["pending", "accepted"], default: "pending" },
+  },
+  { timestamps: true },
+);
+FriendSchema.index({ from: 1, to: 1 }, { unique: true });
+const InviteSchema = new mongoose.Schema(
+  {
+    token: { type: String, required: true, unique: true },
+    from: { type: String, required: true, lowercase: true },
+    toEmail: { type: String, lowercase: true },
+    acceptedBy: [String],
+  },
+  { timestamps: true },
+);
+const PostSchema = new mongoose.Schema(
+  {
+    author: { type: String, required: true, lowercase: true, index: true },
+    text: { type: String, maxlength: 500 },
+    image: String,
+    likes: [String],
+  },
+  { timestamps: true },
+);
+const TripSchema = new mongoose.Schema(
+  {
+    owner: { type: String, required: true, lowercase: true, index: true },
+    destination: { type: String, required: true, trim: true, maxlength: 80 },
+    targetDate: Date,
+    budgetMyr: { type: Number, min: 0, max: 10_000_000, default: 0 },
+    note: { type: String, maxlength: 300 },
+    friends: [String],
+    deposits: [{ amount: Number, note: String, at: { type: Date, default: Date.now } }],
+  },
+  { timestamps: true },
+);
+
+const model = (name, schema) => mongoose.models[name] || mongoose.model(name, schema);
+const Profile = model("Profile", ProfileSchema);
+const Friend = model("Friend", FriendSchema);
+const Invite = model("Invite", InviteSchema);
+const Post = model("Post", PostSchema);
+const Trip = model("Trip", TripSchema);
+
+router.use(requireUser);
+router.use((req, res, next) => (dbReady() ? next() : res.status(503).json({ message: "The database isn't connected." })));
+
+const clip = (v, n) => (v == null ? undefined : String(v).trim().slice(0, n));
+const isImage = (v) => typeof v === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(v) && v.length <= MAX_IMAGE;
+const listOf = (arr, keys, max = 10) =>
+  (Array.isArray(arr) ? arr : [])
+    .slice(0, max)
+    .map((row) => Object.fromEntries(keys.map((k) => [k, clip(row && row[k], 80) || ""])))
+    .filter((row) => Object.values(row).some(Boolean));
+
+async function myProfile(email) {
+  let p = await Profile.findOne({ email }).lean();
+  if (!p) {
+    const User = mongoose.models.User;
+    const user = User ? await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") }).lean() : null;
+    p = (await Profile.create({ email, name: (user && user.name) || email.split("@")[0] })).toObject();
+  }
+  return p;
+}
+
+async function friendEmails(email) {
+  const rows = await Friend.find({ status: "accepted", $or: [{ from: email }, { to: email }] }).lean();
+  return rows.map((r) => (r.from === email ? r.to : r.from));
+}
+async function areFriends(a, b) {
+  return Boolean(await Friend.exists({ status: "accepted", $or: [{ from: a, to: b }, { from: b, to: a }] }));
+}
+
+// What a viewer may see of a profile.
+function publicView(p, { self, friend }) {
+  const can = (field) => self || p.visibility?.[field] === "public" || (friend && p.visibility?.[field] === "friends");
+  const out = {
+    email: self || friend ? p.email : undefined,
+    name: p.name,
+    avatar: p.avatar,
+    cover: p.cover,
+    profession: p.profession,
+    location: p.location,
+    bio: p.bio,
+    mood: p.mood,
+    interests: p.interests,
+    experience: p.experience,
+    education: p.education,
+    certificates: p.certificates,
+  };
+  if (can("phone")) out.phone = p.phone;
+  if (can("age")) out.age = p.age;
+  if (can("relationship")) out.relationship = p.relationship;
+  if (self) out.visibility = p.visibility;
+  return out;
+}
+
+const cards = async (emails) => {
+  const profiles = await Profile.find({ email: { $in: emails } }).lean();
+  const by = Object.fromEntries(profiles.map((p) => [p.email, p]));
+  return emails.map((email) => ({
+    email,
+    name: (by[email] && by[email].name) || email.split("@")[0],
+    avatar: (by[email] && by[email].avatar) || { kind: "character", character: "traveller" },
+    profession: by[email] && by[email].profession,
+    mood: by[email] && by[email].mood,
+  }));
+};
+
+/* ---------- Profile ---------- */
+
+router.get("/me", async (req, res) => {
+  const me = req.user.email;
+  const [p, friends, incoming, posts, trips] = await Promise.all([
+    myProfile(me),
+    friendEmails(me),
+    Friend.countDocuments({ to: me, status: "pending" }),
+    Post.countDocuments({ author: me }),
+    Trip.countDocuments({ owner: me }),
+  ]);
+  res.json({ profile: publicView(p, { self: true }), counts: { friends: friends.length, incoming, posts, trips } });
+});
+
+router.put("/me", async (req, res) => {
+  const b = req.body || {};
+  const update = {};
+  for (const [k, n] of [["name", 80], ["profession", 80], ["phone", 30], ["location", 80], ["bio", 400], ["cover", 20]]) {
+    if (k in b) update[k] = clip(b[k], n);
+  }
+  if ("age" in b) {
+    const age = Number(b.age);
+    update.age = b.age === "" || b.age == null ? undefined : Number.isInteger(age) && age >= 13 && age <= 120 ? age : null;
+    if (update.age === null) return res.status(400).json({ message: "Age must be a whole number from 13 to 120." });
+  }
+  if ("relationship" in b) {
+    if (!RELATIONSHIPS.includes(b.relationship)) return res.status(400).json({ message: "Unknown relationship status." });
+    update.relationship = b.relationship;
+  }
+  if ("mood" in b) update.mood = { emoji: clip(b.mood && b.mood.emoji, 8), text: clip(b.mood && b.mood.text, 80) };
+  if ("interests" in b) update.interests = [...new Set((b.interests || []).map((i) => clip(i, 30)).filter(Boolean))].slice(0, 20);
+  if ("experience" in b) update.experience = listOf(b.experience, ["title", "company", "from", "to"]);
+  if ("education" in b) update.education = listOf(b.education, ["school", "course", "year"]);
+  if ("certificates" in b) update.certificates = listOf(b.certificates, ["name", "issuer", "year"]);
+  if ("visibility" in b) {
+    update.visibility = {};
+    for (const f of ["phone", "age", "relationship"]) {
+      update.visibility[f] = VISIBILITY.includes(b.visibility && b.visibility[f]) ? b.visibility[f] : "friends";
+    }
+  }
+  if ("avatar" in b) {
+    const a = b.avatar || {};
+    if (a.kind === "photo") {
+      if (!isImage(a.photo)) return res.status(400).json({ message: "Use a JPG, PNG or WebP photo under about 300 KB." });
+      update.avatar = { kind: "photo", photo: a.photo, character: clip(a.character, 30) || "traveller" };
+    } else {
+      update.avatar = { kind: "character", character: clip(a.character, 30) || "traveller" };
+    }
+  }
+  await myProfile(req.user.email);
+  const p = await Profile.findOneAndUpdate({ email: req.user.email }, { $set: update }, { new: true, runValidators: true }).lean();
+  res.json({ profile: publicView(p, { self: true }) });
+});
+
+router.get("/people/:email", async (req, res) => {
+  const email = String(req.params.email).toLowerCase();
+  const p = await Profile.findOne({ email }).lean();
+  if (!p) return res.status(404).json({ message: "No profile found." });
+  const self = email === req.user.email;
+  const friend = !self && (await areFriends(req.user.email, email));
+  res.json({ profile: publicView(p, { self, friend }), friend });
+});
+
+/* ---------- Friends and invites ---------- */
+
+router.get("/friends", async (req, res) => {
+  const me = req.user.email;
+  const [friends, incoming, outgoing] = await Promise.all([
+    friendEmails(me),
+    Friend.find({ to: me, status: "pending" }).lean(),
+    Friend.find({ from: me, status: "pending" }).lean(),
+  ]);
+  res.json({
+    friends: await cards(friends),
+    incoming: await cards(incoming.map((r) => r.from)),
+    outgoing: await cards(outgoing.map((r) => r.to)),
+  });
+});
+
+const appUrl = (req) =>
+  process.env.APP_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : `${req.protocol}://${req.get("host")}`.replace(":5001", ":3000"));
+
+router.post("/friends", async (req, res) => {
+  const me = req.user.email;
+  const email = String((req.body || {}).email || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ message: "Enter a valid email address." });
+  if (email === me) return res.status(400).json({ message: "That's your own email." });
+  if (await areFriends(me, email)) return res.status(409).json({ message: "You're already friends." });
+
+  const User = mongoose.models.User;
+  const exists = User && (await User.exists({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") }));
+  if (exists) {
+    // If they already asked me, this accepts their request.
+    const theirs = await Friend.findOne({ from: email, to: me });
+    if (theirs) {
+      theirs.status = "accepted";
+      await theirs.save();
+      return res.json({ status: "accepted" });
+    }
+    await Friend.updateOne({ from: me, to: email }, { $setOnInsert: { from: me, to: email, status: "pending" } }, { upsert: true });
+    return res.status(201).json({ status: "requested" });
+  }
+
+  // Not on BookingFlex yet: email them an invite link.
+  const token = crypto.randomBytes(16).toString("hex");
+  await Invite.create({ token, from: me, toEmail: email });
+  const link = `${appUrl(req)}/invite/${token}`;
+  const profile = await myProfile(me);
+  const sendMail = req.app.locals.sendMail;
+  let emailed = false;
+  if (sendMail) {
+    try {
+      await sendMail({
+        to: email,
+        subject: `${profile.name || "A friend"} invited you to BookingFlex`,
+        text: `${profile.name || "Your friend"} wants to plan trips with you on BookingFlex.\n\nJoin here: ${link}`,
+        html: `<p><strong>${(profile.name || "Your friend").replace(/</g, "&lt;")}</strong> wants to plan trips with you on BookingFlex.</p><p><a href="${link}">Accept the invite</a></p>`,
+      });
+      emailed = true;
+    } catch (error) {
+      console.error("Invite email failed:", error.message);
+    }
+  }
+  res.status(201).json({ status: "invited", emailed, link });
+});
+
+router.post("/friends/:email/accept", async (req, res) => {
+  const r = await Friend.findOne({ from: String(req.params.email).toLowerCase(), to: req.user.email, status: "pending" });
+  if (!r) return res.status(404).json({ message: "No request from that person." });
+  r.status = "accepted";
+  await r.save();
+  res.json({ status: "accepted" });
+});
+
+router.delete("/friends/:email", async (req, res) => {
+  const other = String(req.params.email).toLowerCase();
+  const me = req.user.email;
+  const { deletedCount } = await Friend.deleteMany({ $or: [{ from: me, to: other }, { from: other, to: me }] });
+  res.json({ removed: deletedCount > 0 });
+});
+
+router.post("/invites", async (req, res) => {
+  const token = crypto.randomBytes(16).toString("hex");
+  await Invite.create({ token, from: req.user.email });
+  res.status(201).json({ link: `${appUrl(req)}/invite/${token}` });
+});
+
+router.post("/invites/:token/accept", async (req, res) => {
+  const inv = await Invite.findOne({ token: req.params.token });
+  if (!inv) return res.status(404).json({ message: "This invite link isn't valid." });
+  const me = req.user.email;
+  if (inv.from === me) return res.status(400).json({ message: "That's your own invite link." });
+  await Friend.updateOne(
+    { from: inv.from, to: me },
+    { $set: { status: "accepted" }, $setOnInsert: { from: inv.from, to: me } },
+    { upsert: true },
+  );
+  await Friend.deleteOne({ from: me, to: inv.from, status: "pending" });
+  await Invite.updateOne({ _id: inv._id }, { $addToSet: { acceptedBy: me } });
+  const [card] = await cards([inv.from]);
+  res.json({ status: "accepted", friend: card });
+});
+
+/* ---------- Posts ---------- */
+
+const postOut = (p, me, people) => ({
+  id: String(p._id),
+  author: people[p.author] || { email: p.author, name: p.author.split("@")[0] },
+  text: p.text,
+  image: p.image,
+  likes: (p.likes || []).length,
+  liked: (p.likes || []).includes(me),
+  mine: p.author === me,
+  createdAt: p.createdAt,
+});
+
+router.get("/feed", async (req, res) => {
+  const me = req.user.email;
+  const authors = [me, ...(await friendEmails(me))];
+  const posts = await Post.find({ author: { $in: authors } }).sort({ createdAt: -1 }).limit(30).lean();
+  const people = Object.fromEntries((await cards([...new Set(posts.map((p) => p.author))])).map((c) => [c.email, c]));
+  res.json({ posts: posts.map((p) => postOut(p, me, people)) });
+});
+
+router.post("/posts", async (req, res) => {
+  const text = clip((req.body || {}).text, 500) || "";
+  const image = (req.body || {}).image;
+  if (!text && !image) return res.status(400).json({ message: "Write something or add a photo." });
+  if (image && !isImage(image)) return res.status(400).json({ message: "Use a JPG, PNG or WebP photo under about 300 KB." });
+  const p = await Post.create({ author: req.user.email, text, image: image || undefined });
+  const people = Object.fromEntries((await cards([req.user.email])).map((c) => [c.email, c]));
+  res.status(201).json({ post: postOut(p.toObject(), req.user.email, people) });
+});
+
+router.delete("/posts/:id", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Post not found." });
+  const { deletedCount } = await Post.deleteOne({ _id: req.params.id, author: req.user.email });
+  if (!deletedCount) return res.status(404).json({ message: "Post not found." });
+  res.json({ removed: true });
+});
+
+router.post("/posts/:id/like", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Post not found." });
+  const me = req.user.email;
+  const p = await Post.findById(req.params.id);
+  if (!p) return res.status(404).json({ message: "Post not found." });
+  if (p.author !== me && !(await areFriends(me, p.author))) return res.status(403).json({ message: "Only friends can like this post." });
+  const liked = p.likes.includes(me);
+  p.likes = liked ? p.likes.filter((e) => e !== me) : [...p.likes, me];
+  await p.save();
+  res.json({ liked: !liked, likes: p.likes.length });
+});
+
+/* ---------- Trip plans and savings ---------- */
+
+const tripOut = (t) => {
+  const saved = (t.deposits || []).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  return {
+    id: String(t._id),
+    destination: t.destination,
+    targetDate: t.targetDate,
+    budgetMyr: t.budgetMyr,
+    note: t.note,
+    savedMyr: Math.round(saved * 100) / 100,
+    deposits: (t.deposits || []).map((d) => ({ id: String(d._id), amount: d.amount, note: d.note, at: d.at })).reverse(),
+    createdAt: t.createdAt,
+  };
+};
+const tripInput = (b) => {
+  const out = {};
+  if ("destination" in b) out.destination = clip(b.destination, 80);
+  if ("note" in b) out.note = clip(b.note, 300);
+  if ("budgetMyr" in b) out.budgetMyr = Math.max(0, Math.min(10_000_000, Number(b.budgetMyr) || 0));
+  if ("targetDate" in b) out.targetDate = b.targetDate && !Number.isNaN(new Date(b.targetDate).getTime()) ? new Date(b.targetDate) : undefined;
+  return out;
+};
+
+router.get("/trips", async (req, res) => {
+  const trips = await Trip.find({ owner: req.user.email }).sort({ targetDate: 1, createdAt: -1 }).lean();
+  res.json({ trips: trips.map(tripOut) });
+});
+
+router.post("/trips", async (req, res) => {
+  const data = tripInput(req.body || {});
+  if (!data.destination) return res.status(400).json({ message: "Where do you want to go?" });
+  if ((await Trip.countDocuments({ owner: req.user.email })) >= 30) return res.status(400).json({ message: "You can plan up to 30 trips." });
+  const t = await Trip.create({ ...data, owner: req.user.email });
+  res.status(201).json({ trip: tripOut(t.toObject()) });
+});
+
+router.put("/trips/:id", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Trip not found." });
+  const t = await Trip.findOneAndUpdate({ _id: req.params.id, owner: req.user.email }, { $set: tripInput(req.body || {}) }, { new: true }).lean();
+  if (!t) return res.status(404).json({ message: "Trip not found." });
+  res.json({ trip: tripOut(t) });
+});
+
+router.delete("/trips/:id", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Trip not found." });
+  const { deletedCount } = await Trip.deleteOne({ _id: req.params.id, owner: req.user.email });
+  res.json({ removed: deletedCount > 0 });
+});
+
+router.post("/trips/:id/deposits", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Trip not found." });
+  const amount = Math.round(Number((req.body || {}).amount) * 100) / 100;
+  // Negative amounts record a withdrawal from the savings.
+  if (!Number.isFinite(amount) || amount === 0 || Math.abs(amount) > 1_000_000) {
+    return res.status(400).json({ message: "Enter an amount, e.g. 200." });
+  }
+  const t = await Trip.findOneAndUpdate(
+    { _id: req.params.id, owner: req.user.email },
+    { $push: { deposits: { amount, note: clip((req.body || {}).note, 80) } } },
+    { new: true },
+  ).lean();
+  if (!t) return res.status(404).json({ message: "Trip not found." });
+  res.json({ trip: tripOut(t) });
+});
+
+// Invite details can be read before signing in, so this router is mounted
+// separately without requireUser.
+const publicRouter = express.Router();
+publicRouter.get("/invites/:token", async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ message: "The database isn't connected." });
+  const inv = await Invite.findOne({ token: req.params.token }).lean();
+  if (!inv) return res.status(404).json({ message: "This invite link isn't valid." });
+  const p = await Profile.findOne({ email: inv.from }).lean();
+  res.json({
+    from: {
+      name: (p && p.name) || inv.from.split("@")[0],
+      avatar: (p && p.avatar && p.avatar.kind === "character" ? p.avatar : { kind: "character", character: "traveller" }),
+      profession: p && p.profession,
+    },
+  });
+});
+
+module.exports = { socialRouter: router, socialPublicRouter: publicRouter, Profile, Friend, Post, Trip, Invite };
