@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Briefcase, Lock, MapPin, MessageCircle, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
+import { Briefcase, Images, Lock, MapPin, MessageCircle, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
 import Avatar from "./Avatar";
 import FeedTab from "./FeedTab";
 import ProfileTab from "./ProfileTab";
+import GalleryTab from "./GalleryTab";
 import FriendsTab from "./FriendsTab";
 import TripsTab from "./TripsTab";
 import MessagesTab from "./MessagesTab";
@@ -16,6 +17,7 @@ import "./Hub.css";
 const TABS = [
   ["feed", "Feed", Newspaper],
   ["profile", "Profile", UserRound],
+  ["media", "Photos & videos", Images],
   ["messages", "Messages", MessageCircle],
   ["friends", "Friends", Users],
   ["trips", "Trips & savings", PiggyBank],
@@ -146,7 +148,7 @@ export default function Hub() {
                 <dt>Friends</dt>
                 <dd>{c.friends}</dd>
               </button>
-              <button type="button" onClick={() => go("feed")}>
+              <button type="button" onClick={() => go("media")}>
                 <dt>Posts</dt>
                 <dd>{c.posts}</dd>
               </button>
@@ -179,6 +181,7 @@ export default function Hub() {
       <main className="hub-main">
         {tab === "feed" && <FeedTab me={p} onChange={load} />}
         {tab === "profile" && p && <ProfileTab profile={p} onSaved={(np) => setMe((m) => ({ ...m, profile: np }))} />}
+        {tab === "media" && <GalleryTab me={p} onChange={load} />}
         {tab === "messages" && <MessagesTab onUnreadChange={setUnread} />}
         {tab === "friends" && <FriendsTab onChange={load} />}
         {tab === "trips" && <TripsTab onChange={load} />}

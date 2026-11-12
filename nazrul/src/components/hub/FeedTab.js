@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Heart, ImagePlus, Loader2, Send, Trash2, X } from "lucide-react";
 import Avatar from "./Avatar";
-import { api, resizeImage, timeAgo } from "../../lib/social";
+import { api, mediaUrl, prepareMedia, publishPost, timeAgo } from "../../lib/social";
 
 const MAX = 500;
 
@@ -9,7 +9,7 @@ const MAX = 500;
 export default function FeedTab({ me, onChange }) {
   const [posts, setPosts] = useState(null);
   const [text, setText] = useState("");
-  const [image, setImage] = useState(null);
+  const [media, setMedia] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const file = useRef(null);
@@ -30,7 +30,7 @@ export default function FeedTab({ me, onChange }) {
     e.target.value = "";
     if (!f) return;
     try {
-      setImage(await resizeImage(f));
+      setMedia(await prepareMedia(f));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -39,13 +39,13 @@ export default function FeedTab({ me, onChange }) {
 
   async function submit(e) {
     e.preventDefault();
-    if (!text.trim() && !image) return;
+    if (!text.trim() && !media) return;
     setBusy(true);
     try {
-      const { post } = await api("/posts", { method: "POST", body: { text: text.trim(), image } });
+      const post = await publishPost(text.trim(), media);
       setPosts((list) => [post, ...(list || [])]);
       setText("");
-      setImage(null);
+      setMedia(null);
       setError(null);
       onChange && onChange();
     } catch (err) {
@@ -85,28 +85,33 @@ export default function FeedTab({ me, onChange }) {
           <textarea
             value={text}
             maxLength={MAX}
-            rows={image ? 2 : 3}
+            rows={media ? 2 : 3}
             placeholder="Where are you dreaming of going? Share a moment…"
             aria-label="Write a post"
             onChange={(e) => setText(e.target.value)}
           />
-          {image && (
+          {media && (
             <div className="hub-composer-preview">
-              <img src={image} alt="Selected" />
-              <button type="button" aria-label="Remove photo" onClick={() => setImage(null)}>
+              {media.kind === "video" ? (
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <video src={media.preview} poster={media.poster} controls playsInline muted />
+              ) : (
+                <img src={media.preview} alt="Selected" />
+              )}
+              <button type="button" aria-label="Remove photo or video" onClick={() => setMedia(null)}>
                 <X size={16} />
               </button>
             </div>
           )}
           <div className="hub-composer-bar">
             <button type="button" className="hub-icon-btn" onClick={() => file.current && file.current.click()}>
-              <ImagePlus size={18} /> Photo
+              <ImagePlus size={18} /> Photo / video
             </button>
-            <input ref={file} type="file" accept="image/*" hidden onChange={pick} />
+            <input ref={file} type="file" accept="image/*,video/mp4,video/quicktime,video/webm" hidden onChange={pick} />
             <small className={text.length > MAX - 40 ? "is-warn" : ""}>
               {text.length}/{MAX}
             </small>
-            <button type="submit" className="hub-btn" disabled={busy || (!text.trim() && !image)}>
+            <button type="submit" className="hub-btn" disabled={busy || (!text.trim() && !media)}>
               {busy ? <Loader2 size={16} className="hub-spin" /> : <Send size={16} />} Post
             </button>
           </div>
@@ -139,7 +144,11 @@ export default function FeedTab({ me, onChange }) {
               </button>
             )}
           </header>
-          {post.text && <p className={`hub-post-text ${!post.image && post.text.length < 120 ? "is-big" : ""}`}>{post.text}</p>}
+          {post.text && <p className={`hub-post-text ${!post.image && !post.video && post.text.length < 120 ? "is-big" : ""}`}>{post.text}</p>}
+          {post.video && (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video className="hub-post-video" src={mediaUrl(post.video)} poster={post.poster} controls playsInline preload="none" />
+          )}
           {post.image && <img className="hub-post-img" src={post.image} alt={post.text ? post.text.slice(0, 80) : "Post photo"} loading="lazy" />}
           <footer>
             <button type="button" className={`hub-like ${post.liked ? "is-on" : ""}`} aria-pressed={post.liked} onClick={() => like(post)}>

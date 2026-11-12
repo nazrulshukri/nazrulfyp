@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/header';
 import HariRayaPopup from './components/HariRayapopup';
 import MainContent from './components/body';
@@ -35,8 +35,6 @@ import TrackPage from './components/TrackPage';
 import TrainPage from './components/train';
 import Hub from './components/hub/Hub';
 import InvitePage from './components/hub/InvitePage';
-import Profile from './components/profile';
-import ProfileMaintenance from './components/profilemaintenance';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -102,8 +100,9 @@ function AppContent() {
           <Route path="/FlightStatus" element={<TrackPage defaultTab="flights" />} />
           <Route path="/dashboard" element={<Hub />} />
           <Route path="/invite/:token" element={<InvitePage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile-maintenance" element={<ProfileMaintenance />} />
+          {/* One profile page: the Profile tab under My trips. Old links still work. */}
+          <Route path="/profile" element={<Navigate to="/dashboard?tab=profile" replace />} />
+          <Route path="/profile-maintenance" element={<Navigate to="/dashboard?tab=profile" replace />} />
           <Route path="*" element={<section className="bf-empty"><h1>Let’s get you back on your way.</h1><p>This page could not be found.</p><Link className="bf-primary" to="/">Find your next trip</Link></section>} />
         </Routes>
       </main>

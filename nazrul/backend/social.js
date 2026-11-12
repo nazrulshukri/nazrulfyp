@@ -11,7 +11,12 @@
 //   GET  /social/invites/:token         who invited you (no sign-in needed)
 //   POST /social/invites/:token/accept  become friends with the inviter
 //   GET  /social/feed                   my posts and my friends' posts
-//   POST /social/posts                  { text, image } new post
+//   POST /social/posts                  { text, image, thumb, videoId, poster } new post
+//   GET  /social/gallery?email=         someone's photos and videos (me or a friend)
+//   GET  /social/posts/:id              one post (me or a friend)
+//   POST /social/posts/:id/view         count a view of someone else's post
+//   POST /social/media                  upload a video (raw body, up to 4 MB)
+//   GET  /social/media/:id?sig=         stream a video (signed link, no sign-in)
 //   DELETE /social/posts/:id            delete my post
 //   POST /social/posts/:id/like         like / unlike
 //   GET|POST /social/trips, PUT|DELETE /social/trips/:id
@@ -33,6 +38,11 @@ for (const method of ["get", "post", "put", "delete"]) {
 const dbReady = () => mongoose.connection.readyState === 1;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_IMAGE = 450 * 1024; // characters of a data URL, ~330 KB image
+const MAX_THUMB = 120 * 1024; // grid thumbnails and video covers
+// Vercel accepts request bodies up to 4.5 MB, so videos stay under 4 MB.
+const MAX_VIDEO = 4 * 1024 * 1024;
+const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const CABINS = ["Economy", "Premium Economy", "Business", "First"];
 
 const RELATIONSHIPS = ["", "single", "in a relationship", "engaged", "married", "divorced", "widowed", "prefer not to say"];
 const VISIBILITY = ["public", "friends", "private"];
@@ -63,6 +73,15 @@ const ProfileSchema = new mongoose.Schema(
       age: { type: String, enum: VISIBILITY, default: "friends" },
       relationship: { type: String, enum: VISIBILITY, default: "friends" },
     },
+    // Booking details. Only the owner ever sees these.
+    travel: {
+      legalName: { type: String, trim: true, maxlength: 100 },
+      nationality: { type: String, trim: true, maxlength: 60 },
+      passport: { type: String, trim: true, maxlength: 20 },
+      preferredAirport: { type: String, trim: true, maxlength: 100 },
+      cabin: { type: String, enum: CABINS, default: "Economy" },
+      notifications: { type: Boolean, default: true },
+    },
   },
   { timestamps: true },
 );
@@ -89,6 +108,10 @@ const PostSchema = new mongoose.Schema(
     author: { type: String, required: true, lowercase: true, index: true },
     text: { type: String, maxlength: 500 },
     image: String,
+    thumb: String, // small square-ish preview for the photo grid
+    video: { id: String, mime: String }, // file in the "media" GridFS bucket
+    poster: String, // first frame of the video
+    views: { type: Number, default: 0 },
     likes: [String],
   },
   { timestamps: true },
@@ -117,7 +140,23 @@ router.use(requireUser);
 router.use((req, res, next) => (dbReady() ? next() : res.status(503).json({ message: "The database isn't connected." })));
 
 const clip = (v, n) => (v == null ? undefined : String(v).trim().slice(0, n));
-const isImage = (v) => typeof v === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(v) && v.length <= MAX_IMAGE;
+const isImage = (v, max = MAX_IMAGE) => typeof v === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(v) && v.length <= max;
+
+/* Videos live in a GridFS bucket. A <video> tag can't send the session
+   token, so each video link carries a signature instead and is only handed
+   to people allowed to see the post. */
+const { GridFSBucket, ObjectId } = mongoose.mongo;
+const bucket = () => new GridFSBucket(mongoose.connection.db, { bucketName: "media" });
+const mediaSecret = () => (process.env.JWT_SECRET && process.env.JWT_SECRET.trim()) || "your_jwt_secret";
+const signMedia = (id) => crypto.createHmac("sha256", mediaSecret()).update(`media:${id}`).digest("base64url").slice(0, 32);
+const videoUrl = (v) => (v && v.id ? `/social/media/${v.id}?sig=${signMedia(v.id)}` : undefined);
+const sameSig = (a, b) => typeof a === "string" && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+const removeVideo = (v) =>
+  v && v.id && mongoose.isValidObjectId(v.id)
+    ? bucket()
+        .delete(new ObjectId(v.id))
+        .catch(() => {})
+    : Promise.resolve();
 const listOf = (arr, keys, max = 10) =>
   (Array.isArray(arr) ? arr : [])
     .slice(0, max)
@@ -171,7 +210,10 @@ function publicView(p, { self, friend }) {
   if (can("phone")) out.phone = p.phone;
   if (can("age")) out.age = p.age;
   if (can("relationship")) out.relationship = p.relationship;
-  if (self) out.visibility = p.visibility;
+  if (self) {
+    out.visibility = p.visibility;
+    out.travel = p.travel || {};
+  }
   return out;
 }
 
@@ -226,6 +268,17 @@ router.put("/me", async (req, res) => {
     for (const f of ["phone", "age", "relationship"]) {
       update.visibility[f] = VISIBILITY.includes(b.visibility && b.visibility[f]) ? b.visibility[f] : "friends";
     }
+  }
+  if ("travel" in b) {
+    const t = b.travel || {};
+    update.travel = {
+      legalName: clip(t.legalName, 100),
+      nationality: clip(t.nationality, 60),
+      passport: clip(t.passport, 20) && clip(t.passport, 20).toUpperCase().replace(/[^A-Z0-9]/g, ""),
+      preferredAirport: clip(t.preferredAirport, 100),
+      cabin: CABINS.includes(t.cabin) ? t.cabin : "Economy",
+      notifications: t.notifications !== false,
+    };
   }
   if ("avatar" in b) {
     const a = b.avatar || {};
@@ -358,6 +411,9 @@ const postOut = (p, me, people) => ({
   author: people[p.author] || { email: p.author, name: p.author.split("@")[0] },
   text: p.text,
   image: p.image,
+  video: videoUrl(p.video),
+  poster: p.poster,
+  views: p.views || 0,
   likes: (p.likes || []).length,
   liked: (p.likes || []).includes(me),
   mine: p.author === me,
@@ -373,19 +429,98 @@ router.get("/feed", async (req, res) => {
 });
 
 router.post("/posts", async (req, res) => {
-  const text = clip((req.body || {}).text, 500) || "";
-  const image = (req.body || {}).image;
-  if (!text && !image) return res.status(400).json({ message: "Write something or add a photo." });
+  const b = req.body || {};
+  const text = clip(b.text, 500) || "";
+  const { image, thumb, poster } = b;
+  let video;
+  if (b.videoId) {
+    if (!mongoose.isValidObjectId(b.videoId)) return res.status(400).json({ message: "That video upload wasn't found." });
+    const file = await mongoose.connection.db.collection("media.files").findOne({ _id: new ObjectId(b.videoId) });
+    if (!file || (file.metadata && file.metadata.owner) !== req.user.email) return res.status(400).json({ message: "That video upload wasn't found." });
+    video = { id: String(file._id), mime: file.metadata.contentType };
+  }
+  if (!text && !image && !video) return res.status(400).json({ message: "Write something or add a photo or video." });
   if (image && !isImage(image)) return res.status(400).json({ message: "Use a JPG, PNG or WebP photo under about 300 KB." });
-  const p = await Post.create({ author: req.user.email, text, image: image || undefined });
+  if (thumb && !isImage(thumb, MAX_THUMB)) return res.status(400).json({ message: "The preview image is too large." });
+  if (poster && !isImage(poster, MAX_THUMB)) return res.status(400).json({ message: "The video cover is too large." });
+  const p = await Post.create({
+    author: req.user.email,
+    text,
+    image: video ? undefined : image || undefined,
+    thumb: thumb || undefined,
+    video,
+    poster: video ? poster || undefined : undefined,
+  });
   const people = Object.fromEntries((await cards([req.user.email])).map((c) => [c.email, c]));
   res.status(201).json({ post: postOut(p.toObject(), req.user.email, people) });
 });
 
+// Posts are visible to their author and the author's friends.
+async function readablePost(id, me) {
+  if (!mongoose.isValidObjectId(id)) return null;
+  const p = await Post.findById(id).lean();
+  if (!p || (p.author !== me && !(await areFriends(me, p.author)))) return null;
+  return p;
+}
+
+router.get("/posts/:id", async (req, res) => {
+  const p = await readablePost(req.params.id, req.user.email);
+  if (!p) return res.status(404).json({ message: "Post not found." });
+  const people = Object.fromEntries((await cards([p.author])).map((c) => [c.email, c]));
+  res.json({ post: postOut(p, req.user.email, people) });
+});
+
+router.post("/posts/:id/view", async (req, res) => {
+  const p = await readablePost(req.params.id, req.user.email);
+  if (!p) return res.status(404).json({ message: "Post not found." });
+  if (p.author === req.user.email) return res.json({ views: p.views || 0 });
+  const r = await Post.findByIdAndUpdate(p._id, { $inc: { views: 1 } }, { new: true }).select("views").lean();
+  res.json({ views: r.views });
+});
+
+// Photo and video grid for a profile: my own, or a friend's.
+router.get("/gallery", async (req, res) => {
+  const me = req.user.email;
+  const email = req.query.email ? String(req.query.email).toLowerCase() : me;
+  if (email !== me && !(await areFriends(me, email))) return res.status(403).json({ message: "Only friends can see these photos." });
+  const posts = await Post.find({ author: email, $or: [{ image: { $exists: true, $ne: null } }, { "video.id": { $exists: true } }] })
+    .sort({ createdAt: -1 })
+    .limit(150)
+    .select("thumb poster video views likes createdAt text image")
+    .lean();
+  res.json({
+    items: posts.map((p) => ({
+      id: String(p._id),
+      kind: p.video && p.video.id ? "video" : "photo",
+      // Older posts have no thumbnail, so their full photo stands in.
+      thumb: p.thumb || p.poster || p.image,
+      views: p.views || 0,
+      likes: (p.likes || []).length,
+      text: p.text ? p.text.slice(0, 120) : "",
+      createdAt: p.createdAt,
+    })),
+  });
+});
+
+router.post("/media", express.raw({ type: VIDEO_TYPES, limit: MAX_VIDEO }), async (req, res) => {
+  const type = String(req.headers["content-type"] || "").split(";")[0].trim();
+  if (!VIDEO_TYPES.includes(type) || !Buffer.isBuffer(req.body) || !req.body.length) {
+    return res.status(400).json({ message: "Upload an MP4, WebM or MOV video." });
+  }
+  const id = new ObjectId();
+  await new Promise((resolve, reject) => {
+    const up = bucket().openUploadStreamWithId(id, `video-${id}`, { metadata: { owner: req.user.email, contentType: type } });
+    up.once("finish", resolve).once("error", reject);
+    up.end(req.body);
+  });
+  res.status(201).json({ id: String(id) });
+});
+
 router.delete("/posts/:id", async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Post not found." });
-  const { deletedCount } = await Post.deleteOne({ _id: req.params.id, author: req.user.email });
-  if (!deletedCount) return res.status(404).json({ message: "Post not found." });
+  const p = await Post.findOneAndDelete({ _id: req.params.id, author: req.user.email }).lean();
+  if (!p) return res.status(404).json({ message: "Post not found." });
+  await removeVideo(p.video);
   res.json({ removed: true });
 });
 
@@ -470,6 +605,9 @@ router.post("/trips/:id/deposits", async (req, res) => {
 // Any error in a /social route: log it and answer with a message.
 // eslint-disable-next-line no-unused-vars
 router.use((error, req, res, next) => {
+  if (error && error.type === "entity.too.large") {
+    return res.status(413).json({ message: "That file is too large. Videos can be up to 4 MB." });
+  }
   console.error("Social route error:", error);
   if (!res.headersSent) res.status(500).json({ message: "Something went wrong. Please try again." });
 });
@@ -490,6 +628,46 @@ publicRouter.get("/invites/:token", async (req, res, next) => {
       profession: p && p.profession,
     },
   });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Streams a video with byte ranges (Safari and iPhone need them to play).
+publicRouter.get("/media/:id", async (req, res, next) => {
+  try {
+    if (!dbReady()) return res.status(503).end();
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id) || !sameSig(req.query.sig, signMedia(id))) return res.status(404).end();
+    const file = await mongoose.connection.db.collection("media.files").findOne({ _id: new ObjectId(id) });
+    if (!file) return res.status(404).end();
+    const size = file.length;
+    let start = 0;
+    let end = size - 1;
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+    res.set({
+      "Accept-Ranges": "bytes",
+      "Content-Type": (file.metadata && file.metadata.contentType) || "video/mp4",
+      "Cache-Control": "private, max-age=86400",
+    });
+    if (range && (range[1] || range[2])) {
+      if (range[1] === "") start = Math.max(0, size - Number(range[2]));
+      else {
+        start = Number(range[1]);
+        if (range[2]) end = Math.min(Number(range[2]), size - 1);
+      }
+      if (start > end || start >= size) {
+        res.status(416).set("Content-Range", `bytes */${size}`);
+        return res.end();
+      }
+      res.status(206).set("Content-Range", `bytes ${start}-${end}/${size}`);
+    }
+    res.set("Content-Length", String(end - start + 1));
+    if (req.method === "HEAD") return res.end();
+    bucket()
+      .openDownloadStream(file._id, { start, end: end + 1 })
+      .on("error", next)
+      .pipe(res);
   } catch (error) {
     next(error);
   }
