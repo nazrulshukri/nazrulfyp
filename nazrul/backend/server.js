@@ -38,6 +38,10 @@ const app = express();
 // CORS first: the browser's preflight check must get permission before any
 // route (including the signed-in /social routes) answers.
 app.use(cors());
+
+// Last line of defence: log a stray async error instead of letting it stop
+// the whole server (which would break sign-in for everyone).
+process.on('unhandledRejection', (error) => console.error('Unhandled error:', error));
 app.use('/social', express.json({ limit: '1mb' }), socialPublicRouter, socialRouter);
 app.use(express.json());
 
