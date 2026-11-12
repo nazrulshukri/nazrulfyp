@@ -685,3 +685,6 @@ function PlaneTicket() {
     </div>
   );
 }
+
+// Shared with the dashboard (trip plan photos).
+export { destinations as DESTINATIONS };

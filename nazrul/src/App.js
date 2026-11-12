@@ -32,7 +32,8 @@ import ForgotPassword from './components/forgotpassword';
 import ResetPassword from './components/resetpassword';
 import TrackPage from './components/TrackPage';
 import TrainPage from './components/train';
-import Dashboard from './components/dashboard';
+import Hub from './components/hub/Hub';
+import InvitePage from './components/hub/InvitePage';
 import Profile from './components/profile';
 import ProfileMaintenance from './components/profilemaintenance';
 import './App.css';
@@ -97,7 +98,8 @@ function AppContent() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/track" element={<TrackPage />} />
           <Route path="/FlightStatus" element={<TrackPage defaultTab="flights" />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Hub />} />
+          <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile-maintenance" element={<ProfileMaintenance />} />
           <Route path="*" element={<section className="bf-empty"><h1>Let’s get you back on your way.</h1><p>This page could not be found.</p><Link className="bf-primary" to="/">Find your next trip</Link></section>} />

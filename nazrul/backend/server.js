@@ -28,10 +28,14 @@ const liveRouter = require('./live');
 const ratesRouter = require('./rates');
 const { ordersRouter, adminRouter } = require('./orders');
 const adminDbRouter = require('./admindb');
+const { socialRouter, socialPublicRouter } = require('./social');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
 const app = express();
+// Social dashboard accepts photos (resized in the browser), so it gets a
+// larger body limit than the rest of the API.
+app.use('/social', express.json({ limit: '1mb' }), socialPublicRouter, socialRouter);
 app.use(express.json());
 app.use(cors());
 
@@ -62,7 +66,10 @@ const transporter = process.env.EMAIL_DRY_RUN === 'true'
       pass: process.env.EMAIL_PASS,
     },
   });
-    
+
+// Lets other routers (e.g. friend invites in social.js) send email.
+app.locals.sendMail = (options) =>
+  transporter.sendMail({ from: `BookingFlex <${process.env.EMAIL_USER}>`, ...options });
 
 // Debugging
 transporter.verify((error, success) => {
