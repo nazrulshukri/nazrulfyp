@@ -5,6 +5,7 @@ import HariRayaPopup from './components/HariRayapopup';
 import MainContent from './components/body';
 import Footer from './components/footer';
 import ChatWidget from './components/ChatWidget';
+import AdminDashboard from './components/AdminDashboard';
 import { initCurrency, useCurrency } from './lib/currency';
 import About from './components/about';
 import Services from './components/services';
@@ -69,6 +70,7 @@ function AppContent() {
       <main>
         <Routes>
           <Route path="/" element={<MainContent />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />

@@ -26,6 +26,7 @@ const { buildTicketEmail, buildTicketPdf } = require('./ticketKit');
 const chatRouter = require('./chat');
 const liveRouter = require('./live');
 const ratesRouter = require('./rates');
+const { ordersRouter, adminRouter } = require('./orders');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -39,6 +40,9 @@ app.use('/chat', chatRouter);
 app.use('/live', liveRouter);
 // Exchange rates and visitor country for the currency picker (see rates.js).
 app.use('/rates', ratesRouter);
+// Bookings for My trips and the admin dashboard (see orders.js).
+app.use('/orders', ordersRouter);
+app.use('/admin', adminRouter);
 
 
 const loadImageAsBytes = async (imageUrl) => {
