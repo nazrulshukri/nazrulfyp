@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { t } from "../lib/i18n";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Lock, ArrowRight, Loader2 } from "lucide-react";
@@ -40,23 +41,23 @@ const ResetPassword = () => {
     <AuthLayout
       image={london}
       kicker="Account help"
-      title="Choose a new password."
+      title={t("Choose a new password.")}
       text="Pick something you haven't used before. You'll be signed in straight away."
     >
       <header className="bf26-auth-head">
-        <h1>Set a new password</h1>
+        <h1>{t("Set a new password")}</h1>
         <p>
-          Link expired? <Link to="/forgotpassword">Send a new one</Link>
+          {t("Link expired?")} <Link to="/forgotpassword">{t("Send a new one")}</Link>
         </p>
       </header>
       <form className="bf26-auth-form" onSubmit={submit} noValidate>
         <AuthField
           id="reset-password"
-          label="New password"
+          label={t("New password")}
           icon={Lock}
           type="password"
           autoComplete="new-password"
-          placeholder="At least 8 characters"
+          placeholder={t("At least 8 characters")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() => setTouched((t) => ({ ...t, password: true }))}
@@ -65,11 +66,11 @@ const ResetPassword = () => {
         <StrengthMeter password={password} />
         <AuthField
           id="reset-confirm"
-          label="Confirm new password"
+          label={t("Confirm new password")}
           icon={Lock}
           type="password"
           autoComplete="new-password"
-          placeholder="Type it again"
+          placeholder={t("Type it again")}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}

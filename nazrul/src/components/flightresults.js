@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { dateLocale, t } from "../lib/i18n";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Plane,
@@ -47,7 +48,7 @@ const readSaved = () => {
   }
 };
 const time = (value) =>
-  new Date(value).toLocaleTimeString("en-GB", {
+  new Date(value).toLocaleTimeString(dateLocale(), {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -103,7 +104,7 @@ export function BookingSteps({ current, tripType, steps: custom }) {
           aria-current={i === index ? "step" : undefined}
         >
           <span>{i < index ? <Check size={13} /> : i + 1}</span>
-          {step}
+          {t(step)}
         </li>
       ))}
     </ol>
@@ -258,7 +259,7 @@ export default function FlightResults({ returnLeg = false }) {
           dates.
         </p>
         <Link className="bf-primary" to="/">
-          Search flights <ArrowRight size={16} />
+          {t("Search flights")} <ArrowRight size={16} />
         </Link>
       </section>
     );
@@ -277,7 +278,7 @@ export default function FlightResults({ returnLeg = false }) {
     <section className="bf26-results">
       <div className="bf26-results-top">
         <Link className="bf-back" to="/">
-          <ArrowLeft size={15} /> Change your search
+          <ArrowLeft size={15} /> {t("Change your search")}
         </Link>
         <BookingSteps
           current={returnLeg ? "Return" : "Outbound"}
@@ -288,7 +289,7 @@ export default function FlightResults({ returnLeg = false }) {
       <header className="bf26-route">
         <div className="bf26-route-main">
           <span className="bf26-kicker">
-            {returnLeg ? "Choose your return flight" : "Choose your outbound flight"}
+            {t(returnLeg ? "Choose your return flight" : "Choose your outbound flight")}
           </span>
           <div className="bf26-route-cities">
             <div>
@@ -312,14 +313,14 @@ export default function FlightResults({ returnLeg = false }) {
             <span>
               <Users size={15} /> {people} {people === 1 ? "traveller" : "travellers"}
             </span>
-            <span>Economy</span>
+            <span>{t("Economy")}</span>
             <span>{params.tripType === "return" ? "Round trip" : "One way"}</span>
           </p>
         </div>
         <div className="bf26-route-side">
           {outbound ? (
             <div className="bf26-chosen">
-              <span className="bf26-kicker">Outbound selected</span>
+              <span className="bf26-kicker">{t("Outbound selected")}</span>
               <div>
                 <AirlineBadge name={outbound.airline} size={36} />
                 <span>
@@ -344,9 +345,9 @@ export default function FlightResults({ returnLeg = false }) {
             </div>
           ) : (
             <div className="bf26-from-price">
-              <span className="bf26-kicker">Fares from</span>
+              <span className="bf26-kicker">{t("Fares from")}</span>
               <strong>{formatMoney(cheapest)}</strong>
-              <small>per traveller · sample fare</small>
+              <small>{t("per traveller · sample fare")}</small>
             </div>
           )}
         </div>
@@ -368,7 +369,7 @@ export default function FlightResults({ returnLeg = false }) {
         </div>
       )}
 
-      <nav className="bf26-datestrip" aria-label="Nearby dates">
+      <nav className="bf26-datestrip" aria-label={t("Nearby dates")}>
         {dates.map((date) => {
           const fare = date === currentDate ? cheapest : indicativeFare(cheapest, date);
           const low = fare <= cheapest;
@@ -390,7 +391,7 @@ export default function FlightResults({ returnLeg = false }) {
         })}
       </nav>
 
-      <div className="bf26-sorts" role="tablist" aria-label="Sort flights">
+      <div className="bf26-sorts" role="tablist" aria-label={t("Sort flights")}>
         {[
           ["price", "Cheapest", BadgeDollarSign, stats.byPrice],
           ["duration", "Fastest", Zap, stats.byTime],
@@ -405,7 +406,7 @@ export default function FlightResults({ returnLeg = false }) {
           >
             <Icon size={18} />
             <span>
-              <strong>{label}</strong>
+              <strong>{t(label)}</strong>
               <small>
                 {formatMoney(flight.price).replace(".00", "")} ·{" "}
                 {value === "departure"
@@ -425,7 +426,7 @@ export default function FlightResults({ returnLeg = false }) {
               {activeFilters > 0 && <span>{activeFilters}</span>}
             </h2>
             <button type="button" onClick={resetFilters} disabled={!activeFilters}>
-              Reset
+              {t("Reset")}
             </button>
             <button
               type="button"
@@ -438,7 +439,7 @@ export default function FlightResults({ returnLeg = false }) {
           </div>
 
           <fieldset>
-            <legend>Stops</legend>
+            <legend>{t("Stops")}</legend>
             <div className="bf26-segment">
               {[
                 ["any", "Any"],
@@ -451,14 +452,14 @@ export default function FlightResults({ returnLeg = false }) {
                   className={stops === value ? "is-active" : ""}
                   onClick={() => setStops(value)}
                 >
-                  {label}
+                  {t(label)}
                 </button>
               ))}
             </div>
           </fieldset>
 
           <fieldset>
-            <legend>Departure time</legend>
+            <legend>{t("Departure time")}</legend>
             <div className="bf26-slots">
               {TIME_SLOTS.map(([key, label, range, Icon]) => (
                 <button
@@ -469,7 +470,7 @@ export default function FlightResults({ returnLeg = false }) {
                   onClick={() => toggle(slots, setSlots, key)}
                 >
                   <Icon size={17} />
-                  <strong>{label}</strong>
+                  <strong>{t(label)}</strong>
                   <small>{range}</small>
                 </button>
               ))}
@@ -478,7 +479,7 @@ export default function FlightResults({ returnLeg = false }) {
 
           <fieldset>
             <legend>
-              Max journey time <strong>{maxDuration}h</strong>
+              {t("Max journey time")} <strong>{maxDuration}h</strong>
             </legend>
             <input
               type="range"
@@ -492,7 +493,7 @@ export default function FlightResults({ returnLeg = false }) {
           </fieldset>
 
           <fieldset>
-            <legend>Airlines</legend>
+            <legend>{t("Airlines")}</legend>
             <div className="bf26-airline-list">
               {airlineOptions.map(([name, price]) => (
                 <label key={name}>
@@ -525,7 +526,7 @@ export default function FlightResults({ returnLeg = false }) {
         <div className="bf26-list">
           <div className="bf26-list-bar">
             <span>
-              <strong>{filtered.length}</strong> of {flights.length} flights
+              {t("{count} of {total} flights", { count: filtered.length, total: flights.length })}
             </span>
             <button
               type="button"
@@ -540,10 +541,10 @@ export default function FlightResults({ returnLeg = false }) {
           {filtered.length === 0 && (
             <div className="bf26-empty-card">
               <Plane size={28} />
-              <h2>No flights match these filters.</h2>
-              <p>Try a longer journey time or include connecting flights.</p>
+              <h2>{t("No flights match these filters.")}</h2>
+              <p>{t("Try a longer journey time or include connecting flights.")}</p>
               <button type="button" className="bf26-ghost" onClick={resetFilters}>
-                Clear filters
+                {t("Clear filters")}
               </button>
             </div>
           )}
@@ -584,7 +585,7 @@ export default function FlightResults({ returnLeg = false }) {
                         <Plane size={14} />
                       </span>
                       <small className={flight.nonStop ? "is-direct" : ""}>
-                        {flight.nonStop ? "Direct" : "1 stop"}
+                        {t(flight.nonStop ? "Direct" : "1 stop")}
                       </small>
                     </div>
                     <div>
@@ -598,8 +599,8 @@ export default function FlightResults({ returnLeg = false }) {
 
                   <div className="bf26-flight-fare">
                     <div className="bf26-tags">
-                      {isCheapest && <span className="is-lime">Cheapest</span>}
-                      {isFastest && <span className="is-sky">Fastest</span>}
+                      {isCheapest && <span className="is-lime">{t("Cheapest")}</span>}
+                      {isFastest && <span className="is-sky">{t("Fastest")}</span>}
                     </div>
                     <strong>{formatMoney(flight.price * people)}</strong>
                     <small>
@@ -612,7 +613,7 @@ export default function FlightResults({ returnLeg = false }) {
                       className="bf26-primary"
                       onClick={() => select(flight)}
                     >
-                      Select <ArrowRight size={16} />
+                      {t("Select")} <ArrowRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -624,16 +625,16 @@ export default function FlightResults({ returnLeg = false }) {
                   onClick={() => setExpanded(open ? null : flight.id)}
                 >
                   <span>
-                    <Briefcase size={14} /> 7 kg cabin
+                    <Briefcase size={14} /> {t("7 kg cabin")}
                   </span>
                   <span>
-                    <Luggage size={14} /> 30 kg checked
+                    <Luggage size={14} /> {t("30 kg checked")}
                   </span>
                   <span className="bf26-hide-sm">
-                    <Utensils size={14} /> Meal
+                    <Utensils size={14} /> {t("Meal")}
                   </span>
                   <span className="bf26-hide-sm">
-                    <Wifi size={14} /> Wi-Fi
+                    <Wifi size={14} /> {t("Wi-Fi")}
                   </span>
                   <em>
                     {open ? "Hide details" : "Flight details"}{" "}
@@ -654,7 +655,7 @@ export default function FlightResults({ returnLeg = false }) {
                       <li className="is-travel">
                         <small>
                           {minutesToLabel(minutes(flight))} ·{" "}
-                          {flight.nonStop ? "Non-stop" : "Includes 1 connection"} ·{" "}
+                          {t(flight.nonStop ? "Non-stop" : "Includes 1 connection")} ·{" "}
                           {flight.flightNumber}
                         </small>
                       </li>
@@ -667,17 +668,17 @@ export default function FlightResults({ returnLeg = false }) {
                       </li>
                     </ol>
                     <div className="bf26-fare-box">
-                      <span className="bf26-kicker">Fare breakdown</span>
+                      <span className="bf26-kicker">{t("Fare breakdown")}</span>
                       <p>
-                        <span>Per traveller</span>
+                        <span>{t("Per traveller")}</span>
                         <strong>{formatMoney(flight.price)}</strong>
                       </p>
                       <p>
-                        <span>Travellers</span>
+                        <span>{t("Travellers")}</span>
                         <strong>× {people}</strong>
                       </p>
                       <p className="is-total">
-                        <span>Flight total</span>
+                        <span>{t("Flight total")}</span>
                         <strong>{formatMoney(flight.price * people)}</strong>
                       </p>
                       <small>

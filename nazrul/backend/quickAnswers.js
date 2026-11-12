@@ -134,12 +134,50 @@ function destinationAnswer(q, d) {
   return `${d.name} is a great pick! Don't miss ${d.highlights.slice(0, 3).join(", ")}. The best time to go is ${d.best}. Flights from MYR ${d.from.toLocaleString("en-MY")} (sample fare), ${d.flight}. Search Flights, or use Vacations for flight + hotel together.`;
 }
 
+// Malay and Chinese questions: add the English keywords the rules below
+// look for, so "kereta api ke Pulau Pinang" or "槟城的火车" still match.
+const HINTS = [
+  [/kereta ?api|keretapi|komuter|火车|列车|高铁|铁路/, "train"],
+  [/pulau pinang|槟城/, "penang"],
+  [/怡保/, "ipoh"],
+  [/bayar|pembayaran|付款|支付|付钱/, "payment"],
+  [/masa terbaik|bila|最佳|什么时候|何时/, "best time"],
+  [/rancang|jadual perjalanan|规划|行程|计划/, "plan trip"],
+  [/hotel|penginapan|menginap|酒店|住宿|旅馆/, "hotel"],
+  [/batal|bayaran balik|取消|退款|改期/, "cancel"],
+  [/jejak|状态|追踪|延误|登机口/, "track status"],
+  [/tiket|baucar|机票|电子票|凭证|登机牌/, "ticket"],
+  [/log masuk|daftar akaun|kata laluan|登录|注册|密码|账户/, "sign in account"],
+  [/bagasi|行李/, "baggage"],
+  [/\b(hai|helo|salam)\b|你好|您好|嗨/, "hello"],
+  [/terima kasih|谢谢|多谢/, "thanks"],
+  [/murah|bajet|percutian|cadang|ke mana|便宜|预算|推荐|建议|去哪/, "suggest cheap holiday"],
+  [/东京|日本/, "tokyo"],
+  [/巴厘|峇里/, "bali"],
+  [/伦敦|英国/, "london"],
+  [/沙巴|亚庇|神山/, "sabah"],
+  [/巴黎|法国/, "paris"],
+  [/新加坡/, "singapore"],
+  [/曼谷|泰国/, "bangkok"],
+  [/迪拜/, "dubai"],
+  [/首尔|韩国/, "seoul"],
+  [/悉尼|澳洲|澳大利亚/, "sydney"],
+];
+function addEnglishHints(q) {
+  let out = q;
+  for (const [rx, words] of HINTS) if (rx.test(q)) out += ` ${words}`;
+  // "5 hari" / "5天" -> "5 day"
+  const days = /(\d+)\s*(?:hari|天|日)/.exec(q);
+  if (days) out += ` ${days[1]} day trip`;
+  return out;
+}
+
 const rule = (name) => RULES.find((r) => r.name === name);
 
 /** Returns a reply for the latest user message. */
 function quickAnswer(messages) {
   const last = messages[messages.length - 1];
-  const q = String(last.content || "").toLowerCase();
+  const q = addEnglishHints(String(last.content || "").toLowerCase());
   // Most specific topics first; a destination mention alone comes later
   // ("trains to Penang" is about trains, "hotels in Bali" about hotels).
   for (const name of ["train", "payment", "hotel", "track", "cancel", "account", "baggage"]) {

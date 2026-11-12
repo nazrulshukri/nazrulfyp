@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { t } from "../lib/i18n";
 import { useNavigate } from "react-router-dom";
 import {
   Plane,
@@ -136,9 +137,9 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
   }
 
   return (
-    <section className="bf-search-card" id="trip-search" aria-label="Search your trip">
+    <section className="bf-search-card" id="trip-search" aria-label={t("Search your trip")}>
       <div className="bf-search-top">
-        <div className="bf-tabs" aria-label="Booking type">
+        <div className="bf-tabs" aria-label={t("Booking type")}>
           {MODES.map(([value, label, Icon]) => (
             <button
               key={value}
@@ -148,20 +149,20 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
               onClick={() => selectMode(value)}
             >
               <Icon size={18} />
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
         <span className="bf-search-caption">
           {mode === "vacation"
-            ? "Flight + hotel in one search"
-            : "A little planning. A world of possibility."}
+            ? t("Flight + hotel in one search")
+            : t("A little planning. A world of possibility.")}
         </span>
       </div>
       <form onSubmit={submit} noValidate>
         <div className="bf-search-options">
           {(mode === "flight" || mode === "train") && (
-            <div className="bf26-trip-toggle" role="radiogroup" aria-label="Trip type">
+            <div className="bf26-trip-toggle" role="radiogroup" aria-label={t("Trip type")}>
               {[
                 ["return", "Round trip"],
                 ["oneway", "One way"],
@@ -177,45 +178,45 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
                     if (value === "oneway") setReturnDate("");
                   }}
                 >
-                  {label}
+                  {t(label)}
                 </button>
               ))}
             </div>
           )}
           <span>
             {mode === "hotel"
-              ? "Find somewhere to call your own"
+              ? t("Find somewhere to call your own")
               : mode === "vacation"
-                ? "Return flights + hotel for the same dates"
+                ? t("Return flights + hotel for the same dates")
                 : mode === "train"
-                  ? "Standard class"
-                  : "Economy cabin"}
+                  ? t("Standard class")
+                  : t("Economy cabin")}
           </span>
           <TravellersPicker
             value={party}
             onChange={setParty}
-            noun={mode === "hotel" ? "guest" : mode === "train" ? "passenger" : "traveller"}
+            noun={mode === "hotel" ? t("guest") : mode === "train" ? "passenger" : t("traveller")}
           />
         </div>
         <div className={`bf-search-fields ${mode === "hotel" ? "bf-hotel-search" : ""}`}>
           <div className={`bf26-pair ${mode === "hotel" ? "is-single" : ""}`}>
             {mode !== "hotel" && (
               <PlacePicker
-                label="FROM"
+                label={t("FROM")}
                 ariaLabel="From"
                 kind={kind}
                 value={origin}
                 onChange={setOrigin}
                 options={options}
-                placeholder="City or airport"
-                hint={mode === "train" ? "Departure station" : "Departure city or airport"}
+                placeholder={t("City or airport")}
+                hint={mode === "train" ? t("Departure station") : t("Departure city or airport")}
               />
             )}
             {mode !== "hotel" && (
               <button
                 className="bf-swap"
                 type="button"
-                aria-label="Swap departure and destination"
+                aria-label={t("Swap departure and destination")}
                 onClick={() => {
                   setOrigin(destination);
                   setDestination(origin);
@@ -225,21 +226,21 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
               </button>
             )}
             <PlacePicker
-              label={mode === "hotel" ? "DESTINATION" : "TO"}
+              label={mode === "hotel" ? t("DESTINATION") : t("TO")}
               ariaLabel="Destination"
               kind={kind}
               value={destination}
               onChange={setDestination}
               options={options.filter((o) => mode === "hotel" || o.value !== origin)}
-              placeholder={mode === "hotel" ? "Where are you staying?" : "Where to?"}
+              placeholder={mode === "hotel" ? t("Where are you staying?") : t("Where to?")}
               hint={
                 mode === "train"
-                  ? "Arrival station"
+                  ? t("Arrival station")
                   : mode === "hotel"
-                    ? "City or destination"
+                    ? t("City or destination")
                     : mode === "vacation"
-                      ? "Flight + stay destination"
-                      : "Your next adventure"
+                      ? t("Flight + stay destination")
+                      : t("Your next adventure")
               }
             />
           </div>
@@ -250,11 +251,11 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
             range={needsReturn}
             minGap={mode === "hotel" ? 1 : 0}
             nightsLabel={mode === "hotel" || mode === "vacation"}
-            labels={mode === "hotel" ? ["CHECK-IN", "CHECK-OUT"] : ["DEPARTURE", "RETURN"]}
+            labels={mode === "hotel" ? [t("CHECK-IN"), t("CHECK-OUT")] : [t("DEPARTURE"), t("RETURN")]}
             hints={
               mode === "hotel"
-                ? ["First day of your stay", "Last day of your stay"]
-                : ["Start your journey", "Head back home"]
+                ? [t("First day of your stay"), t("Last day of your stay")]
+                : [t("Start your journey"), t("Head back home")]
             }
             onChange={(start, end) => {
               setDepartureDate(start);
@@ -264,21 +265,22 @@ export default function Booking({ destinationPreset, mode: modeProp, onModeChang
           <button className="bf-search-submit" type="submit">
             <Search size={20} />
             <span>
-              Search{" "}
-              {mode === "flight"
-                ? "flights"
-                : mode === "hotel"
-                  ? "hotels"
-                  : mode === "vacation"
-                    ? "packages"
-                    : "trains"}
+              {t(
+                mode === "flight"
+                  ? "Search flights"
+                  : mode === "hotel"
+                    ? "Search hotels"
+                    : mode === "vacation"
+                      ? "Search vacations"
+                      : "Search trains",
+              )}
             </span>
             <ArrowRight size={18} />
           </button>
         </div>
         <div className="bf-search-bottom">
           <span>
-            <Info size={13} /> Preview fares · Sample travel inventory
+            <Info size={13} /> {t("Preview fares · Sample travel inventory")}
           </span>
         </div>
         {error && (

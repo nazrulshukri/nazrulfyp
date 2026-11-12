@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { t } from "../lib/i18n";
 import CurrencyPicker from "./CurrencyPicker";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ArrowUpRight, Menu, Moon, Sun, X, Plane } from "lucide-react";
@@ -25,7 +26,7 @@ export default function Header() {
   };
   return (
     <header className="bf-header">
-      <Link className="bf-brand" to="/" aria-label="BookingFlex home">
+      <Link className="bf-brand" to="/" aria-label={t("BookingFlex home")}>
         <span className="bf-brand-mark">
           <Plane size={22} />
         </span>
@@ -34,16 +35,16 @@ export default function Header() {
       </Link>
       <nav
         className={menuOpen ? "bf-nav is-open" : "bf-nav"}
-        aria-label="Main navigation"
+        aria-label={t("Main navigation")}
       >
         <NavLink end to="/">
-          Explore
+          {t("Explore")}
         </NavLink>
-        <NavLink to="/dashboard">My trips</NavLink>
-        <NavLink to="/track">Track</NavLink>
-        <NavLink to="/about">About</NavLink>
-        {adminRole && <NavLink to="/admin">Admin</NavLink>}
-        <NavLink to="/contact">Help centre</NavLink>
+        <NavLink to="/dashboard">{t("My trips")}</NavLink>
+        <NavLink to="/track">{t("Track")}</NavLink>
+        <NavLink to="/about">{t("About")}</NavLink>
+        {adminRole && <NavLink to="/admin">{t("Admin")}</NavLink>}
+        <NavLink to="/contact">{t("Help centre")}</NavLink>
         <div className="bf26-cur-mobile">
           <CurrencyPicker />
         </div>
@@ -55,7 +56,7 @@ export default function Header() {
         <button
           className="bf-icon-button"
           onClick={toggleTheme}
-          aria-label={isDarkMode ? "Use light theme" : "Use dark theme"}
+          aria-label={t(isDarkMode ? "Use light theme" : "Use dark theme")}
         >
           {isDarkMode ? <Sun size={19} /> : <Moon size={19} />}
         </button>
@@ -65,19 +66,19 @@ export default function Header() {
               {(localStorage.getItem("userName") || email.split("@")[0]).split(" ")[0]}
             </Link>
             <button className="bf-signin" onClick={logout}>
-              Sign out
+              {t("Sign out")}
             </button>
           </>
         ) : (
           <Link className="bf-signin" to="/signin">
-            Sign in <ArrowUpRight size={16} />
+            {t("Sign in")} <ArrowUpRight size={16} />
           </Link>
         )}
         <button
           className="bf-icon-button bf-mobile-menu"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-expanded={menuOpen}
-          aria-label="Toggle navigation"
+          aria-label={t("Toggle navigation")}
         >
           {menuOpen ? <X /> : <Menu />}
         </button>
