@@ -9,12 +9,16 @@ import {
   ReceiptText,
   RefreshCw,
   ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  UserPlus,
   TrainFront,
   Users,
   XCircle,
 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 import { formatPrice } from "../lib/currency";
+import { authHeaders, useAdminRole } from "../lib/adminAccess";
 import "./AdminDashboard.css";
 
 const RANGES = [7, 30, 90];
@@ -169,9 +173,109 @@ function Gate({ icon: Icon, title, children }) {
   );
 }
 
+/* Super admins add and remove admins here. */
+function TeamAccess() {
+  const [rows, setRows] = useState(null);
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/admins`, { headers: authHeaders() });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.message || "Could not load admins.");
+      setRows(body.admins);
+    } catch (error) {
+      setMsg({ error: true, text: error.message });
+    }
+  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function change(method, path, body) {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/admin/admins${path}`, {
+        method,
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "That didn't work.");
+      setMsg({ text: method === "POST" ? `${body.email} can now open the dashboard.` : `${decodeURIComponent(path.slice(1))} no longer has access.` });
+      if (method === "POST") setEmail("");
+      await load();
+    } catch (error) {
+      setMsg({ error: true, text: error.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="ad-card ad-card-wide ad-team">
+      <div className="ad-card-head">
+        <h2>Team access</h2>
+        <small>Only super admins see this</small>
+      </div>
+      <form
+        className="ad-team-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (email.trim()) change("POST", "", { email: email.trim() });
+        }}
+      >
+        <input
+          type="email"
+          placeholder="Add an admin by email"
+          aria-label="Admin email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <button type="submit" className="ad-btn" disabled={busy}>
+          <UserPlus size={16} /> Add admin
+        </button>
+      </form>
+      {msg && <p className={msg.error ? "ad-error" : "ad-note"}>{msg.text}</p>}
+      <ul className="ad-team-list">
+        {(rows || []).map((a) => (
+          <li key={a.email}>
+            <span className={`ad-role is-${a.role}`}>
+              <ShieldCheck size={14} /> {a.role === "super" ? "Super admin" : "Admin"}
+            </span>
+            <span className="ad-team-email">{a.email}</span>
+            <small className="ad-muted">
+              {a.source === "settings" ? "Set in server settings" : `Added by ${a.addedBy || "a super admin"}`}
+            </small>
+            {a.source === "dashboard" ? (
+              <button
+                type="button"
+                className="ad-icon-btn"
+                aria-label={`Remove ${a.email}`}
+                disabled={busy}
+                onClick={() => change("DELETE", `/${encodeURIComponent(a.email)}`)}
+              >
+                <Trash2 size={16} />
+              </button>
+            ) : (
+              <span />
+            )}
+          </li>
+        ))}
+        {rows && !rows.length && <li className="ad-muted">No admins yet.</li>}
+      </ul>
+    </section>
+  );
+}
+
 export default function AdminDashboard() {
   const [days, setDays] = useState(30);
   const [{ loading, error, status, data }, reload] = useSummary(days);
+  const role = useAdminRole("dashboard");
   const email = useMemo(() => {
     try {
       return localStorage.getItem("userEmail");
@@ -219,7 +323,7 @@ export default function AdminDashboard() {
     <div className="ad-root">
       <header className="ad-head">
         <div>
-          <span className="ad-kicker">Admin</span>
+          <span className="ad-kicker">{role === "super" ? "Super admin" : "Admin"}</span>
           <h1>Dashboard</h1>
           <p className="ad-muted">Bookings, revenue and users from the live database.</p>
         </div>
@@ -360,6 +464,8 @@ export default function AdminDashboard() {
           </section>
         </>
       )}
+
+      {role === "super" && status === 200 && <TeamAccess />}
     </div>
   );
 }

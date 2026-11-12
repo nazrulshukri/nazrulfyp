@@ -5,7 +5,15 @@
 //   GET  /admin/summary    totals and charts for admins (ADMIN_EMAILS)
 const express = require("express");
 const mongoose = require("mongoose");
-const { readUser, requireUser, requireAdmin } = require("./authz");
+const {
+  Admin,
+  readUser,
+  requireUser,
+  requireAdmin,
+  requireSuperAdmin,
+  superAdminEmails,
+  configuredAdminEmails,
+} = require("./authz");
 
 const OrderSchema = new mongoose.Schema(
   {
@@ -159,6 +167,44 @@ adminRouter.get("/summary", requireAdmin, async (req, res) => {
   }
 });
 
-adminRouter.get("/me", requireAdmin, (req, res) => res.json({ admin: true, email: req.user.email }));
+adminRouter.get("/me", requireAdmin, (req, res) => res.json({ admin: true, role: req.user.role, email: req.user.email }));
+
+// Team access: super admins add and remove admins. People listed in the
+// server settings are shown but can only be changed there.
+adminRouter.get("/admins", requireSuperAdmin, async (req, res) => {
+  const stored = dbReady() ? await Admin.find().sort({ createdAt: 1 }).lean() : [];
+  const rows = [
+    ...superAdminEmails().map((email) => ({ email, role: "super", source: "settings" })),
+    ...configuredAdminEmails()
+      .filter((e) => !superAdminEmails().includes(e))
+      .map((email) => ({ email, role: "admin", source: "settings" })),
+    ...stored
+      .filter((a) => !superAdminEmails().includes(a.email) && !configuredAdminEmails().includes(a.email))
+      .map((a) => ({ email: a.email, role: "admin", source: "dashboard", addedBy: a.addedBy, addedAt: a.createdAt })),
+  ];
+  res.json({ admins: rows });
+});
+
+adminRouter.post("/admins", requireSuperAdmin, async (req, res) => {
+  const email = String((req.body || {}).email || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ message: "Enter a valid email address." });
+  if (!dbReady()) return res.status(503).json({ message: "The database isn't connected." });
+  if (superAdminEmails().includes(email) || configuredAdminEmails().includes(email)) {
+    return res.status(409).json({ message: "That email already has access." });
+  }
+  await Admin.updateOne({ email }, { $setOnInsert: { email, addedBy: req.user.email } }, { upsert: true });
+  res.status(201).json({ added: email });
+});
+
+adminRouter.delete("/admins/:email", requireSuperAdmin, async (req, res) => {
+  const email = String(req.params.email || "").trim().toLowerCase();
+  if (superAdminEmails().includes(email) || configuredAdminEmails().includes(email)) {
+    return res.status(409).json({ message: "This admin is set in the server settings; change it there." });
+  }
+  if (!dbReady()) return res.status(503).json({ message: "The database isn't connected." });
+  const { deletedCount } = await Admin.deleteOne({ email });
+  if (!deletedCount) return res.status(404).json({ message: "No admin with that email." });
+  res.json({ removed: email });
+});
 
 module.exports = { ordersRouter, adminRouter, Order };
