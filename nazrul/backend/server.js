@@ -35,9 +35,11 @@ const { socialRouter, socialPublicRouter } = require('./social');
 const app = express();
 // Social dashboard accepts photos (resized in the browser), so it gets a
 // larger body limit than the rest of the API.
+// CORS first: the browser's preflight check must get permission before any
+// route (including the signed-in /social routes) answers.
+app.use(cors());
 app.use('/social', express.json({ limit: '1mb' }), socialPublicRouter, socialRouter);
 app.use(express.json());
-app.use(cors());
 
 // AI travel assistant (streams replies; see chat.js).
 app.use('/chat', chatRouter);
