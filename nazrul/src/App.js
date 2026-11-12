@@ -6,6 +6,7 @@ import MainContent from './components/body';
 import Footer from './components/footer';
 import ChatWidget from './components/ChatWidget';
 import AdminDashboard from './components/AdminDashboard';
+import NewsPage from './components/NewsPage';
 import { initCurrency, useCurrency } from './lib/currency';
 import { useLanguage } from './lib/i18n';
 import About from './components/about';
@@ -74,6 +75,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />

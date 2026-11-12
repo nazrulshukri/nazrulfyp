@@ -1,6 +1,7 @@
 // Bahasa Melayu. Keys are the English text shown on the site.
 const ms = {
   // Header, footer, menus
+  "News & deals": "Berita & tawaran",
   Explore: "Teroka",
   "My trips": "Perjalanan saya",
   Track: "Jejak",

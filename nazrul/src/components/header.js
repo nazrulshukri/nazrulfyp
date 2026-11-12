@@ -40,6 +40,7 @@ export default function Header() {
         <NavLink end to="/">
           {t("Explore")}
         </NavLink>
+        <NavLink to="/news">{t("News & deals")}</NavLink>
         <NavLink to="/dashboard">{t("My trips")}</NavLink>
         <NavLink to="/track">{t("Track")}</NavLink>
         <NavLink to="/about">{t("About")}</NavLink>

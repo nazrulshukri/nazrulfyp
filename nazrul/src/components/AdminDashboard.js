@@ -23,6 +23,7 @@ import AdminDatabase from "./AdminDatabase";
 import AdminPrices from "./AdminPrices";
 import AdminStructure from "./AdminStructure";
 import AdminArchitecture from "./AdminArchitecture";
+import AdminNews from "./AdminNews";
 import "./AdminDashboard.css";
 
 const RANGES = [
@@ -352,14 +353,19 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {role === "super" && (
+      {role && (
         <div className="ad-tabs" role="tablist" aria-label="Admin sections">
           {[
             ["overview", "Overview"],
-            ["prices", "Prices"],
-            ["database", "Tables"],
-            ["structure", "Structure"],
-            ["architecture", "Architecture"],
+            ["news", "News"],
+            ...(role === "super"
+              ? [
+                  ["prices", "Prices"],
+                  ["database", "Tables"],
+                  ["structure", "Structure"],
+                  ["architecture", "Architecture"],
+                ]
+              : []),
           ].map(([id, label]) => (
             <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
               {label}
@@ -368,7 +374,9 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {tab !== "overview" && role === "super" ? (
+      {tab === "news" && role ? (
+        <AdminNews />
+      ) : tab !== "overview" && role === "super" ? (
         tab === "prices" ? (
           <AdminPrices />
         ) : tab === "structure" ? (
