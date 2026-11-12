@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
+import BackButton from "./BackButton";
 import {
   CalendarDays,
   Mail,
@@ -42,6 +43,7 @@ const Profile = () => {
   if (!email) {
     return (
       <div className="account-page auth-required">
+        <BackButton fallback="/" />
         <div className="empty-state">
           <UserRound size={38} />
           <h2>Profile requires login</h2>
@@ -55,6 +57,7 @@ const Profile = () => {
   return (
     <div className="account-page">
       <div className="account-shell">
+        <BackButton />
         <div className="account-topbar">
           <div>
             <p className="account-kicker"><UserRound size={16} /> Traveller profile</p>

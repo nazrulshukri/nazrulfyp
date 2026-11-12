@@ -7610,3 +7610,115 @@ select:-webkit-autofill {
   outline: 3px solid var(--bf26-lime);
   outline-offset: 2px;
 }
+
+/* Back button on account pages (BackButton.js) */
+.bf26-backbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--bf26-line);
+  border-radius: 999px;
+  background: var(--bf26-card) !important;
+  color: var(--bf26-ink);
+  font: 600 14px var(--bf26-font);
+  cursor: pointer;
+}
+.bf26-backbtn:hover {
+  border-color: var(--bf26-forest);
+}
+.auth-required .bf26-backbtn {
+  align-self: flex-start;
+}
+
+/* Sign-in options: extra providers and "email me a code" */
+.bf26-auth-providers {
+  display: grid;
+  gap: 10px;
+}
+.bf26-auth-google.is-microsoft span,
+.bf26-auth-google.is-yahoo span {
+  font-size: 15px;
+}
+.bf26-apple {
+  font-size: 18px;
+  line-height: 1;
+}
+.bf26-auth-codebtn {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed var(--bf26-line);
+  border-radius: 14px;
+  background: transparent !important;
+  color: var(--bf26-ink);
+  font: 600 14px var(--bf26-font);
+  cursor: pointer;
+}
+.bf26-auth-codebtn:hover {
+  border-color: var(--bf26-forest);
+}
+.bf26-auth-codebtn > svg {
+  display: inline;
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+.bf26-auth-codebtn small {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--bf26-muted);
+}
+.bf26-auth-code {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--bf26-line);
+  border-radius: 16px;
+  background: var(--bf26-soft);
+}
+.bf26-auth-code form {
+  display: grid;
+  gap: 12px;
+}
+.bf26-auth-otp {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--bf26-muted);
+}
+.bf26-auth-otp input {
+  height: 56px;
+  border: 1px solid var(--bf26-line);
+  border-radius: 14px;
+  background: var(--bf26-card);
+  color: var(--bf26-ink);
+  font: 700 26px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+.bf26-auth-otp input:focus {
+  outline: 3px solid var(--bf26-lime);
+  outline-offset: 1px;
+}
+.bf26-auth-linkbtn {
+  padding: 0;
+  border: 0;
+  background: none !important;
+  color: var(--bf26-forest);
+  font: 600 13px var(--bf26-font);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.app.dark-mode .bf26-auth-linkbtn {
+  color: var(--bf26-lime);
+}
+.bf26-auth-note {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bf26-lime) 35%, transparent);
+  font-size: 13px;
+}

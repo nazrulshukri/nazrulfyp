@@ -5,7 +5,7 @@ import axios from "axios";
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 import { saveSession, EMAIL_RE, passwordStrength, errorMessage } from "../lib/auth";
-import { AuthLayout, AuthField, GoogleButton, StrengthMeter } from "./AuthKit";
+import { AuthLayout, AuthField, GoogleButton, EmailCodeSignIn, StrengthMeter } from "./AuthKit";
 import greece from "../img/assets/travel/Greece_hero.jpg";
 
 const Signup = () => {
@@ -114,6 +114,7 @@ const Signup = () => {
           {!loading && <ArrowRight size={17} />}
         </button>
       </form>
+      <EmailCodeSignIn initialEmail={form.email.trim()} redirectTo={redirectTo} askName />
     </AuthLayout>
   );
 };

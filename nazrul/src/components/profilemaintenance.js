@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import BackButton from "./BackButton";
 import { BadgeCheck, Plane, Save, UserRound } from "lucide-react";
 import { getCurrentUserEmail, getProfile, saveProfile } from "../lib/bookingStorage";
 import "./dashboard.css";
@@ -25,6 +26,7 @@ const ProfileMaintenance = () => {
   if (!email) {
     return (
       <div className="account-page auth-required">
+        <BackButton fallback="/" />
         <div className="empty-state">
           <UserRound size={38} />
           <h2>Sign in to maintain your profile</h2>
@@ -38,6 +40,7 @@ const ProfileMaintenance = () => {
   return (
     <div className="account-page">
       <div className="account-shell">
+        <BackButton />
         <div className="account-topbar">
           <div>
             <p className="account-kicker"><BadgeCheck size={16} /> Account control</p>
