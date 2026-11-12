@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Briefcase, Lock, MapPin, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
+import { Briefcase, Lock, MapPin, MessageCircle, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
 import Avatar from "./Avatar";
 import FeedTab from "./FeedTab";
 import ProfileTab from "./ProfileTab";
 import FriendsTab from "./FriendsTab";
 import TripsTab from "./TripsTab";
+import MessagesTab from "./MessagesTab";
+import { CallProvider } from "./CallManager";
+import { mapi } from "../../lib/messaging";
 import Dashboard from "../dashboard";
 import { COVERS, api } from "../../lib/social";
 import "./Hub.css";
@@ -13,6 +16,7 @@ import "./Hub.css";
 const TABS = [
   ["feed", "Feed", Newspaper],
   ["profile", "Profile", UserRound],
+  ["messages", "Messages", MessageCircle],
   ["friends", "Friends", Users],
   ["trips", "Trips & savings", PiggyBank],
   ["bookings", "Bookings", Plane],
@@ -27,6 +31,7 @@ export default function Hub() {
   const [me, setMe] = useState(null);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [unread, setUnread] = useState(0);
   const signedIn = (() => {
     try {
       return Boolean(localStorage.getItem("token"));
@@ -71,6 +76,15 @@ export default function Hub() {
     })();
   }, [signedIn, load]);
 
+  // Unread messages badge, refreshed every 20 seconds.
+  useEffect(() => {
+    if (!signedIn) return undefined;
+    const check = () => mapi("/unread").then((r) => setUnread(r.unread)).catch(() => {});
+    check();
+    const id = setInterval(() => !document.hidden && check(), 20000);
+    return () => clearInterval(id);
+  }, [signedIn]);
+
   if (!signedIn || (error && error.status === 401)) {
     return (
       <div className="hub-page">
@@ -98,6 +112,7 @@ export default function Hub() {
   const go = (id) => setParams(id === "feed" ? {} : { tab: id });
 
   return (
+    <CallProvider>
     <div className="hub-page">
       <header className="hub-hero" style={{ background: COVERS[p?.cover] || COVERS.forest }}>
         <div className="hub-hero-inner">
@@ -149,6 +164,7 @@ export default function Hub() {
           <button key={id} type="button" className={tab === id ? "is-on" : ""} aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
             <Icon size={16} /> {label}
             {id === "friends" && c?.incoming > 0 && <b className="hub-badge">{c.incoming}</b>}
+            {id === "messages" && unread > 0 && <b className="hub-badge">{unread}</b>}
           </button>
         ))}
       </nav>
@@ -163,6 +179,7 @@ export default function Hub() {
       <main className="hub-main">
         {tab === "feed" && <FeedTab me={p} onChange={load} />}
         {tab === "profile" && p && <ProfileTab profile={p} onSaved={(np) => setMe((m) => ({ ...m, profile: np }))} />}
+        {tab === "messages" && <MessagesTab onUnreadChange={setUnread} />}
         {tab === "friends" && <FriendsTab onChange={load} />}
         {tab === "trips" && <TripsTab onChange={load} />}
         {tab === "bookings" && (
@@ -172,6 +189,7 @@ export default function Hub() {
         )}
       </main>
     </div>
+    </CallProvider>
   );
 }
 

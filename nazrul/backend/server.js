@@ -30,6 +30,7 @@ const ratesRouter = require('./rates');
 const { ordersRouter, adminRouter } = require('./orders');
 const adminDbRouter = require('./admindb');
 const { socialRouter, socialPublicRouter } = require('./social');
+const { messagingRouter } = require('./messaging');
 // const { default: HotelPaymentMethod } = require('../src/components/hotelpaymentmethod');
 
 
@@ -64,6 +65,8 @@ app.use('/live', liveRouter);
 app.use('/rates', ratesRouter);
 // Bookings for My trips and the admin dashboard (see orders.js).
 app.use('/orders', ordersRouter);
+// Chat and voice/video call signalling between friends (see messaging.js).
+app.use('/messages', messagingRouter);
 app.use('/admin/db', adminDbRouter);
 app.use('/admin', adminRouter);
 
