@@ -15,6 +15,8 @@
 //   GET  /social/gallery?email=         someone's photos and videos (me or a friend)
 //   GET  /social/posts/:id              one post (me or a friend)
 //   POST /social/posts/:id/view         count a view of someone else's post
+//   POST /social/posts/:id/comments     { text } comment (me or a friend)
+//   DELETE /social/posts/:id/comments/:cid  delete a comment (its writer or the post's author)
 //   POST /social/media                  upload a video (raw body, up to 4 MB)
 //   GET  /social/media/:id?sig=         stream a video (signed link, no sign-in)
 //   DELETE /social/posts/:id            delete my post
@@ -57,6 +59,8 @@ const ProfileSchema = new mongoose.Schema(
       photo: String,
     },
     cover: { type: String, default: "forest" },
+    coverPhoto: String, // uploaded background for the profile header (data URL)
+    country: { type: String, uppercase: true, match: /^[A-Z]{2}$/ }, // ISO code, shown as a flag
     profession: { type: String, trim: true, maxlength: 80 },
     age: { type: Number, min: 13, max: 120 },
     phone: { type: String, trim: true, maxlength: 30 },
@@ -113,6 +117,13 @@ const PostSchema = new mongoose.Schema(
     poster: String, // first frame of the video
     views: { type: Number, default: 0 },
     likes: [String],
+    comments: [
+      {
+        author: { type: String, lowercase: true },
+        text: { type: String, maxlength: 500 },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true },
 );
@@ -198,6 +209,8 @@ function publicView(p, { self, friend }) {
     name: p.name,
     avatar: p.avatar,
     cover: p.cover,
+    coverPhoto: p.coverPhoto,
+    country: p.country,
     profession: p.profession,
     location: p.location,
     bio: p.bio,
@@ -226,6 +239,7 @@ const cards = async (emails) => {
     avatar: (by[email] && by[email].avatar) || { kind: "character", character: "traveller" },
     profession: by[email] && by[email].profession,
     mood: by[email] && by[email].mood,
+    country: by[email] && by[email].country,
   }));
 };
 
@@ -268,6 +282,14 @@ router.put("/me", async (req, res) => {
     for (const f of ["phone", "age", "relationship"]) {
       update.visibility[f] = VISIBILITY.includes(b.visibility && b.visibility[f]) ? b.visibility[f] : "friends";
     }
+  }
+  if ("country" in b) {
+    const c = String(b.country || "").toUpperCase();
+    update.country = /^[A-Z]{2}$/.test(c) ? c : undefined;
+  }
+  if ("coverPhoto" in b) {
+    if (b.coverPhoto && !isImage(b.coverPhoto)) return res.status(400).json({ message: "Use a JPG, PNG or WebP cover under about 300 KB." });
+    update.coverPhoto = b.coverPhoto || undefined;
   }
   if ("travel" in b) {
     const t = b.travel || {};
@@ -414,6 +436,14 @@ const postOut = (p, me, people) => ({
   video: videoUrl(p.video),
   poster: p.poster,
   views: p.views || 0,
+  comments: (p.comments || []).slice(-50).map((c) => ({
+    id: String(c._id),
+    author: people[c.author] || { email: c.author, name: c.author.split("@")[0] },
+    text: c.text,
+    createdAt: c.createdAt,
+    mine: c.author === me,
+  })),
+  commentCount: (p.comments || []).length,
   likes: (p.likes || []).length,
   liked: (p.likes || []).includes(me),
   mine: p.author === me,
@@ -424,7 +454,7 @@ router.get("/feed", async (req, res) => {
   const me = req.user.email;
   const authors = [me, ...(await friendEmails(me))];
   const posts = await Post.find({ author: { $in: authors } }).sort({ createdAt: -1 }).limit(30).lean();
-  const people = Object.fromEntries((await cards([...new Set(posts.map((p) => p.author))])).map((c) => [c.email, c]));
+  const people = await peopleFor(posts);
   res.json({ posts: posts.map((p) => postOut(p, me, people)) });
 });
 
@@ -455,6 +485,16 @@ router.post("/posts", async (req, res) => {
   res.status(201).json({ post: postOut(p.toObject(), req.user.email, people) });
 });
 
+// Name cards for everyone who wrote a post or a comment.
+async function peopleFor(posts) {
+  const emails = new Set();
+  for (const p of posts) {
+    emails.add(p.author);
+    (p.comments || []).forEach((c) => emails.add(c.author));
+  }
+  return Object.fromEntries((await cards([...emails])).map((c) => [c.email, c]));
+}
+
 // Posts are visible to their author and the author's friends.
 async function readablePost(id, me) {
   if (!mongoose.isValidObjectId(id)) return null;
@@ -466,8 +506,26 @@ async function readablePost(id, me) {
 router.get("/posts/:id", async (req, res) => {
   const p = await readablePost(req.params.id, req.user.email);
   if (!p) return res.status(404).json({ message: "Post not found." });
-  const people = Object.fromEntries((await cards([p.author])).map((c) => [c.email, c]));
-  res.json({ post: postOut(p, req.user.email, people) });
+  res.json({ post: postOut(p, req.user.email, await peopleFor([p])) });
+});
+
+router.post("/posts/:id/comments", async (req, res) => {
+  const text = clip((req.body || {}).text, 500);
+  if (!text) return res.status(400).json({ message: "Write a comment first." });
+  const p = await readablePost(req.params.id, req.user.email);
+  if (!p) return res.status(404).json({ message: "Post not found." });
+  if ((p.comments || []).length >= 500) return res.status(400).json({ message: "This post has too many comments." });
+  const updated = await Post.findByIdAndUpdate(p._id, { $push: { comments: { author: req.user.email, text } } }, { new: true }).lean();
+  res.status(201).json({ post: postOut(updated, req.user.email, await peopleFor([updated])) });
+});
+
+router.delete("/posts/:id/comments/:cid", async (req, res) => {
+  const p = await readablePost(req.params.id, req.user.email);
+  const c = p && (p.comments || []).find((x) => String(x._id) === req.params.cid);
+  if (!c) return res.status(404).json({ message: "Comment not found." });
+  if (c.author !== req.user.email && p.author !== req.user.email) return res.status(403).json({ message: "You can only delete your own comments." });
+  const updated = await Post.findByIdAndUpdate(p._id, { $pull: { comments: { _id: c._id } } }, { new: true }).lean();
+  res.json({ post: postOut(updated, req.user.email, await peopleFor([updated])) });
 });
 
 router.post("/posts/:id/view", async (req, res) => {

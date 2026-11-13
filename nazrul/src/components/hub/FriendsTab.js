@@ -3,6 +3,7 @@ import { Check, Copy, Link2, Loader2, Mail, UserMinus, UserPlus, X } from "lucid
 import Avatar from "./Avatar";
 import GalleryTab from "./GalleryTab";
 import { RELATIONSHIPS, api } from "../../lib/social";
+import { countryName, flagOf } from "../../lib/countries";
 
 const relLabel = (v) => (RELATIONSHIPS.find(([k]) => k === v) || ["", ""])[1];
 
@@ -33,7 +34,15 @@ function FriendProfile({ email, onClose }) {
             <div className="hub-modal-head">
               <Avatar avatar={p.avatar} name={p.name} size={84} ring />
               <div>
-                <h2>{p.name}</h2>
+                <h2>
+                  {p.name}
+                  {p.country && (
+                    <span className="hub-flag" title={countryName(p.country)}>
+                      {" "}
+                      {flagOf(p.country)}
+                    </span>
+                  )}
+                </h2>
                 <p className="hub-muted">{[p.profession, p.location].filter(Boolean).join(" · ")}</p>
                 {p.mood?.emoji && (
                   <p className="hub-feeling">
@@ -92,7 +101,10 @@ function PersonRow({ person, children, onOpen }) {
       <button type="button" className="hub-person-main" onClick={onOpen}>
         <Avatar avatar={person.avatar} name={person.name} size={48} />
         <span>
-          <strong>{person.name}</strong>
+          <strong>
+            {person.name}
+            {person.country && <span className="hub-flag-sm"> {flagOf(person.country)}</span>}
+          </strong>
           <small>
             {person.mood?.emoji ? `${person.mood.emoji} ` : ""}
             {person.profession || person.email}

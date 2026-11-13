@@ -1779,3 +1779,155 @@ span.hub-chip {
   font-weight: 400;
   color: var(--bf26-muted);
 }
+
+/* ---------- Flags, cover photo, phone (Hub.js, ProfileTab.js) ---------- */
+.hub-flag {
+  margin-left: 12px;
+  font-size: 0.8em;
+  vertical-align: 0.06em;
+}
+.hub-flag-sm {
+  font-size: 0.95em;
+}
+.hub-hero.has-photo {
+  min-height: 260px;
+}
+.hub-hero.has-photo .hub-hero-inner {
+  min-height: 260px;
+  align-items: end;
+}
+.hub-cover-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32) !important;
+  color: #fff;
+  font: 600 13px var(--bf26-font);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.hub-cover-btn:hover {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+.hub-hero:has(.hub-cover-btn) .hub-hero-inner {
+  padding-top: 56px;
+}
+.hub-cover-pick {
+  display: grid;
+  gap: 10px;
+}
+.hub-cover-preview {
+  display: flex;
+  align-items: flex-end;
+  height: 120px;
+  padding: 12px;
+  border-radius: 18px;
+}
+.hub-phone {
+  position: relative;
+  display: block;
+}
+.hub-phone-flag {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  font-size: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.hub-grid .hub-phone input {
+  width: 100%;
+  padding-left: 42px;
+}
+.hub-hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--bf26-muted);
+}
+.hub-hint.is-ok {
+  color: var(--bf26-forest);
+}
+.app.dark-mode .hub-hint.is-ok {
+  color: var(--bf26-lime);
+}
+
+/* ---------- Post actions and comments (PostCard.js) ---------- */
+.hub-post-actions {
+  display: flex;
+  gap: 4px;
+}
+.hub-like.is-active {
+  color: var(--bf26-ink);
+  background: var(--bf26-soft) !important;
+}
+.hub-comments {
+  display: grid;
+  gap: 10px;
+  padding: 4px 18px 16px;
+  border-top: 1px solid var(--bf26-line);
+}
+.hub-comments ul {
+  display: grid;
+  gap: 12px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.hub-comments li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.hub-comments li > div {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--bf26-soft);
+}
+.hub-comments li strong {
+  font-size: 13px;
+}
+.hub-comments li small {
+  color: var(--bf26-muted);
+  font-size: 11px;
+}
+.hub-comments li p {
+  margin: 2px 0 0 !important;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.hub-comment-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hub-comment-form .hub-input {
+  flex: 1;
+  min-width: 0;
+}
+.hub-post-modal {
+  width: min(640px, 100%);
+  padding: 46px 12px 12px;
+}
+.hub-post-modal .hub-post {
+  margin: 0;
+}
+@media (max-width: 560px) {
+  .hub-post-actions .hub-like {
+    padding: 0 9px;
+  }
+  .hub-flag {
+    margin-left: 8px;
+  }
+}

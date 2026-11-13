@@ -55,7 +55,7 @@ app.use(async (req, res, next) => {
   }
   next();
 });
-app.use('/social', express.json({ limit: '1mb' }), socialPublicRouter, socialRouter);
+app.use('/social', express.json({ limit: '2mb' }), socialPublicRouter, socialRouter);
 app.use(express.json());
 
 // AI travel assistant (streams replies; see chat.js).

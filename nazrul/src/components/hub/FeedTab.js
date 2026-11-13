@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Heart, ImagePlus, Loader2, Send, Trash2, X } from "lucide-react";
+import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import Avatar from "./Avatar";
-import { api, mediaUrl, prepareMedia, publishPost, timeAgo } from "../../lib/social";
+import PostCard from "./PostCard";
+import { api, prepareMedia, publishPost } from "../../lib/social";
 
 const MAX = 500;
 
@@ -52,28 +53,6 @@ export default function FeedTab({ me, onChange }) {
       setError(err.message);
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function like(post) {
-    setPosts((list) => list.map((p) => (p.id === post.id ? { ...p, liked: !p.liked, likes: p.likes + (p.liked ? -1 : 1) } : p)));
-    try {
-      const r = await api(`/posts/${post.id}/like`, { method: "POST" });
-      setPosts((list) => list.map((p) => (p.id === post.id ? { ...p, liked: r.liked, likes: r.likes } : p)));
-    } catch (err) {
-      setError(err.message);
-      load();
-    }
-  }
-
-  async function remove(post) {
-    if (!window.confirm("Delete this post?")) return;
-    try {
-      await api(`/posts/${post.id}`, { method: "DELETE" });
-      setPosts((list) => list.filter((p) => p.id !== post.id));
-      onChange && onChange();
-    } catch (err) {
-      setError(err.message);
     }
   }
 
@@ -128,34 +107,16 @@ export default function FeedTab({ me, onChange }) {
       )}
 
       {(posts || []).map((post) => (
-        <article className="hub-card hub-post" key={post.id}>
-          <header>
-            <Avatar avatar={post.author.avatar} name={post.author.name} size={42} />
-            <div>
-              <strong>{post.author.name}</strong>
-              <small>
-                {post.author.profession ? `${post.author.profession} · ` : ""}
-                {timeAgo(post.createdAt)}
-              </small>
-            </div>
-            {post.mine && (
-              <button type="button" className="hub-icon-btn is-quiet" aria-label="Delete post" onClick={() => remove(post)}>
-                <Trash2 size={16} />
-              </button>
-            )}
-          </header>
-          {post.text && <p className={`hub-post-text ${!post.image && !post.video && post.text.length < 120 ? "is-big" : ""}`}>{post.text}</p>}
-          {post.video && (
-            // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video className="hub-post-video" src={mediaUrl(post.video)} poster={post.poster} controls playsInline preload="none" />
-          )}
-          {post.image && <img className="hub-post-img" src={post.image} alt={post.text ? post.text.slice(0, 80) : "Post photo"} loading="lazy" />}
-          <footer>
-            <button type="button" className={`hub-like ${post.liked ? "is-on" : ""}`} aria-pressed={post.liked} onClick={() => like(post)}>
-              <Heart size={18} fill={post.liked ? "currentColor" : "none"} /> {post.likes}
-            </button>
-          </footer>
-        </article>
+        <PostCard
+          key={post.id}
+          post={post}
+          me={me}
+          onChange={(np) => setPosts((list) => list.map((x) => (x.id === np.id ? np : x)))}
+          onDelete={(id) => {
+            setPosts((list) => list.filter((x) => x.id !== id));
+            onChange && onChange();
+          }}
+        />
       ))}
     </div>
   );
