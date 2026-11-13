@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, BedDouble, Check, Copy, ExternalLink, Megaphone, Newspaper, Pin, Plane, Tag, TicketPercent, TrainFront } from "lucide-react";
+import { ArrowUpRight, BedDouble, Check, Copy, ExternalLink, Megaphone, Music, Newspaper, Pin, Plane, Tag, TicketPercent, TrainFront } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 import "./NewsPage.css";
 
@@ -23,9 +23,51 @@ const ago = (d) => {
 };
 const daysLeft = (d) => Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
 
+// Uploaded files come back as paths on the API.
+const abs = (u) => (u && u.startsWith("/") ? `${API_BASE}${u}` : u);
+
+/** A post's video (or cover photo), extra photos and songs. */
+function PostMedia({ p, compact }) {
+  const media = p.media || [];
+  const video = media.find((m) => m.kind === "video");
+  const photos = media.filter((m) => m.kind === "image");
+  const songs = media.filter((m) => m.kind === "audio");
+  const cover = abs(p.image);
+  const extra = photos.filter((m) => abs(m.url) !== cover).slice(0, compact ? 0 : 6);
+  return (
+    <>
+      {video ? (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video className="nw-media-main" src={abs(video.url)} poster={abs(video.poster)} controls playsInline preload="metadata" />
+      ) : (
+        cover && <img className="nw-media-main" src={cover} alt="" loading="lazy" />
+      )}
+      {extra.length > 0 && (
+        <div className="nw-media-strip">
+          {extra.map((m) => (
+            <a key={m.id} href={abs(m.url)} target="_blank" rel="noopener noreferrer" aria-label="Open photo">
+              <img src={abs(m.url)} alt="" loading="lazy" />
+            </a>
+          ))}
+        </div>
+      )}
+      {songs.map((m) => (
+        <div key={m.id} className="nw-song">
+          <span>
+            <Music size={15} /> {m.name ? m.name.replace(/\.\w+$/, "") : "Song"}
+          </span>
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <audio src={abs(m.url)} controls preload="none" />
+        </div>
+      ))}
+    </>
+  );
+}
+
 function Voucher({ p }) {
   const [copied, setCopied] = useState(false);
   const left = p.validUntil ? daysLeft(p.validUntil) : null;
+  const hasMedia = Boolean(p.image || (p.media || []).length);
   async function copy() {
     try {
       await navigator.clipboard.writeText(p.code);
@@ -36,6 +78,12 @@ function Voucher({ p }) {
     }
   }
   return (
+    <div className={`nw-voucher-wrap ${hasMedia ? "has-media" : ""}`}>
+    {hasMedia && (
+      <div className="nw-voucher-media">
+        <PostMedia p={p} compact />
+      </div>
+    )}
     <article className="nw-voucher">
       <div className="nw-voucher-left">
         <span className="nw-voucher-off">{p.discount || "Special deal"}</span>
@@ -54,14 +102,16 @@ function Voucher({ p }) {
         </button>
       </div>
     </article>
+    </div>
   );
 }
 
 function Post({ p }) {
   const K = KIND[p.kind] || KIND.news;
+  const songs = (p.media || []).filter((m) => m.kind === "audio");
   return (
     <article className={`nw-post ${p.image ? "has-image" : ""}`}>
-      {p.image && <img src={p.image} alt="" loading="lazy" />}
+      <PostMedia p={{ ...p, media: (p.media || []).filter((m) => m.kind !== "audio") }} />
       <div>
         <span className={`nw-tag is-${p.kind}`}>
           <K.Icon size={13} /> {K.label.replace("BookingFlex news", "News")}
@@ -73,6 +123,7 @@ function Post({ p }) {
         </span>
         <h3>{p.title}</h3>
         {p.body && <p>{p.body}</p>}
+        {songs.length > 0 && <PostMedia p={{ media: songs }} />}
         <small>{ago(p.createdAt)}</small>
         {p.link && (
           <a href={p.link} target="_blank" rel="noopener noreferrer">
