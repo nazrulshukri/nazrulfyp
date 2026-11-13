@@ -50,6 +50,7 @@
     "leaflet-control-geocoder": "^2.4.0",
     "leaflet-polylinedecorator": "^1.6.0",
     "libphonenumber-js": "1.11.20",
+    "livekit-client": "2.22.4",
     "lucide-react": "^0.475.0",
     "mapbox-gl": "^3.7.0",
     "mdb-react-ui-kit": "^9.0.0",
