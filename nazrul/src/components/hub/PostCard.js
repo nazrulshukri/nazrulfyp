@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Check, Heart, Loader2, MessageCircle, Send, Share2, Trash2, X } from "lucide-react";
 import Avatar from "./Avatar";
+import EmojiPicker, { insertEmoji } from "./EmojiPicker";
 import { api, mediaUrl, timeAgo } from "../../lib/social";
 import { flagOf } from "../../lib/countries";
 
@@ -23,6 +24,7 @@ export default function PostCard({ post, me, onChange, onDelete, startOpen = fal
   const [busy, setBusy] = useState(false);
   const [shared, setShared] = useState(false);
   const [error, setError] = useState(null);
+  const input = useRef(null);
 
   async function like() {
     onChange({ ...post, liked: !post.liked, likes: post.likes + (post.liked ? -1 : 1) });
@@ -149,7 +151,8 @@ export default function PostCard({ post, me, onChange, onDelete, startOpen = fal
           </ul>
           <form className="hub-comment-form" onSubmit={comment}>
             <Avatar avatar={me?.avatar} name={me?.name} size={30} />
-            <input className="hub-input" value={text} maxLength={500} placeholder="Write a comment…" aria-label="Write a comment" onChange={(e) => setText(e.target.value)} />
+            <input ref={input} className="hub-input" value={text} maxLength={500} placeholder="Write a comment…" aria-label="Write a comment" onChange={(e) => setText(e.target.value)} />
+            <EmojiPicker align="right" onPick={(e) => insertEmoji(input.current, text, setText, e)} />
             <button type="submit" className="hub-icon-btn" aria-label="Send comment" disabled={busy || !text.trim()}>
               {busy ? <Loader2 size={16} className="hub-spin" /> : <Send size={16} />}
             </button>

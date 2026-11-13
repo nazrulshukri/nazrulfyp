@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BarChart3, CalendarDays, FileText, ImageIcon, Loader2, PiggyBank, Plane, Plus, Trash2, UserRound, X } from "lucide-react";
 import Avatar from "../Avatar";
-import { api, prepareMedia } from "../../../lib/social";
+import { api, portalRoot, prepareMedia } from "../../../lib/social";
 import { uploadChatFile } from "../../../lib/messaging";
 import { API_BASE } from "../../../lib/apiConfig";
 import { getBookingHistory } from "../../../lib/bookingStorage";
@@ -36,7 +36,7 @@ function Sheet({ title, onClose, children }) {
         {children}
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   );
 }
 

@@ -11,6 +11,7 @@ import {
   Video,
 } from "lucide-react";
 import Avatar from "./Avatar";
+import EmojiPicker, { insertEmoji } from "./EmojiPicker";
 import { useCalls } from "./CallManager";
 import MessageBubble from "./chat/MessageBubble";
 import AttachButton, { UploadStatus } from "./chat/Attachments";
@@ -41,6 +42,7 @@ function Thread({
   const [settings, setSettings] = useState(false);
   const [meeting, setMeeting] = useState(null); // "video" | "audio"
   const list = useRef(null);
+  const box = useRef(null);
   const latest = useRef(null);
   const { startCall, inCall } = useCalls();
   const path = group
@@ -274,8 +276,10 @@ function Thread({
           onUpload={setUpload}
           disabled={Boolean(upload && !upload.error)}
         />
+        <EmojiPicker onPick={(e) => insertEmoji(box.current, text, setText, e)} />
         <form className="hc-compose-form" onSubmit={sendText}>
           <textarea
+            ref={box}
             rows={1}
             maxLength={2000}
             value={text}
