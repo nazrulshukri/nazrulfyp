@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Briefcase, Images, Lock, MapPin, MessageCircle, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
+import { Briefcase, Camera, Images, Loader2, Lock, MapPin, MessageCircle, Newspaper, PiggyBank, Plane, UserRound, Users } from "lucide-react";
 import Avatar from "./Avatar";
 import FeedTab from "./FeedTab";
 import ProfileTab from "./ProfileTab";
@@ -11,7 +11,9 @@ import MessagesTab from "./MessagesTab";
 import { CallProvider } from "./CallManager";
 import { mapi } from "../../lib/messaging";
 import Dashboard from "../dashboard";
-import { COVERS, api } from "../../lib/social";
+import { COVERS, api, resizeImage } from "../../lib/social";
+import { countryName, flagOf } from "../../lib/countries";
+import PostModal from "./PostModal";
 import "./Hub.css";
 
 const TABS = [
@@ -34,6 +36,8 @@ export default function Hub() {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [unread, setUnread] = useState(0);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const coverInput = useRef(null);
   const signedIn = (() => {
     try {
       return Boolean(localStorage.getItem("token"));
@@ -112,15 +116,49 @@ export default function Hub() {
   const p = me?.profile;
   const c = me?.counts;
   const go = (id) => setParams(id === "feed" ? {} : { tab: id });
+  const sharedPost = params.get("post");
+
+  async function changeCover(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setCoverBusy(true);
+    try {
+      const { profile } = await api("/me", { method: "PUT", body: { coverPhoto: await resizeImage(file, 1600) } });
+      setMe((m) => ({ ...m, profile }));
+    } catch (err) {
+      setNotice(err.message);
+    } finally {
+      setCoverBusy(false);
+    }
+  }
+  const heroBg = p?.coverPhoto
+    ? `linear-gradient(90deg, rgba(5, 18, 15, 0.72), rgba(5, 18, 15, 0.25) 60%, rgba(5, 18, 15, 0.1)), center / cover no-repeat url("${p.coverPhoto}")`
+    : COVERS[p?.cover] || COVERS.forest;
 
   return (
     <CallProvider>
     <div className="hub-page">
-      <header className="hub-hero" style={{ background: COVERS[p?.cover] || COVERS.forest }}>
+      <header className={`hub-hero ${p?.coverPhoto ? "has-photo" : ""}`} style={{ background: heroBg }}>
+        {p && (
+          <>
+            <button type="button" className="hub-cover-btn" onClick={() => coverInput.current && coverInput.current.click()} disabled={coverBusy}>
+              {coverBusy ? <Loader2 size={15} className="hub-spin" /> : <Camera size={15} />} {p.coverPhoto ? "Change cover" : "Add cover photo"}
+            </button>
+            <input ref={coverInput} type="file" accept="image/*" hidden onChange={changeCover} />
+          </>
+        )}
         <div className="hub-hero-inner">
           <Avatar avatar={p?.avatar} name={p?.name} size={112} ring />
           <div className="hub-hero-text">
-            <h1>{p ? p.name : "Loading…"}</h1>
+            <h1>
+              {p ? p.name : "Loading…"}
+              {p?.country && (
+                <span className="hub-flag" title={countryName(p.country)} aria-label={countryName(p.country)}>
+                  {flagOf(p.country)}
+                </span>
+              )}
+            </h1>
             {p && (
               <p className="hub-hero-meta">
                 {p.profession && (
@@ -191,6 +229,7 @@ export default function Hub() {
           </div>
         )}
       </main>
+      {sharedPost && <PostModal id={sharedPost} me={p} onClose={() => setParams(tab === "feed" ? {} : { tab })} />}
     </div>
     </CallProvider>
   );

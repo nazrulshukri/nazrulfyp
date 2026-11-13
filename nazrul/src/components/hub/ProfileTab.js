@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
-import { Award, Briefcase, Camera, Check, GraduationCap, Heart, Loader2, Lock, Pencil, Phone, Plane, Plus, Trash2, UserRound } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
+import { Award, Briefcase, Camera, Check, Globe2, GraduationCap, Heart, ImagePlus, Loader2, Lock, Pencil, Phone, Plane, Plus, Trash2, UserRound } from "lucide-react";
 import Avatar from "./Avatar";
 import { CHARACTERS, COVERS, INTERESTS, MOODS, RELATIONSHIPS, api, resizeImage } from "../../lib/social";
 import { getCurrentUserEmail, getProfile, saveProfile } from "../../lib/bookingStorage";
+import { countryList, countryName, flagOf, guessCountry, readPhone } from "../../lib/countries";
 
 const CABINS = ["Economy", "Premium Economy", "Business", "First"];
 
@@ -52,7 +53,11 @@ const relLabel = (v) => (RELATIONSHIPS.find(([k]) => k === v) || ["", ""])[1];
 function View({ p, onEdit }) {
   const facts = [
     p.age && ["Age", p.age],
-    p.phone && ["Phone", p.phone],
+    p.country && ["From", `${flagOf(p.country)} ${countryName(p.country)}`],
+    p.phone && ["Phone", (() => {
+      const ph = readPhone(p.phone, p.country || "MY");
+      return `${ph.flag ? `${ph.flag} ` : ""}${ph.international || p.phone}`;
+    })()],
     p.relationship && ["Status", relLabel(p.relationship)],
     p.location && ["Lives in", p.location],
   ].filter(Boolean);
@@ -183,6 +188,8 @@ function Edit({ p, onCancel, onSaved }) {
     visibility: { phone: "friends", age: "friends", relationship: "friends", ...(p.visibility || {}) },
     avatar: p.avatar || { kind: "character", character: "traveller" },
     cover: p.cover || "forest",
+    coverPhoto: p.coverPhoto || "",
+    country: p.country || "",
     travel: { cabin: "Economy", notifications: true, ...travelOf(p) },
   }));
   const setTravel = (k, v) => setF((s) => ({ ...s, travel: { ...s.travel, [k]: v } }));
@@ -190,7 +197,21 @@ function Edit({ p, onCancel, onSaved }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const file = useRef(null);
+  const coverFile = useRef(null);
+  const countries = useMemo(countryList, []);
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
+  const phone = readPhone(f.phone, f.country || guessCountry());
+
+  async function pickCover(e) {
+    const file0 = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file0) return;
+    try {
+      set("coverPhoto", await resizeImage(file0, 1600));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
   async function pickPhoto(e) {
     const file0 = e.target.files && e.target.files[0];
@@ -210,7 +231,10 @@ function Edit({ p, onCancel, onSaved }) {
     setBusy(true);
     setError(null);
     try {
-      const { profile } = await api("/me", { method: "PUT", body: f });
+      const body = { ...f };
+      if (phone.valid) body.phone = phone.international;
+      if (!body.country && phone.country) body.country = phone.country;
+      const { profile } = await api("/me", { method: "PUT", body });
       mirrorTravel(profile);
       onSaved(profile);
     } catch (err) {
@@ -265,7 +289,24 @@ function Edit({ p, onCancel, onSaved }) {
             </div>
           </div>
         </div>
-        <p className="hub-label">Cover colour</p>
+        <p className="hub-label">Cover background</p>
+        <div className="hub-cover-pick">
+          <div className="hub-cover-preview" style={{ background: f.coverPhoto ? `center / cover no-repeat url("${f.coverPhoto}")` : COVERS[f.cover] || COVERS.forest }}>
+            <Avatar avatar={f.avatar} name={f.name} size={48} ring />
+          </div>
+          <div className="hub-inline">
+            <button type="button" className="hub-btn hub-btn-ghost" onClick={() => coverFile.current && coverFile.current.click()}>
+              <ImagePlus size={16} /> {f.coverPhoto ? "Change cover photo" : "Upload a cover photo"}
+            </button>
+            {f.coverPhoto && (
+              <button type="button" className="hub-btn hub-btn-ghost" onClick={() => set("coverPhoto", "")}>
+                <Trash2 size={15} /> Remove photo
+              </button>
+            )}
+            <input ref={coverFile} type="file" accept="image/*" hidden onChange={pickCover} />
+          </div>
+        </div>
+        <p className="hub-label">{f.coverPhoto ? "Colour (used when there's no photo)" : "Or pick a colour"}</p>
         <div className="hub-covers" role="radiogroup" aria-label="Cover colour">
           {Object.entries(COVERS).map(([k, bg]) => (
             <button key={k} type="button" role="radio" aria-checked={f.cover === k} aria-label={k} className={f.cover === k ? "is-on" : ""} style={{ background: bg }} onClick={() => set("cover", k)} />
@@ -301,7 +342,32 @@ function Edit({ p, onCancel, onSaved }) {
               </span>
               {visSelect("phone")}
             </span>
-            <input type="tel" value={f.phone} maxLength={30} placeholder="+60 12 345 6789" onChange={(e) => set("phone", e.target.value)} />
+            <span className="hub-phone">
+              <span className="hub-phone-flag" title={phone.country ? countryName(phone.country) : "Country"} aria-hidden="true">
+                {phone.flag || "🌐"}
+              </span>
+              <input type="tel" value={f.phone} maxLength={30} autoComplete="tel" placeholder="+60 12 345 6789" onChange={(e) => set("phone", e.target.value)} />
+            </span>
+            {f.phone && (
+              <small className={`hub-hint ${phone.valid ? "is-ok" : ""}`}>
+                {phone.valid ? `${countryName(phone.country)} · ${phone.international}` : phone.country ? `Looks like ${countryName(phone.country)}. Keep typing…` : "Start with + and the country code, e.g. +60"}
+              </small>
+            )}
+          </label>
+          <label>
+            <span className="hub-label-row">
+              <span>
+                <Globe2 size={13} /> Country
+              </span>
+            </span>
+            <select value={f.country} onChange={(e) => set("country", e.target.value)}>
+              <option value="">{phone.country ? `Use ${flagOf(phone.country)} ${countryName(phone.country)} (from your phone)` : "Choose your country"}</option>
+              {countries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.flag} {c.name}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             Lives in
