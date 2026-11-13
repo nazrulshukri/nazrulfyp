@@ -57,9 +57,12 @@ MessageSchema.index({ room: 1, createdAt: -1 });
 
 const MAX_MEMBERS = 10;
 const readOf = (r, email) => ((r.reads || []).find((x) => x.email === email) || {}).at || new Date(0);
-const markRead = (r, email, at = new Date()) => {
-  r.reads = [...(r.reads || []).filter((x) => x.email !== email), { email, at }];
-};
+// Records when someone last opened a room. A single atomic update, so two
+// people polling the same room at once can't clash (whole-document saves did).
+async function touchRead(roomId, email, at = new Date(), extra = {}) {
+  const hit = await Room.updateOne({ _id: roomId, "reads.email": email }, { $set: { "reads.$.at": at, ...extra } });
+  if (!hit.matchedCount) await Room.updateOne({ _id: roomId, "reads.email": { $ne: email } }, { $push: { reads: { email, at } }, $set: extra });
+}
 const RoomSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 60 },
@@ -436,8 +439,7 @@ router.get("/rooms/:id", async (req, res) => {
   const after = validDate(req.query.after);
   if (after) filter.createdAt = { $gt: after };
   const list = await Message.find(filter).sort({ createdAt: -1 }).limit(100).lean();
-  markRead(r, me);
-  await r.save();
+  await touchRead(r._id, me);
   const who = await people([...new Set([...r.members, ...list.map((m) => m.from)])]);
   res.json({ room: roomOut(r.toObject(), me, who), messages: list.reverse().map((m) => msgOut(m, me, who)) });
 });
@@ -480,9 +482,7 @@ router.post("/rooms/:id/messages", async (req, res) => {
   const r = await myRoom(req, res);
   if (!r) return;
   const m = await Message.create({ from: me, room: String(r._id), ...(await buildMessage(req.body || {}, me)) });
-  r.lastAt = m.createdAt;
-  markRead(r, me, m.createdAt);
-  await r.save();
+  await touchRead(r._id, me, m.createdAt, { lastAt: m.createdAt });
   const who = await people([me]);
   res.status(201).json({ message: msgOut(m.toObject(), me, who) });
 });
@@ -510,7 +510,10 @@ async function livekitProblem(lk, token) {
   const host = lk.url.replace(/^wss:/, "https:").replace(/^ws:/, "http:").replace(/\/$/, "");
   try {
     const r = await fetch(`${host}/rtc/v1/validate?access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(5000) });
-    if (r.ok || r.status === 404) return null;
+    // Only a 401 means the key or secret is wrong. Other answers (e.g. 400
+    // "join_request is required" from the v1 endpoint) mean the token was
+    // accepted and the browser can connect.
+    if (r.status !== 401) return null;
     const reason = (await r.text()).trim().slice(0, 120);
     if (/invalid API key/i.test(reason)) {
       return "LiveKit doesn't recognise LIVEKIT_API_KEY. Check it in Vercel matches a key in your LiveKit project (Settings → API Keys), then redeploy.";

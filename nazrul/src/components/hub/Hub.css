@@ -2367,7 +2367,7 @@ span.hub-chip {
   padding: 0;
   list-style: none;
 }
-.hc-pick button,
+.hc-pick > li > button,
 .hc-member {
   display: flex;
   align-items: center;
@@ -2385,14 +2385,14 @@ span.hub-chip {
 .hc-member {
   cursor: default;
 }
-.hc-pick button:hover {
+.hc-pick > li > button:hover {
   background: var(--bf26-soft) !important;
 }
-.hc-pick button:disabled {
+.hc-pick > li > button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
-.hc-pick button.is-on {
+.hc-pick > li > button.is-on {
   border-color: var(--bf26-forest);
   background: color-mix(in srgb, var(--bf26-lime) 22%, transparent) !important;
 }
@@ -2724,4 +2724,8 @@ span.hub-chip {
 .hub-thread-compose .hub-emoji {
   align-self: flex-end;
   margin-bottom: 2px;
+}
+
+.hc-member .hub-icon-btn {
+  flex: none;
 }
