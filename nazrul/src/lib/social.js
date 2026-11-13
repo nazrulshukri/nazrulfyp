@@ -228,3 +228,6 @@ export async function publishPost(text, media) {
 }
 
 export const compactCount = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M` : n >= 1e4 ? `${Math.round(n / 1e3)}K` : n.toLocaleString());
+
+/** Where pop-ups attach: inside the app root, so light/dark theme colours apply. */
+export const portalRoot = () => document.querySelector(".app") || document.body;

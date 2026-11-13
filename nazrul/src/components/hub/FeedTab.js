@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import Avatar from "./Avatar";
+import EmojiPicker, { insertEmoji } from "./EmojiPicker";
 import PostCard from "./PostCard";
 import { api, prepareMedia, publishPost } from "../../lib/social";
 
@@ -14,6 +15,7 @@ export default function FeedTab({ me, onChange }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const file = useRef(null);
+  const box = useRef(null);
 
   const load = useCallback(async () => {
     try {
@@ -62,6 +64,7 @@ export default function FeedTab({ me, onChange }) {
         <Avatar avatar={me?.avatar} name={me?.name} size={46} />
         <div className="hub-composer-body">
           <textarea
+            ref={box}
             value={text}
             maxLength={MAX}
             rows={media ? 2 : 3}
@@ -83,6 +86,7 @@ export default function FeedTab({ me, onChange }) {
             </div>
           )}
           <div className="hub-composer-bar">
+            <EmojiPicker up={false} onPick={(e) => insertEmoji(box.current, text, setText, e)} />
             <button type="button" className="hub-icon-btn" onClick={() => file.current && file.current.click()}>
               <ImagePlus size={18} /> Photo / video
             </button>

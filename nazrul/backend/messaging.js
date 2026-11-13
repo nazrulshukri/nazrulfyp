@@ -489,12 +489,41 @@ router.post("/rooms/:id/messages", async (req, res) => {
 
 /* ---------- Group meetings (LiveKit) ---------- */
 
+// Settings pasted with quotes or a "NAME=" prefix still work.
+const setting = (name) =>
+  String(process.env[name] || "")
+    .trim()
+    .replace(/^[A-Z_]+=/, "")
+    .replace(/^["']|["']$/g, "")
+    .trim();
 const livekit = () => {
-  const url = (process.env.LIVEKIT_URL || "").trim();
-  const key = (process.env.LIVEKIT_API_KEY || "").trim();
-  const sec = (process.env.LIVEKIT_API_SECRET || "").trim();
+  const url = setting("LIVEKIT_URL");
+  const key = setting("LIVEKIT_API_KEY");
+  const sec = setting("LIVEKIT_API_SECRET");
   return url && key && sec ? { url, key, sec } : null;
 };
+
+// Asks LiveKit whether it accepts a token before the browser tries, so a
+// wrong key or secret shows a clear message. Returns null when it's fine
+// (or LiveKit can't be reached, in which case the browser tries anyway).
+async function livekitProblem(lk, token) {
+  const host = lk.url.replace(/^wss:/, "https:").replace(/^ws:/, "http:").replace(/\/$/, "");
+  try {
+    const r = await fetch(`${host}/rtc/v1/validate?access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(5000) });
+    if (r.ok || r.status === 404) return null;
+    const reason = (await r.text()).trim().slice(0, 120);
+    if (/invalid API key/i.test(reason)) {
+      return "LiveKit doesn't recognise LIVEKIT_API_KEY. Check it in Vercel matches a key in your LiveKit project (Settings → API Keys), then redeploy.";
+    }
+    if (/invalid token/i.test(reason)) {
+      return "LiveKit says LIVEKIT_API_SECRET doesn't match LIVEKIT_API_KEY. Create a new key in LiveKit, copy both the key and its secret into Vercel, then redeploy.";
+    }
+    return `LiveKit refused the meeting (${reason || r.status}).`;
+  } catch (error) {
+    console.error("LiveKit check failed:", error.message);
+    return null;
+  }
+}
 
 router.post("/rooms/:id/meeting", async (req, res) => {
   const me = req.user.email;
@@ -521,6 +550,11 @@ router.post("/rooms/:id/meeting", async (req, res) => {
     lk.sec,
     { algorithm: "HS256" },
   );
+  const problem = await livekitProblem(lk, token);
+  if (problem) {
+    console.error("LiveKit setup problem:", problem);
+    return res.status(502).json({ message: problem });
+  }
   const active = r.meeting && r.meeting.startedAt && !r.meeting.endedAt && Date.now() - new Date(r.meeting.startedAt) < 4 * 3600 * 1000;
   if (!active) {
     r.meeting = { startedBy: me, startedAt: new Date() };
