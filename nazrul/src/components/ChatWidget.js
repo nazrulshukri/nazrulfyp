@@ -3,16 +3,19 @@ import { t } from "../lib/i18n";
 import { MessageCircle, X, Send, Sparkles, RotateCcw } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 
-const STORAGE_KEY = "bookingflexChat:v1";
+const STORAGE_KEY = "bookingflexChat:v2";
 const GREETING = {
   role: "assistant",
-  content: "Hi! I'm Flexi, your BookingFlex travel assistant. Ask me about flights, hotels, trains or planning your trip.",
+  content:
+    "Hi! I'm Flexi, BookingFlex's AI travel assistant. How can I help you today? Are you looking to book a flight, a hotel, a train, or a full trip (flight + hotel)?",
 };
 const SUGGESTIONS = [
-  "Plan a 5-day trip to Tokyo",
-  "Which trains go from KL to Penang?",
-  "How do I pay with FPX?",
-  "Best time to visit Bali?",
+  "✈️ Book a flight",
+  "🏨 Find a hotel",
+  "🚆 Train tickets",
+  "🧳 Flight + hotel",
+  "Compare Bali vs Phuket",
+  "Best trip under RM 2,000",
 ];
 
 const loadHistory = () => {
@@ -72,7 +75,7 @@ export default function ChatWidget() {
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, busy]);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -110,6 +113,7 @@ export default function ChatWidget() {
         (event) => {
           if (event.type === "text") update((m) => ({ ...m, content: m.content + event.text }));
           else if (event.type === "mode") setQuickMode(event.mode === "quick");
+          else if (event.type === "suggestions" && Array.isArray(event.items)) update((m) => ({ ...m, suggestions: event.items.slice(0, 6) }));
           else if (event.type === "refusal") update((m) => ({ ...m, content: event.text }));
           else if (event.type === "error") update((m) => ({ ...m, content: event.message, error: true }));
         },
@@ -168,15 +172,20 @@ export default function ChatWidget() {
                 )}
               </div>
             ))}
-            {messages.length === 1 && (
-              <div className="bf26-chat-suggest">
-                {SUGGESTIONS.map((s) => (
-                  <button key={s} type="button" onClick={() => send(t(s))}>
-                    {t(s)}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Tappable next questions: the starters, then whatever Flexi suggested last. */}
+            {!busy && (() => {
+              const last = messages[messages.length - 1];
+              const chips = messages.length === 1 ? SUGGESTIONS : last.role === "assistant" && !last.error ? last.suggestions : null;
+              return chips && chips.length ? (
+                <div className="bf26-chat-suggest">
+                  {chips.map((s) => (
+                    <button key={s} type="button" onClick={() => send(t(s))}>
+                      {t(s)}
+                    </button>
+                  ))}
+                </div>
+              ) : null;
+            })()}
           </div>
 
           <form
