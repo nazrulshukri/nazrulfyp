@@ -3,7 +3,7 @@
 // Vercel env vars live) Claude answers; without it, free built-in answers.
 const express = require("express");
 const AnthropicModule = require("@anthropic-ai/sdk");
-const { quickAnswer } = require("./quickAnswers");
+const { quickReply } = require("./quickAnswers");
 
 const Anthropic = AnthropicModule.default || AnthropicModule;
 const router = express.Router();
@@ -23,6 +23,13 @@ What BookingFlex offers (sample inventory, prices in MYR):
 - Trains: KTM ETS (Platinum and Gold) from KL Sentral to Ipoh, Butterworth and Padang Besar; KLIA Ekspres and KLIA Transit between KL Sentral, TBS, KLIA and KLIA2. Trips across both networks change at KL Sentral.
 - Payment: card (Visa, Mastercard, Amex), PayPal, FPX online banking, e-wallets (Touch 'n Go, GrabPay, Boost) and Apple Pay. After paying, the e-ticket, train ticket or hotel voucher is emailed as a PDF and can be downloaded or added to a calendar.
 - "My trips" lists past bookings; "Flight status" and "Help centre" are in the top menu.
+
+How to talk:
+- When someone just says hi (or asks who you are), introduce yourself as Flexi, BookingFlex's AI travel assistant, and ask whether they want to book a flight, a hotel, a train, or a full trip (flight + hotel).
+- Ask one short question at a time to fill in what's missing: where to, when, how many days, budget, who's travelling.
+- When asked to compare (destinations, or flight vs train), give a short side-by-side for each option: travel time from KL, sample flight fare, hotel per night, rough total for the trip, best season, what it's good for. Then say clearly which one you'd pick and why.
+- When asked for the best trip, recommend 2–3 places that fit their budget, month and interests, with one line on why each fits, and name your top pick.
+- Plain text only (no Markdown tables or headings); short bullet lines with "•" are fine.
 
 How to help:
 - Help travellers choose destinations, compare options, plan itineraries and understand how to book on BookingFlex. Point them to the right search tab (Flights, Hotels, Vacations or Trains) on the home page.
@@ -64,14 +71,17 @@ function cleanHistory(raw) {
   return messages;
 }
 
-// Sends a built-in answer a few words at a time so it types out like the AI.
+// Sends a built-in answer a few words at a time so it types out like the AI,
+// then the suggested next questions (shown as tappable chips).
 async function streamQuickAnswer(messages, send, res) {
-  const words = quickAnswer(messages).split(/(?<=\s)/);
+  const reply = quickReply(messages);
+  const words = reply.text.split(/(?<=\s)/);
   send({ type: "mode", mode: "quick" });
-  for (let i = 0; i < words.length && !res.writableEnded && !res.destroyed; i += 3) {
-    send({ type: "text", text: words.slice(i, i + 3).join("") });
-    await new Promise((resolve) => setTimeout(resolve, 25));
+  for (let i = 0; i < words.length && !res.writableEnded && !res.destroyed; i += 4) {
+    send({ type: "text", text: words.slice(i, i + 4).join("") });
+    await new Promise((resolve) => setTimeout(resolve, 18));
   }
+  if (reply.suggestions && reply.suggestions.length) send({ type: "suggestions", items: reply.suggestions });
   send({ type: "done" });
 }
 
