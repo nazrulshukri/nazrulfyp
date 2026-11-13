@@ -706,3 +706,73 @@
     right: 107px;
   }
 }
+
+/* Uploaded photos, videos and songs (PostMedia) */
+.nw-media-main {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #000;
+}
+.nw-post video.nw-media-main {
+  object-fit: contain;
+}
+.nw-media-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 4px;
+  padding: 4px;
+}
+.nw-media-strip a {
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.nw-post .nw-media-strip img {
+  aspect-ratio: 1;
+  width: 100%;
+  object-fit: cover;
+}
+.nw-song {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--bf26-soft);
+}
+.nw-song span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.nw-song audio {
+  width: 100%;
+  height: 36px;
+}
+.nw-voucher-wrap.has-media {
+  display: grid;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--bf26-card);
+  border: 1px solid var(--bf26-line);
+}
+.nw-voucher-wrap.has-media .nw-voucher {
+  border: 0;
+  border-radius: 0;
+}
+.nw-voucher-media {
+  display: grid;
+  gap: 8px;
+}
+.nw-voucher-media .nw-media-main {
+  aspect-ratio: 16 / 9;
+}
+.nw-voucher-media .nw-song {
+  margin: 0 12px;
+}
+.nw-voucher-media .nw-song:last-child {
+  margin-bottom: 12px;
+}

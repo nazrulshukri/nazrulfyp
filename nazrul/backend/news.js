@@ -7,10 +7,22 @@
 //   POST   /news/admin           create (admins)
 //   PUT    /news/admin/:id       update (admins)
 //   DELETE /news/admin/:id       delete (admins)
+//   POST   /news/admin/media     upload a photo, video or song, raw body up to 4 MB (admins)
+//   GET    /news/media/:id       a post's photo, video or song (public)
 const express = require("express");
 const mongoose = require("mongoose");
 const { requireAdmin } = require("./authz");
 const { feedArticles } = require("./newsFeeds");
+const { MAX_UPLOAD, saveBuffer, findFile, removeFile, sendFile } = require("./mediaStore");
+
+const MEDIA_TYPES = {
+  image: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+  video: ["video/mp4", "video/webm", "video/quicktime"],
+  audio: ["audio/mpeg", "audio/mp3", "audio/mp4", "audio/x-m4a", "audio/aac", "audio/wav", "audio/x-wav", "audio/ogg", "audio/webm"],
+};
+const ALL_TYPES = Object.values(MEDIA_TYPES).flat();
+const kindOf = (mime) => Object.keys(MEDIA_TYPES).find((k) => MEDIA_TYPES[k].includes(mime));
+const MAX_MEDIA = 8;
 
 const router = express.Router();
 for (const method of ["get", "post", "put", "delete"]) {
@@ -26,6 +38,16 @@ const NewsSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, maxlength: 120 },
     body: { type: String, trim: true, maxlength: 1500 },
     image: { type: String, trim: true, maxlength: 600 }, // https:// image URL
+    // Uploaded photos, videos and songs, in the order they're shown.
+    media: [
+      {
+        _id: false,
+        kind: { type: String, enum: ["image", "video", "audio"] },
+        id: String, // file in the "media" GridFS bucket
+        name: { type: String, maxlength: 120 },
+        poster: String, // video cover image, also an uploaded file
+      },
+    ],
     link: { type: String, trim: true, maxlength: 600 }, // optional "Learn more"
     code: { type: String, trim: true, uppercase: true, maxlength: 24 }, // vouchers
     discount: { type: String, trim: true, maxlength: 40 }, // e.g. "15% off" or "RM 50 off"
@@ -45,12 +67,41 @@ const safeUrl = (v) => {
   const s = clip(v, 600);
   return s && /^https:\/\//i.test(s) ? s : undefined;
 };
+// Relative to the API; the website prefixes its API address.
+const mediaPath = (m) => (m && m.id ? `/news/media/${m.id}` : undefined);
+
+/** Keeps only media that was uploaded here for news, with its real type. */
+async function cleanMedia(list) {
+  if (!Array.isArray(list)) return [];
+  const outList = [];
+  for (const m of list.slice(0, MAX_MEDIA)) {
+    const file = m && (await findFile(m.id));
+    if (!file || !file.metadata || file.metadata.scope !== "news") continue;
+    const kind = kindOf(file.metadata.contentType);
+    const poster = kind === "video" && m.poster ? await findFile(m.poster) : null;
+    outList.push({
+      kind,
+      id: String(file._id),
+      name: clip(m.name, 120) || undefined,
+      poster: poster && poster.metadata && poster.metadata.scope === "news" ? String(poster._id) : undefined,
+    });
+  }
+  return outList;
+}
+const fileIds = (media) => (media || []).flatMap((m) => [m.id, m.poster]).filter(Boolean);
+
 const out = (p) => ({
   id: String(p._id),
   kind: p.kind,
   title: p.title,
   body: p.body,
-  image: p.image,
+  // Cover: an image link, else the first uploaded photo, else a video cover.
+  image:
+    p.image ||
+    mediaPath((p.media || []).find((m) => m.kind === "image")) ||
+    mediaPath({ id: ((p.media || []).find((m) => m.kind === "video" && m.poster) || {}).poster }),
+  imageLink: p.image,
+  media: (p.media || []).map((m) => ({ kind: m.kind, id: m.id, name: m.name, url: mediaPath(m), poster: m.poster ? mediaPath({ id: m.poster }) : undefined, posterId: m.poster })),
   link: p.link,
   code: p.code,
   discount: p.discount,
@@ -69,7 +120,7 @@ function input(b) {
   }
   if ("title" in b) d.title = clip(b.title, 120);
   if ("body" in b) d.body = clip(b.body, 1500);
-  if ("image" in b) d.image = safeUrl(b.image);
+  if ("image" in b) d.image = safeUrl(b.image) || "";
   if ("link" in b) d.link = safeUrl(b.link);
   if ("code" in b) d.code = clip(b.code, 24) ? clip(b.code, 24).toUpperCase().replace(/[^A-Z0-9-]/g, "") : undefined;
   if ("discount" in b) d.discount = clip(b.discount, 40);
@@ -154,6 +205,15 @@ router.get("/live", async (req, res) => {
   }
 });
 
+// Photos, videos and songs used in news posts. Anyone can open them, like the
+// News page itself; files uploaded elsewhere (e.g. private posts) are not served.
+router.get("/media/:id", async (req, res, next) => {
+  if (!dbReady()) return res.status(503).end();
+  const file = await findFile(req.params.id);
+  if (!file || !file.metadata || file.metadata.scope !== "news") return res.status(404).end();
+  return sendFile(file, req, res, next, "public, max-age=604800, immutable");
+});
+
 /* ---------- Admins ---------- */
 
 router.get("/admin", requireAdmin, async (req, res) => {
@@ -162,8 +222,24 @@ router.get("/admin", requireAdmin, async (req, res) => {
   res.json({ posts: posts.map(out) });
 });
 
+router.post(
+  "/admin/media",
+  requireAdmin,
+  express.raw({ type: ALL_TYPES, limit: MAX_UPLOAD }),
+  async (req, res) => {
+    const mime = String(req.headers["content-type"] || "").split(";")[0].trim().toLowerCase();
+    if (!kindOf(mime) || !Buffer.isBuffer(req.body) || !req.body.length) {
+      return res.status(400).json({ message: "Upload a photo (JPG, PNG, WebP, GIF), a video (MP4, MOV, WebM) or a song (MP3, M4A, WAV, OGG)." });
+    }
+    const name = clip(decodeURIComponent(String(req.headers["x-file-name"] || "")), 120);
+    const id = await saveBuffer(req.body, { scope: "news", owner: req.user.email, contentType: mime, name });
+    res.status(201).json({ id, kind: kindOf(mime), url: mediaPath({ id }) });
+  },
+);
+
 router.post("/admin", requireAdmin, async (req, res) => {
   const d = input(req.body || {});
+  if ("media" in (req.body || {})) d.media = await cleanMedia(req.body.media);
   if (!d.kind || !d.title) return res.status(400).json({ message: "Add a type and a title." });
   if (d.kind === "voucher" && !d.code) return res.status(400).json({ message: "Vouchers need a code, e.g. FLEX15." });
   const p = await NewsPost.create({ ...d, author: req.user.email });
@@ -172,20 +248,30 @@ router.post("/admin", requireAdmin, async (req, res) => {
 
 router.put("/admin/:id", requireAdmin, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Post not found." });
-  const p = await NewsPost.findByIdAndUpdate(req.params.id, { $set: input(req.body || {}) }, { new: true, runValidators: true }).lean();
-  if (!p) return res.status(404).json({ message: "Post not found." });
+  const d = input(req.body || {});
+  if ("media" in (req.body || {})) d.media = await cleanMedia(req.body.media);
+  const before = await NewsPost.findByIdAndUpdate(req.params.id, { $set: d }, { runValidators: true }).lean();
+  if (!before) return res.status(404).json({ message: "Post not found." });
+  // Files taken off the post are deleted.
+  if (d.media) {
+    const keep = new Set(fileIds(d.media));
+    await Promise.all(fileIds(before.media).filter((id) => !keep.has(id)).map(removeFile));
+  }
+  const p = await NewsPost.findById(req.params.id).lean();
   res.json({ post: out(p) });
 });
 
 router.delete("/admin/:id", requireAdmin, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: "Post not found." });
-  const { deletedCount } = await NewsPost.deleteOne({ _id: req.params.id });
-  res.json({ removed: deletedCount > 0 });
+  const p = await NewsPost.findByIdAndDelete(req.params.id).lean();
+  if (p) await Promise.all(fileIds(p.media).map(removeFile));
+  res.json({ removed: Boolean(p) });
 });
 
 // eslint-disable-next-line no-unused-vars
 router.use((error, req, res, next) => {
   if (error.status === 400) return res.status(400).json({ message: error.message });
+  if (error.type === "entity.too.large") return res.status(413).json({ message: "That file is too large. Each file can be up to 4 MB." });
   console.error("News route error:", error);
   if (!res.headersSent) res.status(500).json({ message: "Something went wrong. Please try again." });
 });
