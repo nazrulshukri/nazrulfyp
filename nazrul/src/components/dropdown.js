@@ -8,7 +8,7 @@ const DropdownMenu = ({ userEmail }) => {
     <div className="dropdown">
       <button className="dropbtn">Hello, {userEmail || 'User'}</button>
       <div className="dropdown-content">
-        <Link to="/profile">My Profile</Link>
+        <Link to="/dashboard?tab=profile">My Profile</Link>
         <Link to="/change-password">Change Password</Link>
         <Link to="/contact">Contact Us</Link>
         <Link to="/server-qr">Server QR</Link>

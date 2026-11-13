@@ -156,8 +156,7 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="account-actions">
-            <Link className="account-button" to="/profile"><TicketCheck size={17} /> Profile</Link>
-            <Link className="account-button primary" to="/profile-maintenance"><Settings size={17} /> Maintain Profile</Link>
+            <Link className="account-button primary" to="/dashboard?tab=profile"><Settings size={17} /> Edit profile & travel details</Link>
           </div>
         </div>
 

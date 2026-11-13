@@ -1,7 +1,41 @@
 import React, { useRef, useState } from "react";
-import { Award, Briefcase, Camera, Check, GraduationCap, Heart, Loader2, Pencil, Phone, Plus, Trash2, UserRound } from "lucide-react";
+import { Award, Briefcase, Camera, Check, GraduationCap, Heart, Loader2, Lock, Pencil, Phone, Plane, Plus, Trash2, UserRound } from "lucide-react";
 import Avatar from "./Avatar";
 import { CHARACTERS, COVERS, INTERESTS, MOODS, RELATIONSHIPS, api, resizeImage } from "../../lib/social";
+import { getCurrentUserEmail, getProfile, saveProfile } from "../../lib/bookingStorage";
+
+const CABINS = ["Economy", "Premium Economy", "Business", "First"];
+
+// Travel details used to live only in this browser (the old Profile
+// Maintenance page). Start from those if the account has none saved yet.
+function travelOf(p) {
+  const t = p.travel || {};
+  if (t.legalName || t.nationality || t.passport || t.preferredAirport) return t;
+  const old = getProfile(getCurrentUserEmail());
+  return {
+    legalName: old.fullName || "",
+    nationality: old.nationality || "",
+    passport: old.passportNumber || "",
+    preferredAirport: old.preferredAirport || "",
+    cabin: old.cabinPreference || t.cabin || "Economy",
+    notifications: old.notifications !== false,
+  };
+}
+
+// Booking pages and the Bookings tab still read the copy in this browser.
+function mirrorTravel(p) {
+  const t = p.travel || {};
+  saveProfile(getCurrentUserEmail(), {
+    fullName: t.legalName || p.name || "",
+    phone: p.phone || "",
+    nationality: t.nationality || "",
+    passportNumber: t.passport || "",
+    preferredAirport: t.preferredAirport || "",
+    cabinPreference: t.cabin || "Economy",
+    notifications: t.notifications !== false,
+  });
+}
+const maskPassport = (v) => (v ? `${"•".repeat(Math.max(0, v.length - 4))}${v.slice(-4)}` : "");
 
 const VIS = [
   ["public", "Everyone"],
@@ -68,6 +102,8 @@ function View({ p, onEdit }) {
         )}
       </section>
 
+      <TravelCard t={travelOf(p)} onEdit={onEdit} />
+
       {Object.entries(LISTS).map(([key, { title, icon: Icon, fields }]) => (
         <section className="hub-card" key={key}>
           <div className="hub-card-head">
@@ -93,6 +129,43 @@ function View({ p, onEdit }) {
   );
 }
 
+function TravelCard({ t, onEdit }) {
+  const rows = [
+    ["Name on passport", t.legalName],
+    ["Nationality", t.nationality],
+    ["Passport", maskPassport(t.passport)],
+    ["Preferred airport", t.preferredAirport],
+    ["Cabin", t.cabin || "Economy"],
+    ["Trip reminders", t.notifications === false ? "Off" : "On"],
+  ];
+  const missing = !t.legalName || !t.passport;
+  return (
+    <section className="hub-card">
+      <div className="hub-card-head">
+        <h2>
+          <Plane size={18} /> Travel details
+        </h2>
+        <small className="hub-muted hub-private">
+          <Lock size={13} /> Only you
+        </small>
+      </div>
+      <dl className="hub-facts">
+        {rows.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v || <span className="hub-muted">Not added</span>}</dd>
+          </div>
+        ))}
+      </dl>
+      {missing && (
+        <button type="button" className="hub-btn hub-btn-ghost" onClick={onEdit}>
+          <Pencil size={15} /> Add passport details for faster booking
+        </button>
+      )}
+    </section>
+  );
+}
+
 function Edit({ p, onCancel, onSaved }) {
   const [f, setF] = useState(() => ({
     name: p.name || "",
@@ -110,7 +183,9 @@ function Edit({ p, onCancel, onSaved }) {
     visibility: { phone: "friends", age: "friends", relationship: "friends", ...(p.visibility || {}) },
     avatar: p.avatar || { kind: "character", character: "traveller" },
     cover: p.cover || "forest",
+    travel: { cabin: "Economy", notifications: true, ...travelOf(p) },
   }));
+  const setTravel = (k, v) => setF((s) => ({ ...s, travel: { ...s.travel, [k]: v } }));
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -136,6 +211,7 @@ function Edit({ p, onCancel, onSaved }) {
     setError(null);
     try {
       const { profile } = await api("/me", { method: "PUT", body: f });
+      mirrorTravel(profile);
       onSaved(profile);
     } catch (err) {
       setError(err.message);
@@ -318,6 +394,51 @@ function Edit({ p, onCancel, onSaved }) {
           ))}
         </section>
       ))}
+
+      <section className="hub-card">
+        <div className="hub-card-head">
+          <h2>
+            <Plane size={18} /> Travel details
+          </h2>
+          <small className="hub-muted hub-private">
+            <Lock size={13} /> Only you can see these
+          </small>
+        </div>
+        <p className="hub-muted">Used to fill in flight, hotel and train bookings for you.</p>
+        <div className="hub-grid">
+          <label>
+            Name as on passport
+            <input value={f.travel.legalName || ""} maxLength={100} autoComplete="name" placeholder="e.g. Muhammad Nazrul bin Ahmad" onChange={(e) => setTravel("legalName", e.target.value)} />
+          </label>
+          <label>
+            Nationality
+            <input value={f.travel.nationality || ""} maxLength={60} autoComplete="country-name" placeholder="e.g. Malaysia" onChange={(e) => setTravel("nationality", e.target.value)} />
+          </label>
+          <label>
+            Passport number
+            <input value={f.travel.passport || ""} maxLength={20} autoComplete="off" spellCheck={false} placeholder="e.g. A12345678" onChange={(e) => setTravel("passport", e.target.value.toUpperCase())} />
+          </label>
+          <label>
+            Preferred airport
+            <input value={f.travel.preferredAirport || ""} maxLength={100} placeholder="e.g. Kuala Lumpur International (KUL)" onChange={(e) => setTravel("preferredAirport", e.target.value)} />
+          </label>
+          <label>
+            Cabin
+            <select value={f.travel.cabin || "Economy"} onChange={(e) => setTravel("cabin", e.target.value)}>
+              {CABINS.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label className="hub-check hub-span-2">
+            <input type="checkbox" checked={f.travel.notifications !== false} onChange={(e) => setTravel("notifications", e.target.checked)} />
+            <span>
+              <strong>Trip reminders</strong>
+              <small>Remind me before upcoming departures.</small>
+            </span>
+          </label>
+        </div>
+      </section>
 
       {error && <p className="hub-error">{error}</p>}
       <div className="hub-save-bar">

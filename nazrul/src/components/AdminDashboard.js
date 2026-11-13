@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { API_BASE } from "../lib/apiConfig";
 import { formatPrice } from "../lib/currency";
-import { authHeaders, useAdminRole } from "../lib/adminAccess";
+import { authHeaders, clearAdminRoleCache, useAdminRole } from "../lib/adminAccess";
 import AdminDatabase from "./AdminDatabase";
 import AdminPrices from "./AdminPrices";
 import AdminStructure from "./AdminStructure";
@@ -54,7 +54,8 @@ function useSummary(days) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) return setState({ loading: false, error: body.message || "Could not load the dashboard.", status: res.status, data: null });
+      if (!res.ok)
+        return setState({ loading: false, error: body.message || "Could not load the dashboard.", hint: body.hint, status: res.status, data: null });
       setState({ loading: false, error: null, status: 200, data: body });
     } catch {
       setState({ loading: false, error: "Can't reach the server. Is the backend running?", status: 0, data: null });
@@ -285,7 +286,7 @@ function TeamAccess() {
 
 export default function AdminDashboard() {
   const [days, setDays] = useState(30);
-  const [{ loading, error, status, data }, reload] = useSummary(days);
+  const [{ loading, error, hint, status, data }, reload] = useSummary(days);
   const role = useAdminRole("dashboard");
   const [tab, setTab] = useState("overview");
   const email = useMemo(() => {
@@ -313,6 +314,7 @@ export default function AdminDashboard() {
       <div className="ad-root">
         <Gate icon={ShieldAlert} title={status === 403 ? "Admins only" : "Admin dashboard"}>
           <p>{error}</p>
+          {hint && <p className="ad-muted">{hint}</p>}
           {status === 403 && email && (
             <p className="ad-muted">
               You're signed in as <b>{email}</b>. To make it the owner account, add it to <code>SUPER_ADMIN_EMAILS</code> in the server
@@ -323,6 +325,18 @@ export default function AdminDashboard() {
             <Link className="ad-btn" to="/signin">
               Sign in again
             </Link>
+          )}
+          {status === 403 && (
+            <button
+              type="button"
+              className="ad-btn"
+              onClick={() => {
+                clearAdminRoleCache();
+                reload();
+              }}
+            >
+              Check again
+            </button>
           )}
         </Gate>
       </div>

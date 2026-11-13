@@ -112,3 +112,119 @@ export function timeAgo(date) {
   if (d < 7) return `${d} d ago`;
   return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
+
+/* ---------- Photos and videos ---------- */
+
+export const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
+const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
+/** Full URL for a video link the server returned (it's relative to the API). */
+export const mediaUrl = (path) => (path && path.startsWith("/") ? `${API_BASE}${path}` : path);
+
+const drawCover = (source, w, h, width = 360, ratio = 4 / 3) => {
+  // Centre-crops to a 3:4 portrait tile, like a profile grid.
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = Math.round(width * ratio);
+  const target = canvas.width / canvas.height;
+  let sw = w;
+  let sh = h;
+  if (w / h > target) sw = h * target;
+  else sh = w / target;
+  canvas.getContext("2d").drawImage(source, (w - sw) / 2, (h - sh) / 2, sw, sh, 0, 0, canvas.width, canvas.height);
+  // The server accepts previews up to ~120 KB.
+  for (const q of [0.74, 0.62, 0.5, 0.4]) {
+    const data = canvas.toDataURL("image/jpeg", q);
+    if (data.length <= 110 * 1024) return data;
+  }
+  return null;
+};
+
+/** Small grid preview of a photo (data URL in, data URL out). */
+export function thumbFromImage(dataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(drawCover(img, img.width, img.height));
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+/** First frame of a video as a JPEG, used as its cover. */
+export function posterFromVideo(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement("video");
+    let done = false;
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      URL.revokeObjectURL(url);
+      resolve(value);
+    };
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = "auto";
+    v.onloadeddata = () => {
+      v.currentTime = Math.min(0.5, (v.duration || 1) / 2);
+    };
+    v.onseeked = () => {
+      try {
+        finish({
+          poster: drawCover(v, v.videoWidth, v.videoHeight, 480, v.videoHeight / v.videoWidth),
+          thumb: drawCover(v, v.videoWidth, v.videoHeight),
+          duration: v.duration,
+        });
+      } catch {
+        finish({});
+      }
+    };
+    v.onerror = () => finish({});
+    setTimeout(() => finish({}), 8000);
+    v.src = url;
+  });
+}
+
+/** Turns a picked file into what a new post needs. */
+export async function prepareMedia(file) {
+  if (!file) throw new Error("Choose a photo or video.");
+  if (/^image\//.test(file.type)) {
+    const image = await resizeImage(file);
+    return { kind: "photo", image, thumb: await thumbFromImage(image), preview: image };
+  }
+  if (/^video\//.test(file.type) || /\.(mp4|mov|webm)$/i.test(file.name)) {
+    const type = VIDEO_TYPES.includes(file.type) ? file.type : /\.mov$/i.test(file.name) ? "video/quicktime" : file.type || "video/mp4";
+    if (!VIDEO_TYPES.includes(type)) throw new Error("Use an MP4, MOV or WebM video.");
+    if (file.size > MAX_VIDEO_BYTES) {
+      throw new Error(`That video is ${(file.size / 1048576).toFixed(1)} MB. Videos can be up to 4 MB (about 15–30 seconds).`);
+    }
+    const { poster, thumb } = await posterFromVideo(file);
+    return { kind: "video", file, type, poster, thumb, preview: URL.createObjectURL(file) };
+  }
+  throw new Error("Choose a photo or a video.");
+}
+
+/** Uploads prepared media (if any) and creates the post. */
+export async function publishPost(text, media) {
+  const body = { text };
+  if (media && media.kind === "photo") Object.assign(body, { image: media.image, thumb: media.thumb });
+  if (media && media.kind === "video") {
+    let token = null;
+    try {
+      token = localStorage.getItem("token");
+    } catch {
+      /* ignore */
+    }
+    const res = await fetch(`${API_BASE}/social/media`, {
+      method: "POST",
+      headers: { "Content-Type": media.type, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: media.file,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(res.status === 413 ? "That video is too large. Videos can be up to 4 MB." : data.message || "The video didn't upload.");
+    Object.assign(body, { videoId: data.id, poster: media.poster, thumb: media.thumb });
+  }
+  return (await api("/posts", { method: "POST", body })).post;
+}
+
+export const compactCount = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M` : n >= 1e4 ? `${Math.round(n / 1e3)}K` : n.toLocaleString());

@@ -63,7 +63,7 @@ export default function Header() {
         </button>
         {email ? (
           <>
-            <Link className="bf-account" to="/profile">
+            <Link className="bf-account" to="/dashboard?tab=profile">
               {(localStorage.getItem("userName") || email.split("@")[0]).split(" ")[0]}
             </Link>
             <button className="bf-signin" onClick={logout}>

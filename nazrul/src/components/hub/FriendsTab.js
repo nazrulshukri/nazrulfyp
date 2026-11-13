@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Check, Copy, Link2, Loader2, Mail, UserMinus, UserPlus, X } from "lucide-react";
 import Avatar from "./Avatar";
+import GalleryTab from "./GalleryTab";
 import { RELATIONSHIPS, api } from "../../lib/social";
 
 const relLabel = (v) => (RELATIONSHIPS.find(([k]) => k === v) || ["", ""])[1];
@@ -77,6 +78,7 @@ function FriendProfile({ email, onClose }) {
                 {p.experience[0].company ? ` at ${p.experience[0].company}` : ""}
               </p>
             )}
+            {p.email && <GalleryTab email={p.email} />}
           </>
         )}
       </div>

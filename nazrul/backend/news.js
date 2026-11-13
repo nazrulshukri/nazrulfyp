@@ -1,8 +1,8 @@
 // News & deals: BookingFlex's own posts and vouchers (written by admins and
-// stored in MongoDB), plus live travel headlines from GNews when
-// GNEWS_API_KEY is set (free key at gnews.io; results cached for 30 minutes).
+// stored in MongoDB), plus live travel headlines from public RSS feeds
+// (newsFeeds.js) and GNews when GNEWS_API_KEY is set. Cached for 30 minutes.
 //   GET    /news                 published posts and active vouchers (public)
-//   GET    /news/live?topic=...  travel headlines: flights | hotels | trains | travel (public)
+//   GET    /news/live?topic=...  travel headlines: all | flights | hotels | trains | travel (public)
 //   GET    /news/admin           every post, drafts included (admins)
 //   POST   /news/admin           create (admins)
 //   PUT    /news/admin/:id       update (admins)
@@ -10,6 +10,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { requireAdmin } = require("./authz");
+const { feedArticles } = require("./newsFeeds");
 
 const router = express.Router();
 for (const method of ["get", "post", "put", "delete"]) {
@@ -100,24 +101,22 @@ const TOPICS = {
   hotels: "(hotel OR resort OR hospitality) AND (Malaysia OR travel)",
   trains: '(KTM OR "ETS train" OR "KLIA Ekspres" OR railway) AND Malaysia',
   travel: '(travel OR tourism OR "visit Malaysia") AND (Malaysia OR Asia)',
+  all: '(travel OR tourism OR airline OR hotel) AND (Malaysia OR Asia)',
 };
 const cache = new Map();
 const CACHE_MS = 30 * 60 * 1000;
 
-router.get("/live", async (req, res) => {
-  const topic = TOPICS[req.query.topic] ? req.query.topic : "travel";
+async function gnewsArticles(topic) {
   const key = process.env.GNEWS_API_KEY && process.env.GNEWS_API_KEY.trim();
-  if (!key) return res.json({ enabled: false, articles: [] });
-  const hit = cache.get(topic);
-  if (hit && Date.now() - hit.at < CACHE_MS) return res.json({ enabled: true, articles: hit.articles, cached: true });
+  if (!key) return [];
+  const url = `https://gnews.io/api/v4/search?${new URLSearchParams({ q: TOPICS[topic], lang: "en", max: "10", sortby: "publishedAt", apikey: key })}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
   try {
-    const url = `https://gnews.io/api/v4/search?${new URLSearchParams({ q: TOPICS[topic], lang: "en", max: "10", sortby: "publishedAt", apikey: key })}`;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
-    const r = await fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    const r = await fetch(url, { signal: controller.signal });
     if (!r.ok) throw new Error(`GNews returned ${r.status}`);
     const data = await r.json();
-    const articles = (data.articles || []).map((a) => ({
+    return (data.articles || []).map((a) => ({
       title: a.title,
       description: a.description,
       url: a.url,
@@ -125,7 +124,27 @@ router.get("/live", async (req, res) => {
       source: a.source && a.source.name,
       publishedAt: a.publishedAt,
     }));
+  } catch (error) {
+    console.error("GNews error:", error.message);
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+router.get("/live", async (req, res) => {
+  const topic = TOPICS[req.query.topic] ? req.query.topic : "travel";
+  const hit = cache.get(topic);
+  if (hit && Date.now() - hit.at < CACHE_MS) return res.json({ enabled: true, articles: hit.articles, cached: true });
+  try {
+    const [feeds, gnews] = await Promise.all([feedArticles(topic), gnewsArticles(topic)]);
+    const seen = new Set();
+    const articles = [...gnews, ...feeds]
+      .filter((a) => a.url && !seen.has(a.url) && seen.add(a.url))
+      .slice(0, 30);
+    if (!articles.length) throw new Error("No headlines from any source");
     cache.set(topic, { at: Date.now(), articles });
+    res.set("Cache-Control", "public, s-maxage=900, stale-while-revalidate=1800");
     res.json({ enabled: true, articles });
   } catch (error) {
     console.error("Live news error:", error.message);

@@ -21,7 +21,7 @@ export default function Contact() {
           <span>View saved trips and booking details.</span>
           <ArrowUpRight />
         </Link>
-        <Link to="/profile">
+        <Link to="/dashboard?tab=profile">
           <UserRound />
           <strong>Your account</strong>
           <span>Keep your traveller information up to date.</span>
